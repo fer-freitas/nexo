@@ -249,6 +249,7 @@ class StoryRunner:
                 for t in tasks:  # tarefa de teste do plano foi feita pelo QA (test-first)
                     if is_test_task(t):
                         st["tasks"][t.id] = "Concluido"
+                        self.store.set_item_state(t.id, "Concluido")  # sem isto, `status` mostrava Pronto para sempre
                 dev_tasks = [t for t in tasks if not is_test_task(t)]
                 outcome = story_tasks.run_tasks(self, story_id, run_id, st, dev_tasks, worktree)
             elif phase == "quality":

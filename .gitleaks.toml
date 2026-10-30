@@ -1,0 +1,7 @@
+# O teste de redação precisa de um valor com formato de chave da AWS. É uma sequência falsa, não uma credencial.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Dados falsos do teste de redação"
+paths = ['''tests/unit/test_redaction\.py''']
