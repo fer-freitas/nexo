@@ -2,7 +2,7 @@
 
 CLI para PM, QA, tech lead e dev que conduz o trabalho do pedido até o PR. As skills e os fluxos vêm de packs de mercado, e quem decide o que passa são portões determinísticos.
 
-**Estado:** em construção, antes da primeira liberação. O que já foi provado e o que falta está em [docs/estado.md](docs/estado.md). A especificação completa está em [SPEC.md](SPEC.md).
+**Estado:** em construção, antes da primeira liberação. O que já foi provado e o que falta está em [docs/estado.md](docs/estado.md). Novos itens entram em [docs/backlog.md](docs/backlog.md). A especificação completa está em [SPEC.md](SPEC.md).
 
 ## Começar
 
