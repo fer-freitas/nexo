@@ -56,7 +56,6 @@ class StoryRunner:
         loop = self.cfg.get("bug_loop") or {}
         self.max_attempts = int(loop.get("max_attempts", 3))
         self.max_spec_returns = int(loop.get("max_spec_returns", 2))
-        from nexo.kernel import services
 
         Sync = services.get("demands.tracker", "Sync")
 
@@ -127,6 +126,12 @@ class StoryRunner:
 
         killswitch.check(self.ctx)
         flags.require(self.ctx, "run_story")
+        missing = services.get("quality.runner", "missing_required_tools")(self._stack(), self.root, self._brain())
+        if missing:
+            raise NexoError(
+                f"falta instalar antes de executar: {', '.join(missing)}. "
+                "Sem isso, o portão não consegue validar a entrega. Nada foi gasto."
+            )
         self.sync.reconcile()
         folder, spec, _, tasks = self._load(story_id)
         story = next(s for s in specs.load_backlog(folder).stories if s.id == story_id)  # type: ignore[union-attr]
@@ -138,7 +143,6 @@ class StoryRunner:
             return self.resume(story_id)
         if state != "Pronto":
             raise NexoError(f"história {story_id} está em {state}; esperado Pronto")
-        from nexo.kernel import services
 
         ready = services.load("planning.ready")
 
@@ -280,7 +284,6 @@ class StoryRunner:
         return self._report(story_id, run_id, reason)
 
     def _notify(self, story_id: str, title: str, message: str, link_override: str | None = None) -> None:
-        from nexo.kernel import services
 
         notify = services.get("notify.main", "notify")
 
@@ -309,7 +312,6 @@ class StoryRunner:
         return self.root / ".nexo" / "runs" / run_id / name
 
     def _history(self) -> float:
-        from nexo.kernel import services
 
         history_success = services.get("finops.metrics", "history_success")
 

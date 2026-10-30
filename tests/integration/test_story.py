@@ -304,7 +304,7 @@ def test_reviewer_reject_goes_to_bug(planned, nexo: Runner, scenario) -> None:  
     assert "log com CPF" in bug and "reviewer reprovou" in bug
 
 
-def test_missing_tool_escalates_as_environment(planned, nexo: Runner, scenario, fast_recipe: Path) -> None:  # type: ignore[no-untyped-def]
+def test_missing_tool_is_reported_before_spending(planned, nexo: Runner, scenario, fast_recipe: Path) -> None:  # type: ignore[no-untyped-def]
     recipe = json.loads(json.dumps(__import__("tests.conftest", fromlist=["x"]).FAST_PYTHON_RECIPE))
     recipe["stages"].append(
         {
@@ -318,8 +318,9 @@ def test_missing_tool_escalates_as_environment(planned, nexo: Runner, scenario, 
     )
     dump_yaml(fast_recipe / "recipes" / "python.yaml", recipe)
     planned(scenario, [QA, impl("T-1-1"), impl("T-1-2", path="README.md")])
-    code, rep = run_json(nexo, "run", "story", "US-1-1")
-    assert rep["state"] == "Escalado" and "ambiente" in rep["reason"] and "ferramenta-inexistente" in rep["reason"]
+    code, out, err = nexo("run", "story", "US-1-1")
+    assert code != 0 and "ferramenta-inexistente" in err and "Nada foi gasto" in err, err + out
+    assert json.loads(nexo("--json", "status", "US-1-1")[1])["state"] == "Pronto", "avisa antes de gastar"
 
 
 def test_qa_without_ac_tags_retries_then_escalates(planned, nexo: Runner, scenario) -> None:  # type: ignore[no-untyped-def]

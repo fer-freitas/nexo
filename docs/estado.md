@@ -13,6 +13,7 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | Camadas: módulo não importa módulo | Zero dependências diretas | import-linter e `tests/architecture` |
 | Kit de contrato de módulo | Todos os módulos passam | `tests/architecture/test_module_contract.py` |
 | Portabilidade que dá para provar fora do Windows | Passa | `tests/architecture/test_portability.py` |
+| Claude Code real, em projeto descartável | Parcial, até o portão de qualidade | [Evidência](../evidence/p0/2026-10-30-claude-selftest.md) |
 | Binário `onedir` | Gerado e executado em macOS | `scripts/build_binary.py`, com `version`, `doctor`, `module list` e `pm idea --help` |
 
 ## O que não foi verificado
@@ -20,7 +21,8 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | Item | Situação | Quem destrava |
 |---|---|---|
 | **Windows** | Nunca rodou: agendador, Credential Manager, binário, proxy e TLS, caminhos longos | Máquina da empresa (Q-02) |
-| **Claude, Devin e Copilot em história real** | Só simulador nesta construção. O Copilot não está instalado nesta máquina | Rodar `nexo selftest`, que consome créditos |
+| **Claude em história real** | Parcial: planejamento, QA, implementação e bloqueio de política passaram. Faltam segredos, portão, revisão e PR, porque o gitleaks não está instalado aqui. [Evidência](../evidence/p0/2026-10-30-claude-selftest.md) | Instalar o gitleaks e rodar `nexo selftest --agent claude` |
+| **Devin e Copilot em história real** | Não rodaram. O Devin está instalado aqui, o Copilot não | `nexo selftest`, que consome créditos |
 | **Guarda do Devin** | O arquivo `.devin/hooks.v1.json` é gerado, mas o bloqueio não foi provado. O formato da resposta do hook também não | Prova 9a |
 | **Guarda do Copilot** | Sem hook, roda só com `--deny-tool` | Prova 9a |
 | **GitHub Issues real** | Só simulador | Prova M5 |

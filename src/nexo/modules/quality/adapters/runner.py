@@ -35,6 +35,24 @@ def _fmt(value: str, subs: dict[str, str]) -> str:
     return value
 
 
+def missing_required_tools(stack: str, workdir: Path, brain: Path | None = None) -> list[str]:
+    """Ferramentas sem as quais o portão não vai conseguir validar. Quem pergunta antes não gasta à toa."""
+    missing: list[str] = []
+    for stage in load_recipe(stack, brain).get("stages") or []:
+        tool = str(stage.get("tool") or "")
+        if (
+            tool
+            and "{" not in tool
+            and stage.get("required", True)
+            and not stage.get("provision")
+            and applies(stage, workdir) is None
+            and _tool_missing(tool, workdir)
+            and tool not in missing
+        ):
+            missing.append(tool)
+    return missing
+
+
 def applies(stage: dict[str, Any], workdir: Path) -> str | None:
     """Motivo para pular a etapa, ou None se ela se aplica."""
     params = stage.get("_params") or {}

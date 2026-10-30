@@ -197,7 +197,7 @@ class SelfTest:
         if state.auth.authenticated is False:  # None = a ferramenta não deixa conferir (ex.: Devin): segue
             raise StepFailed(f"{self.tool} instalado mas sem login: rode `nexo login {self.tool}`")
         login = "com login" if state.auth.authenticated else "login não verificável antes de usar"
-        missing = [t for t in ("git",) if shutil.which(t) is None]
+        missing = [t for t in ("git", "gitleaks") if shutil.which(t) is None]  # gitleaks: etapa obrigatória do portão
         if missing:
             raise StepFailed(f"falta instalar: {', '.join(missing)}")
         if self.github:
@@ -228,7 +228,9 @@ class SelfTest:
         org = home / "brain" / "org" / "config.yaml"
         org.parent.mkdir(parents=True, exist_ok=True)
         # responsável único (decisão da org): quem pede também aprova o portão
-        org.write_text("gates:\n  allow_self_approval: true\n", encoding="utf-8")
+        # sem GitHub, a identidade é a do sistema: o autoteste não pode exigir um login que não vai usar
+        identity = "" if self.github else "identity:\n  mode: os\n"
+        org.write_text(f"gates:\n  allow_self_approval: true\n{identity}", encoding="utf-8")
         self.git("init", "-q", "-b", "main")
         self.git("add", "-A")
         self.git("commit", "-q", "-m", "projeto de exemplo")

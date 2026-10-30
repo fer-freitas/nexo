@@ -33,7 +33,7 @@ TOOLS: tuple[tuple[str, str, bool, str], ...] = (
     ("copilot", "agente", False, "GitHub Copilot CLI"),
     ("devin", "agente", False, "Devin CLI"),
     ("ffmpeg", "planejamento", False, "necessário para vídeo e áudio"),
-    ("gitleaks", "segurança", False, "varredura de segredos"),
+    ("gitleaks", "segurança", False, "varredura de segredos. Sem ele, `dev run` não começa"),
     ("dotnet", "stack", False, "receita .NET"),
     ("node", "stack", False, "receitas React e Angular"),
     ("java", "stack", False, "receita Java (JDK 21)"),

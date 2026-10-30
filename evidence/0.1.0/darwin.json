@@ -26,17 +26,17 @@
     {
       "step": "arquitetura",
       "ok": true,
-      "seconds": 8.4
+      "seconds": 8.2
     },
     {
       "step": "tipos",
       "ok": true,
-      "seconds": 0.4
+      "seconds": 0.2
     },
     {
       "step": "testes",
       "ok": true,
-      "seconds": 69.2
+      "seconds": 71.4
     },
     {
       "step": "gitleaks",
