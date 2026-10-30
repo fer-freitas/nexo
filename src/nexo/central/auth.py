@@ -18,7 +18,7 @@ import time
 import urllib.parse
 import urllib.request
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Protocol
 
 from fastapi import Header, HTTPException, Request
 
@@ -140,6 +140,51 @@ def end_session(request: Request) -> None:
 def secure_cookie() -> bool:
     public = os.environ.get("NX_COLLECTOR_PUBLIC_URL", "")
     return not public.startswith(("http://127.0.0.1", "http://localhost")) and public != ""
+
+
+class AuthProvider(Protocol):
+    """O portal só conhece a pessoa e o perfil. Conectar o SSO é configuração, não redesenho."""
+
+    name: str
+
+    def start(self, next_url: str) -> str | None:
+        """Endereço para onde mandar a pessoa, ou None quando o login é na própria tela."""
+
+    def accepts_token(self) -> bool: ...
+
+
+class InviteProvider:
+    name = "convite"
+
+    def start(self, next_url: str) -> str | None:
+        return None
+
+    def accepts_token(self) -> bool:
+        return token_login_enabled()
+
+
+class OidcProvider:
+    name = "oidc"
+
+    def start(self, next_url: str) -> str | None:
+        return oidc_start(next_url)
+
+    def accepts_token(self) -> bool:
+        return False
+
+
+def provider() -> AuthProvider:
+    return OidcProvider() if oidc_enabled() else InviteProvider()
+
+
+def first_admin(dev: str) -> str:
+    """Criado por comando na implantação, uma vez só. Depois, o acesso passa pela tela de Pessoas e acessos."""
+    d = db()
+    if d.one("SELECT dev FROM org_people WHERE role = 'admin'") or d.one(
+        "SELECT dev FROM portal_invites WHERE role = 'admin'"
+    ):
+        raise PermissionError("já existe um admin: use a tela de Pessoas e acessos")
+    return create_invite(dev, "admin", "implantação", days=1)
 
 
 def token_login_enabled() -> bool:

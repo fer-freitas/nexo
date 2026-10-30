@@ -168,3 +168,24 @@ def test_dora_job_reads_repositories_from_the_environment(monkeypatch: pytest.Mo
     monkeypatch.setenv("NX_DORA_REPOS", "org/a, org/b")
     assert jobs.main(["dora"]) == 0 and seen == [["org/a", "org/b"]]
     assert jobs.main([]) == 2
+
+
+def test_login_port_switches_to_sso_without_touching_the_portal(monkeypatch: pytest.MonkeyPatch) -> None:
+    from nexo.central import auth
+
+    monkeypatch.setattr(auth, "oidc_enabled", lambda: False)
+    assert auth.provider().name == "convite" and auth.provider().start("/x") is None
+    monkeypatch.setattr(auth, "oidc_enabled", lambda: True)
+    monkeypatch.setattr(auth, "oidc_start", lambda url: f"https://sso/?next={url}")
+    login = auth.provider()
+    assert login.name == "oidc" and login.start("/x") == "https://sso/?next=/x" and not login.accepts_token()
+
+
+def test_first_admin_only_once(central: Any) -> None:
+    from nexo.central import auth
+
+    token = auth.first_admin("gh:primeira")
+    identity = auth.from_invite(token)
+    assert identity is not None and identity["dev"] == "gh:primeira"
+    with pytest.raises(PermissionError):
+        auth.first_admin("gh:segunda")

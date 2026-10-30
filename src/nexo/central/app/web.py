@@ -70,6 +70,7 @@ def dash_page(name: str, request: Request) -> Response:
                 area=request.query_params.get("area", ""),
                 sort=request.query_params.get("sort", ""),
                 desc=request.query_params.get("dir") == "desc",
+                machines=_active_machines(),
             )
         )
     scope = metrics.make_scope(db(), principal, _filters(request))
@@ -99,11 +100,18 @@ async def dash_flags_submit(request: Request) -> Response:
     return RedirectResponse("/dash/flags", status_code=303)
 
 
+def _active_machines() -> int:
+    row = db().one("SELECT COUNT(*) AS n FROM devices WHERE revoked_at IS NULL")
+    return int(row["n"]) if row else 0
+
+
 @app.get("/login", response_model=None)
 def login_page(next: str = "/dash") -> Response:
-    if auth.oidc_enabled():
-        return RedirectResponse(auth.oidc_start(next), status_code=303)
-    return _html(dashboard.render_login(token_login=auth.token_login_enabled(), next_url=next))
+    login = auth.provider()
+    target = login.start(next)
+    if target:
+        return RedirectResponse(target, status_code=303)
+    return _html(dashboard.render_login(token_login=login.accepts_token(), next_url=next))
 
 
 def _start_session(dev: str, role: str | None, via: str, nxt: str) -> Response:
@@ -124,7 +132,7 @@ def _start_session(dev: str, role: str | None, via: str, nxt: str) -> Response:
 
 @app.post("/login", response_model=None)
 async def login_submit(request: Request) -> Response:
-    if not auth.token_login_enabled():
+    if not auth.provider().accepts_token():
         raise HTTPException(404, "login por token desligado: use o SSO")
     form = await _form(request)
     key = request.client.host if request.client else "local"

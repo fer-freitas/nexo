@@ -317,3 +317,11 @@ def test_help_is_by_role(workdir: Path, nexo: Runner) -> None:
     assert code == 0 and "pm refine" in out and "qa approve" in out and "tl assign" in out and "dev run" in out
     code, out, _ = nexo("help", "--role", "qa")
     assert "qa plan" in out and "pm refine" not in out
+
+
+def test_board_sync_goes_through_the_flag(team_project: Any, nexo: Runner, nexo_home: Path) -> None:
+    assert nexo("board")[0] == 0
+    dump_yaml(nexo_home / "brain" / "org" / "flags.yaml", {"flags": {"tracker_sync": False}})
+    code, _, err = nexo("board", "--sync")
+    assert code != 0 and "tracker_sync" in err
+    assert nexo("board")[0] == 0, "sem --sync, o board continua local"

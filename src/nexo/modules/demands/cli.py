@@ -475,8 +475,11 @@ def register(root: typer.Typer, tools: Any) -> None:
         origin: Annotated[str, typer.Option("--origin")] = "",
         triage: Annotated[bool, typer.Option("--triage")] = False,
         all_: Annotated[bool, typer.Option("--all", help="Inclui as concluídas")] = False,
+        sync: Annotated[bool, typer.Option("--sync", help="Envia antes para a ferramenta de gestão")] = False,
     ) -> None:
         """Demandas de todos os projetos e com quem estão."""
+        if sync and internal(["tracker", "sync"]):
+            raise typer.Exit(ExitCode.ERROR)
         rows = views.board(ctx(), mine, role, state, blocked, origin, triage, all_)
         if ctx().options.json:
             emit(rows)

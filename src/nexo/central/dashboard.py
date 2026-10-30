@@ -561,6 +561,7 @@ def render_flags(
     area: str = "",
     sort: str = "",
     desc: bool = False,
+    machines: int = 0,
 ) -> str:
     """Feature flags com filtro por área e ordenação por coluna (links do servidor, sem JavaScript)."""
     from nexo.kernel import modules
@@ -620,6 +621,8 @@ def render_flags(
         options = "".join(f'<option value="{e(f.key)}">{e(f.key)}</option>' for f in CATALOG)
         form = (
             "<section class=card><div class=card-head><h2>Alterar</h2></div>"
+            f"<p>Antes de aplicar: {machines} máquina(s) ativas na empresa. A coluna de dependências mostra o que "
+            "desliga junto. Vale em até 2 minutos para quem está online; offline, vale o último valor conhecido.</p>"
             f'<form method=post action="/dash/flags" class=inline>'
             f'<input type=hidden name=csrf value="{e(csrf)}"><label>flag<select name=key>{options}</select></label>'
             "<label>valor<select name=value><option>off</option><option>on</option><option>inherit</option>"

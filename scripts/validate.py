@@ -58,6 +58,24 @@ def forbidden_terms() -> dict[str, object]:
     return {"step": "termos proibidos", "ok": not hits, "seconds": 0, "checked": bool(terms)}
 
 
+def version() -> str:
+    for line in (ROOT / "pyproject.toml").read_text(encoding="utf-8").splitlines():
+        if line.startswith("version"):
+            return line.split('"')[1]
+    return "local"
+
+
+def install_hook() -> int:
+    """`pre-push` opcional, só neste repositório, com a validação rápida."""
+    hook = ROOT / ".git" / "hooks" / "pre-push"
+    hook.write_text(
+        f'#!/bin/sh\nexec "{Path(PY).as_posix()}" scripts/validate.py --fast\n', encoding="utf-8", newline="\n"
+    )
+    hook.chmod(0o755)
+    print(f"hook instalado: {hook}")
+    return 0
+
+
 def optional_tools() -> list[dict[str, object]]:
     """Segredos, dependências e SAST. Ferramenta ausente fica registrada como não verificada, nunca como aprovada."""
     tools = {
@@ -83,7 +101,10 @@ def optional_tools() -> list[dict[str, object]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fast", action="store_true")
+    parser.add_argument("--install-hook", action="store_true", help="Instala o pre-push opcional")
     args = parser.parse_args()
+    if args.install_hook:
+        return install_hook()
     steps = [
         forbidden_terms(),
         run("lint", [PY, "-m", "ruff", "check", "src", "tests", "scripts"]),
@@ -98,7 +119,7 @@ def main() -> int:
         steps.append(run("testes", [PY, "-m", "pytest", "tests", "-q", "-n", "auto", "--timeout=120"]))
         steps += optional_tools()
     ok = all(s["ok"] for s in steps)
-    out = ROOT / "evidence" / "local" / f"{platform.system().lower()}.json"
+    out = ROOT / "evidence" / version() / f"{platform.system().lower()}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({"ok": ok, "python": platform.python_version(), "steps": steps}, indent=2), "utf-8")
     print("VALIDAÇÃO OK" if ok else "VALIDAÇÃO FALHOU")
