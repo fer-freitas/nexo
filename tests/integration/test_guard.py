@@ -91,7 +91,7 @@ def test_hook_denies_and_audits(nexo: Runner, tmp_path: Path, monkeypatch: pytes
     base = {"session_id": "sess-1", "cwd": str(tmp_path / "repo"), "tool_name": "Bash"}
     denied = json.loads(run({**base, "tool_input": {"command": "cat ~/.ssh/id_ed25519"}}))
     assert denied["hookSpecificOutput"]["permissionDecision"] == "deny"
-    assert "Nexo" in denied["hookSpecificOutput"]["permissionDecisionReason"]
+    assert "Nexo (SEC-13)" in denied["hookSpecificOutput"]["permissionDecisionReason"]
     assert run({**base, "tool_input": {"command": "pytest -q"}}) == ""
     inside = {**base, "cwd": str(tmp_path / "repo" / ".nexo" / "worktrees" / "T-1")}
     assert run({**inside, "tool_input": {"command": "sudo ls"}}) == ""  # sessão do Nexo: vale o hook da execução

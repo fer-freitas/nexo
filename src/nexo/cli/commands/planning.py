@@ -540,7 +540,7 @@ def discover_cmd(
         console.print(f"  design as-is: {data['as_is']}")
 
 
-template_app = typer.Typer(help="Templates de artefatos", no_args_is_help=True)
+template_app = typer.Typer(help="Templates de artefatos (F12)", no_args_is_help=True)
 
 
 app.add_typer(template_app, name="template")

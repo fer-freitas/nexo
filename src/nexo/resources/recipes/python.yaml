@@ -1,4 +1,4 @@
-# Python com pip. {venv_python} = Python do ambiente virtual do projeto (.venv, ou
+# Python com pip (F51: o pip substitui o uv). {venv_python} = Python do ambiente virtual do projeto (.venv, ou
 # venv/env se já existir); {pip_install} = o que o projeto declara (requirements-dev.txt › requirements.txt ›
 # pyproject com extra/grupo dev); {pip_project} = o próprio projeto, editável, quando há requirements e pyproject.
 stack: python

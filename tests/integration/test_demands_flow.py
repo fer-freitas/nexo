@@ -191,11 +191,11 @@ def test_meeting_items_become_proposals_owned_by_section(
     items = j(nexo, "meeting", "close")["items"]
     assert [i["section"] for i in items] == ["funcional", "tecnica"]
     assert not any(e.get("type") == "demand.approved" for e in _events(team_project))
-    out = j
+    out = j(nexo, "meeting", "review", mid, "--accept", "I-1")
     assert out["decided"] == ["I-1"]
-    assert nexo[0] != 0  # técnica é do TL
+    assert nexo("meeting", "review", mid, "--accept", "I-2")[0] != 0  # técnica é do TL
     as_(monkeypatch, "ana")
-    assert j["pending"] == []
+    assert j(nexo, "meeting", "review", mid, "--accept", "I-2")["pending"] == []
 
 
 def _events(project: Path) -> list[dict[str, Any]]:

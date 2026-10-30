@@ -1,4 +1,4 @@
-# Âncora da organização: preenchida no BUILD CORPORATIVO (scripts/sync_baseline.py --anchor-repo/--key).
+# Âncora da organização (F9): preenchida no BUILD CORPORATIVO (scripts/sync_baseline.py --anchor-repo/--key).
 # Quando presente, o repositório do cérebro e as chaves confiáveis vêm daqui e prevalecem sobre qualquer
 # configuração, e as camadas org/squad só valem se o cérebro baixado estiver verificado.
 # Vazia = modo sandbox (desenvolvimento e testes): brain.repo e brain.trusted_keys vêm da configuração.

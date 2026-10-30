@@ -18,7 +18,11 @@ PINNED = {"semgrep": "semgrep==1.179.0", "pip-audit": "pip-audit==2.10.1"}
 
 def home() -> Path:
     env = os.environ.get("NX_HOME")
-    return Path(env).expanduser().resolve() if env else Path.home() / ".nexo"
+    if env:
+        return Path(env).expanduser().resolve()
+    from nexo.kernel.context import nexo_home
+
+    return nexo_home()
 
 
 def _scripts(venv: Path) -> Path:

@@ -230,6 +230,6 @@ def _roi(d: CollectorDB, scope: Scope) -> dict[str, Any]:
             ["horas por ponto (manual, sem o Nexo)", hours_per_point],
             ["custo-hora (R$)", hourly],
             ["custo de uso do Nexo no período (R$)", round(cost, 2)],
-            ["fonte das horas por ponto", "NX_COLLECTOR_ROI_HOURS_PER_POINT"],
+            ["fonte das horas por ponto", "NX_COLLECTOR_ROI_HOURS_PER_POINT (calibrar com a linha de base I-16)"],
         ],
     }

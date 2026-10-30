@@ -57,7 +57,7 @@ def _report_floor(ctx: AppContext, violations: list[str]) -> None:
     marker.parent.mkdir(parents=True, exist_ok=True)
     marker.write_text("\n".join(violations), encoding="utf-8")
     for v in violations:
-        ctx.audit
+        ctx.audit("policy.violation", {"rule": "SEC-76", "reason": f"piso de segurança: {v}"})
     from nexo.modules.knowledge.app import brain
 
     body = "A política da org tentou afrouxar o piso de segurança; os itens abaixo foram ignorados:\n\n" + "\n".join(
@@ -107,7 +107,7 @@ def run_pre_tool_policy(
     tool = str(payload.get("tool_name") or "")
     tool_input = payload.get("tool_input") or {}
     if run is None or not run.worktree:
-        decision = Decision
+        decision = Decision(False, "execução desconhecida para o hook do Nexo", "SEC-20")
         ctx.audit("policy.violation", {"rule": decision.rule, "reason": decision.reason, "tool": tool}, ref=run_id)
     else:
         profile, locked = run_policy(Path(run.worktree), run_id)

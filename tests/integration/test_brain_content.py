@@ -91,7 +91,7 @@ def test_prompt_breaking_contract_is_refused(workdir: Path, nexo: Runner, tmp_pa
 
 @pytest.mark.parametrize(
     ("compat", "message"),
-    [("schema_version: 2\n", "schema_version 2"), ("schema_version: 1\nmin_nexo: 99.0.0\n", "nexo update")],
+    [("schema_version: 9\n", "schema_version 9"), ("schema_version: 1\nmin_nexo: 99.0.0\n", "nexo update")],
 )
 def test_incompatible_brain_keeps_previous_cache(
     workdir: Path, nexo: Runner, tmp_path: Path, compat: str, message: str

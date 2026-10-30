@@ -54,15 +54,11 @@ def locations(home: Path, brain: Path | None, project_root: Path | None, squad: 
 
 
 META = "extension.yaml"
-LEGACY_META = "nexo.yaml"  # nome anterior do produto
 
 
 def meta_file(folder: Path) -> Path:
-    """Metadados da extensão: `extension.yaml`, ou `nexo.yaml` em extensões criadas antes da troca de nome."""
-    current = folder / META
-    if current.is_file() or not (folder / LEGACY_META).is_file():
-        return current
-    return folder / LEGACY_META
+    """Metadados da extensão: `extension.yaml`."""
+    return folder / META
 
 
 def load(folder: Path, scope: str | None = None) -> Extension:

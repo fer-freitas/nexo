@@ -102,7 +102,7 @@ def require_clean_and_valid(root: Path) -> None:
     """
     from nexo.kernel.runtime import yamlfile
 
-    if int(yamlfile.load(root / "brain.yaml").get("schema_version", 1)) < 2:
+    if int(yamlfile.load(root / "brain.yaml").get("schema_version", 1)) != 2:
         return
     if is_repo(root):
         dirty = [
@@ -189,4 +189,8 @@ def migrate(root: Path, today: date | None = None) -> dict[str, Any]:
         if new != text:
             path.write_text(new, encoding="utf-8", newline="\n")
             changed.append(rel)
+    from nexo.kernel.runtime import yamlfile
+
+    data = dict(yamlfile.load(root / "brain.yaml"))
+    yamlfile.dump(root / "brain.yaml", {**data, "schema_version": 2})
     return {"changed": changed}

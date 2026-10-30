@@ -49,8 +49,10 @@ def test_requirement_with_many_criteria_renders_each_line_once() -> None:
     from nexo.modules.planning.app.templates import requirements_context
 
     acs = [Scenario(id=f"AC-{i}", title="a", when=["x"], then=["y"]) for i in (1, 2)]
-    rf = Requirement
+    rf = Requirement(
+        id="RF-1", title="R", statement="O sistema deve", acceptance=["AC-1", "AC-2"], rules=["RN-1", "RN-2"]
+    )
     spec = Spec(id="F-3", title="T", acceptance=acs, requirements=[rf])
     text = parse(read_text("templates/requisitos.md")).render(requirements_context(spec, None))
-    assert text.count("**Critérios de aceite**: AC-1, AC-2") == 1 and text.count == 1
+    assert text.count("**Critérios de aceite**: AC-1, AC-2") == 1 and text.count("**Regras**: RN-1, RN-2") == 1
     assert "- RF-1 → critérios AC-1, AC-2" in text

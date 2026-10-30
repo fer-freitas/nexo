@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.markup import escape
 from rich.text import Text
 
-from nexo.cli.registry import COMMANDS, GLOBAL_OPTIONS, GROUPS, CommandSpec
+from nexo.cli.registry import GLOBAL_OPTIONS, CommandSpec
 from nexo.kernel.finops import money
 from nexo.kernel.i18n import get_lang, t
 from nexo.modules.setup.app.banner import BannerInfo

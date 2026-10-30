@@ -113,7 +113,7 @@ def set_value(ctx: AppContext, key: str, raw_value: str, level: str = "personal"
     if key in EMAIL_KEYS:
         kinds.discard("email")
     if kinds:
-        ctx.audit
+        ctx.audit("policy.violation", {"rule": "SEC-62", "command": "config set", "key": key, "value": raw_value})
         raise PolicyViolation("valor parece conter segredo ou dado pessoal; use o keyring (nexo login)")
     value = yamlfile.parse_scalar(raw_value)
     validate_value(key, value)

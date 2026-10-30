@@ -94,7 +94,7 @@ def quality(d: CollectorDB, scope: Scope, actor: str) -> dict[str, Any]:
         ),
         table(
             "standards_rules",
-            "Padrão de código: regras mais violadas",
+            "Padrão de código: regras mais violadas (F48)",
             ["regra", "violações", "projetos"],
             [[r["rule"], int(r["n"]), int(r["projects"])] for r in std["rules"]],
         ),

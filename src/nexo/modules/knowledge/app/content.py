@@ -18,7 +18,7 @@ from nexo.kernel.errors import NexoError
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.runtime.resources import embedded_dir, read_text
 
-SCHEMA_VERSIONS = (1,)
+SCHEMA_VERSIONS = (1, 2)  # 2: todo arquivo com ID e links, pronto para o grafo
 COMPAT_FILE = "brain.yaml"
 SECURITY_HOOKS = ("pre_send", "pre_tool", "post_edit", "post_step", "pre_commit")
 OPTIONAL_HOOKS = ("session_start", "story_notify")
@@ -116,14 +116,14 @@ def _version_tuple(value: str) -> tuple[int, ...]:
 
 
 def compat_errors(root: Path) -> list[str]:
-    data = yamlfile.load(root / COMPAT_FILE) or yamlfile.load(root / "nexo-brain.yaml")  # nome anterior
+    data = yamlfile.load(root / COMPAT_FILE)
     if not data:
         return []  # cérebro anterior à esquema 1, sem versão mínima
     errors = []
     schema = int(data.get("schema_version", 1))
     if schema not in SCHEMA_VERSIONS:
         errors.append(f"{COMPAT_FILE}: schema_version {schema} não suportado por esta versão ({SCHEMA_VERSIONS})")
-    minimum = str(data.get("min_nexo") or data.get("min_nexo") or "")
+    minimum = str(data.get("min_nexo") or "")
     if minimum and _version_tuple(__version__) < _version_tuple(minimum):
         errors.append(f"{COMPAT_FILE}: exige Nexo {minimum} ou superior (instalado {__version__}) — rode `nexo update`")
     return errors
@@ -245,7 +245,7 @@ def _skill_meta(name: str, skill_md: str) -> str:
     )
 
 
-KILL_SWITCH_TEMPLATE = """# Kill switch: bloqueios em incidente. Checado no roteamento e no início de cada passo.
+KILL_SWITCH_TEMPLATE = """# Kill switch (S-05): bloqueios em incidente. Checado no roteamento e no início de cada passo.
 # Efeito imediato para toda a empresa: use também o central (PUT /v2/admin/kill-switch, admin ou Segurança).
 # Exemplos:
 #   tools: {devin: "INC-123 instabilidade do fornecedor"}
@@ -257,7 +257,7 @@ models: {}
 nexo_versions: {}
 brain_versions: {}
 """
-REVOKED_TEMPLATE = """# Chaves de assinatura revogadas: impressões digitais de `nexo brain pubkey`.
+REVOKED_TEMPLATE = """# Chaves de assinatura revogadas (S-08): impressões digitais de `nexo brain pubkey`.
 # Uma vez vista num cérebro verificado, a revogação vale para sempre naquela instalação.
 revoked: []
 """
@@ -268,7 +268,7 @@ def flags_template() -> str:
     from nexo.kernel.config.flags import CATALOG
 
     lines = [
-        "# Feature flags da empresa. Por squad: squads/<squad>/flags.yaml com o mesmo formato.",
+        "# Feature flags da empresa (F17). Por squad: squads/<squad>/flags.yaml com o mesmo formato.",
         "# Para efeito imediato use o central (nexo admin flags set / dashboard › Feature flags), que tem precedência.",
         "# O piso de segurança não tem flag. Descomente para desligar/ligar:",
         "flags: {}",
@@ -304,7 +304,7 @@ def baseline_files() -> dict[str, str]:
     files["org/security/revoked-signers.yaml"] = REVOKED_TEMPLATE
     files["org/security/policy.yaml"] = (
         "# Política da org. O Nexo mescla com o PISO embutido: aqui só se RESTRINGE (acrescentar negações e\n"
-        "# caminhos proibidos, remover comandos permitidos). Afrouxar o piso é ignorado e vira violação.\n"
+        "# caminhos proibidos, remover comandos permitidos). Afrouxar o piso é ignorado e vira violação (SEC-76).\n"
         + read_text("policy.yaml")
     )
     return files
@@ -312,7 +312,7 @@ def baseline_files() -> dict[str, str]:
 
 def _codeowners(owners: Owners) -> str:
     lines = [
-        "# Donos por pasta. Toda mudança passa por PR; a assinatura do manifesto é do time do Nexo.",
+        "# Donos por pasta (F9). Toda mudança passa por PR; a assinatura do manifesto é do time do Nexo.",
         f"* {owners.nexo}",
         f"/org/security/ {owners.security} {owners.nexo}",
         f"/org/tools.yaml {owners.security} {owners.nexo}",

@@ -68,7 +68,7 @@ def hard_gates(g: GateInput) -> list[str]:
     if failing:
         fails.append(f"critérios com teste falhando: {', '.join(failing)}")
     if not g.locked_intact:
-        fails.append("testes bloqueados foram alterados")
+        fails.append("testes bloqueados foram alterados (SEC-40)")
     for r in g.reviews:
         if r.verdict == "reject":
             fails.append(f"{r.reviewer} reprovou")

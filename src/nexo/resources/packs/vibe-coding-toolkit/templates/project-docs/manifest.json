@@ -1,0 +1,11 @@
+{
+  "PRODUCT.md": "../product.md.template",
+  "README.md": "README.md.template",
+  "AGENTS.md": "../AGENTS.md.template",
+  "CLAUDE.md": "../CLAUDE.md.template",
+  "docs/architecture.md": "architecture.md.template",
+  "docs/design.md": "design.md.template",
+  "docs/onboarding.md": "onboarding.md.template",
+  "docs/quality.md": "quality.md.template",
+  "docs/setup.md": "setup.md.template"
+}

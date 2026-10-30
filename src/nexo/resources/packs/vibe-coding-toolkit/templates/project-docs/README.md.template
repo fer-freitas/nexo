@@ -1,0 +1,21 @@
+# [Project name]
+
+[What the product solves and for whom, as defined in PRODUCT.md.]
+
+## Run
+
+[Runtime, package manager, and actual installation, development, and verification commands. State required environment and database setup; do not expose credentials.]
+
+## Documentation
+
+- [Product and scope](PRODUCT.md).
+- [Local preparation](docs/onboarding.md).
+- [Structure and technical decisions](docs/architecture.md).
+- [Design and accessibility](docs/design.md).
+- [Quality checks](docs/quality.md).
+- [Agent instructions](AGENTS.md).
+- [Setup and evidence](docs/setup.md).
+
+## Next delivery
+
+[The smallest task that advances the MVP and its observable criterion. Make external dependencies explicit.]

@@ -1,0 +1,8 @@
+Nexo inclui conteúdo de terceiros, mantido nas pastas abaixo com a licença original:
+
+- src/nexo/resources/packs/vibe-coding-toolkit — Copyright (c) 2026 Matheus Gomes — MIT
+  https://github.com/soumatheusgomes/vibe-coding-toolkit
+- src/nexo/resources/packs/superpowers — Copyright (c) 2025 Jesse Vincent — MIT
+  https://github.com/obra/superpowers
+
+O commit e o hash de cada um estão em src/nexo/resources/packs/packs.lock.yaml.

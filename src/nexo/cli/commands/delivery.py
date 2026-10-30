@@ -87,7 +87,7 @@ def evidence_verify_cmd(folder: Path) -> None:
         raise typer.Exit(ExitCode.INTEGRITY_FAILURE)
 
 
-approvals_app = typer.Typer(help="Aprovações externas", no_args_is_help=True)
+approvals_app = typer.Typer(help="Aprovações externas (F8.1)", no_args_is_help=True)
 
 
 app.add_typer(approvals_app, name="approvals", hidden=True)

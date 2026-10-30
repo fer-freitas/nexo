@@ -229,7 +229,7 @@ def review(ctx: AppContext, dry_run: bool = False) -> ReviewReport:
                 "**Evidências**:",
                 *[f"- `{e}`" for e in lesson.evidence_refs],
                 "",
-                "Aprovar = abrir PR no nexo-brain incorporando a lição.",
+                "Aprovar = abrir PR no nexo-brain incorporando a lição (RN-91).",
             ]
         )
         issue = (

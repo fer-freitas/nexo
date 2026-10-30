@@ -1,0 +1,1 @@
+"""Regras puras dos packs."""

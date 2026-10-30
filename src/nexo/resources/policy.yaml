@@ -1,4 +1,4 @@
-# Política de execução dos agentes. nexo-brain/org/security/policy.yaml sobrescreve.
+# Política de execução dos agentes (SEC-13, SEC-20..24). nexo-brain/org/security/policy.yaml sobrescreve.
 tool_kinds:
   Read: read
   Glob: read
@@ -120,14 +120,14 @@ shell_allow:
 # Bloqueios que prevalecem sobre a allowlist (regex).
 shell_deny:
   - { pattern: "\\brm\\s+-[a-zA-Z]*[rf]", reason: "remoção recursiva/forçada" }
-  - { pattern: "\\b(curl|wget|nc|ncat|telnet)\\b", reason: "acesso de rede não autorizado" }
+  - { pattern: "\\b(curl|wget|nc|ncat|telnet)\\b", reason: "acesso de rede não autorizado (SEC-23)" }
   - { pattern: "\\b(ssh|scp|sftp|rsync)\\b", reason: "acesso remoto" }
   - { pattern: "\\bgit\\s+(push|commit|reset|checkout|switch|rebase|merge|config|remote|tag)\\b", reason: "operação git reservada ao Nexo" }
   - { pattern: "\\bsudo\\b|\\bsu\\s", reason: "elevação de privilégio" }
-  - { pattern: "\\b(npm|pnpm|yarn)\\s+(i|install|add)\\s+\\S", reason: "nova dependência exige check_dependency" }
-  - { pattern: "\\b(pip|pip3|uv\\s+pip|uv)\\s+(install|add)\\b", reason: "nova dependência exige check_dependency" }
-  - { pattern: "\\bdotnet\\s+add\\s+\\S+\\s+package\\b|\\bdotnet\\s+add\\s+package\\b", reason: "nova dependência exige check_dependency" }
-  - { pattern: "\\b(flutter|dart)\\s+pub\\s+(add|upgrade|global)\\b|\\bng\\s+(add|update)\\b", reason: "nova dependência exige check_dependency" }
+  - { pattern: "\\b(npm|pnpm|yarn)\\s+(i|install|add)\\s+\\S", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\b(pip|pip3|uv\\s+pip|uv)\\s+(install|add)\\b", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\bdotnet\\s+add\\s+\\S+\\s+package\\b|\\bdotnet\\s+add\\s+package\\b", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\b(flutter|dart)\\s+pub\\s+(add|upgrade|global)\\b|\\bng\\s+(add|update)\\b", reason: "nova dependência exige check_dependency (SEC-25)" }
   - { pattern: "\\b(mvnw?|gradlew?)\\b.*\\b(deploy|publish|release:|versions:use|versions:set)", reason: "publicação ou troca de versão reservada ao Nexo" }
   - { pattern: "\\b(brew|apt|apt-get|yum|choco|winget)\\b", reason: "instalação de software no sistema" }
   - { pattern: "\\$\\(|`", reason: "substituição de comando" }

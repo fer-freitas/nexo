@@ -1,4 +1,4 @@
-# Detector de insight. Ajuste limiares por PR em nexo-brain/insights/.
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
 id: I-02
 title: História fora da curva
 algorithm: outlier_story

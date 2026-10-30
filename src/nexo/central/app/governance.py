@@ -181,7 +181,7 @@ def decide_approval(aid: str, body: DecisionIn, ident: dict[str, str] = Depends(
     if row["decision"]:
         raise HTTPException(409, "aprovação já decidida")
     if pseudonym(decider) == row["dev_pid"]:  # SEC-52: quem disparou não aprova o próprio portão
-        audit
+        audit(decider, "policy.violation", {"rule": "SEC-52", "approval": aid})
         raise HTTPException(403, "segregação de funções: quem disparou a história não decide o próprio portão")
     db().execute(
         "UPDATE remote_approvals SET decision = ?, reason = ?, decided_by = ?, decided_pid = ?, decided_at = ?"

@@ -33,3 +33,5 @@ flags:
     area: "Entrega"
     stage: experimental
     default: false
+services:
+  delivery.github: "nexo.modules.delivery.adapters.scm.github"

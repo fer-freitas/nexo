@@ -72,6 +72,7 @@ TODOS
   meeting              Reunião de refinamento: notas, gravação e revisão
   join                 Entra no time sem precisar saber Git
   role                 Mostra seus papéis no time
+  pack                 Conteúdo de terceiros com commit fixado, hash e licença
 
 OPÇÕES GLOBAIS
   --profile economico|balanceado|maxima-qualidade    Routing profile

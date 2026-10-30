@@ -456,9 +456,9 @@ def test_insights_flow_dashboard_and_cli(  # type: ignore[no-untyped-def]
     assert result["opened"] >= 5 and not result["errors"]
     lia = people.get("/v2/insights", headers=h("tok-lia")).json()["items"]
     caio = people.get("/v2/insights", headers=h("tok-caio")).json()["items"]
-    assert any and not any
-    assert any  # org: todos veem
-    target = next
+    assert any(i["detector"] == "I-02" for i in lia) and not any(i["detector"] == "I-02" for i in caio)
+    assert any(i["detector"] == "I-14" for i in caio)  # org: todos veem
+    target = next(i for i in lia if i["detector"] == "I-02")
     _session(people, "tok-lia")
     page = people.get("/dash/insights").text
     csrf = re.search(r'name=csrf value="([^"]+)"', page)
@@ -522,8 +522,8 @@ def test_weekly_monthly_and_systemic_distribution(people: Any, monkeypatch: pyte
     issues = people.post("/v2/admin/jobs/issues", headers=h("tok-admin")).json()["result"]
     assert any(i["status"] == 201 for i in issues)
     issue = next(b for u, b in sent if "api.github" in u)
-    assert issue["title"].startswith and "PR aprovado" in issue["body"]
-    assert db().one["issue_url"].endswith("/9")
+    assert issue["title"].startswith("[insight I-06]") and "PR aprovado" in issue["body"]
+    assert db().one("SELECT issue_url FROM insights WHERE detector = 'I-06'")["issue_url"].endswith("/9")
     again = people.post("/v2/admin/jobs/issues", headers=h("tok-admin")).json()["result"]
     assert not any(i["insight"] == issue for i in again) and len(again) < len(issues)  # uma issue por insight
     assert distribution.validate_card({"type": "message", "attachments": []}) == ["anexo adaptive card ausente"]

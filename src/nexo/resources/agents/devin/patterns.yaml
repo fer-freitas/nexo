@@ -1,4 +1,4 @@
-# Contrato NÃO VERIFICADO: validar no spike quando o Devin CLI estiver instalado.
+# Contrato NÃO VERIFICADO (F1-01): validar no spike quando o Devin CLI estiver instalado.
 rate_limit:
   text:
     - "(?i)out of ACUs?"

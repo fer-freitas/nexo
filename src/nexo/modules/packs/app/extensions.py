@@ -73,7 +73,7 @@ def add(ctx: AppContext, ext_type: str, source: Path, scope: str, name: str | No
     ext = ext_adapter.load(folder, scope)
     problems = scan(ext)
     if problems:
-        ctx.audit
+        ctx.audit("policy.violation", {"rule": "SEC-14", "extension": ext.key, "findings": problems})
         raise PolicyViolation("extensão contém segredo ou dado pessoal: " + "; ".join(problems))
     others = [e for e in effective(ctx) if e.key != ext.key and e.meta.type == ext_type]
     similar = most_similar(ext.content, others)
@@ -162,7 +162,7 @@ def _issue_body(ctx: AppContext, ext: Extension, scope: str, similar: list[tuple
         "- [ ] **Manter local**",
         "- [ ] **Descartar**",
         "",
-        "Avaliação sugerida: `nexo eval skill`.",
+        "Avaliação sugerida: `nexo eval skill` (F7).",
     ]
     return "\n".join(lines)
 

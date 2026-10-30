@@ -60,7 +60,15 @@ def test_hard_failures() -> None:
         )
     )
     joined = " | ".join(fails)
-    for frag in:
+    for frag in (
+        "etapa obrigatória falhou: unit",
+        "achado critical",
+        "sem teste: AC-2",
+        "falhando: AC-1",
+        "SEC-40",
+        "reviewer reprovou",
+        "alto/crítico",
+    ):
         assert frag in joined, frag
     low_cov = QualityReport("python", [StageResult("unit", "unit", "passed", coverage=50.0)])
     assert any("cobertura" in f for f in hard_gates(gi(report=low_cov, traceability=[], min_coverage=80)))

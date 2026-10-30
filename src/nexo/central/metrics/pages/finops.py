@@ -173,7 +173,7 @@ def finops(d: CollectorDB, scope: Scope, actor: str) -> dict[str, Any]:
         tables.append(
             table(
                 "licenses",
-                "Licença por pessoa",
+                "Licença por pessoa (I-05, ordem alfabética)",
                 ["pessoa", "ferramenta", "assinatura R$", "uso R$", "utilização %"],
                 rows,
                 individual="license",

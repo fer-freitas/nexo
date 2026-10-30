@@ -87,7 +87,16 @@ def test_collectors(project: Path, nexo: Runner, cloud: FakeCloud) -> None:
     (project / "docs/adr").mkdir(parents=True)
     (project / "docs/adr/0001-decimal.md").write_text("# ADR 1\nDinheiro em Decimal.\n", encoding="utf-8")
     (project / ".nexo/bugs").mkdir(parents=True)
-    dump_yaml
+    dump_yaml(
+        project / ".nexo/bugs/B-1.yaml",
+        {
+            "id": "B-1",
+            "story": "US-1",
+            "failures": ["teste falhou"],
+            "evidence": {"failed_tests": ["test_x: esperado 1"]},
+            "state": "Resolvido",
+        },
+    )
     # correção humana em arquivo entregue pelo Nexo
     (project / "src/svc/refund.py").write_text("LIMIT = 10.0\n", encoding="utf-8")
     git_cmd(project, "add", "-A")

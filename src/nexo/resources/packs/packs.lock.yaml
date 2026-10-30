@@ -1,0 +1,52 @@
+packs:
+  - id: vibe-coding-toolkit
+    source: https://github.com/soumatheusgomes/vibe-coding-toolkit
+    commit: 21b71b68679c11184f49c23168852014bf6dde8b
+    license: MIT
+    tree_sha256: 
+      3f2277b91646ef14ad0c7f2e23d683b07fa3167d7e85d84a45829a6766bb0368
+    adopted:
+      - docs/prompts/04-brainstorm-to-plan.md
+      - docs/prompts/03-multi-agent-code-review.md
+      - docs/prompts/13-security-review.md
+      - docs/prompts/14-harness-evaluation.md
+      - docs/prompts/15-harness-improvement.md
+      - docs/prompts/12-existing-project-setup.md
+      - docs/prompts/10-development-environment-setup.md
+      - docs/prompts/11-next-project-bootstrap.md
+      - docs/prompts/06-memory-bootstrap.md
+      - templates/project-docs
+      - templates/harness-evaluation
+      - templates/AGENTS.md.template
+      - templates/CLAUDE.md.template
+      - templates/task-handoff.md.template
+    rejected:
+      scripts: validadores do próprio toolkit; não fazem parte do produto
+      docs/tools/05-caveman.md: altera a saída; candidato a avaliação
+      docs/tools/03-rtk-token-proxy.md: proxy pode mudar a saída que os leitores
+        interpretam
+  - id: superpowers
+    source: https://github.com/obra/superpowers
+    commit: 2ce8aa15d05bd57213e6f746f953aafb7ded7a8b
+    license: MIT
+    tree_sha256: 
+      c6bafc9e9d13e08311bffaa25e1ea2d97896ef5081034d87f5552b715894b392
+    adopted:
+      - skills/brainstorming
+      - skills/writing-plans
+      - skills/test-driven-development
+      - skills/systematic-debugging
+      - skills/verification-before-completion
+      - skills/requesting-code-review
+      - skills/receiving-code-review
+      - skills/finishing-a-development-branch
+      - skills/executing-plans
+    rejected:
+      using-superpowers: 'conflita com o determinístico primeiro: o Nexo escolhe a
+        skill'
+      subagent-driven-development: a política nega subagente; o Nexo paraleliza 
+        por worktree
+      dispatching-parallel-agents: a política nega subagente
+      using-git-worktrees: o Nexo gerencia as worktrees
+      writing-skills: uso só no desenvolvimento de packs
+      diagnosing-superpowers: específica da ferramenta

@@ -50,5 +50,5 @@ def brain(d: CollectorDB, scope: Scope) -> dict[str, Any]:
                 ],
             )
         ],
-        notes=["lições propostas × aprovadas e issues abertas: ver os PRs e issues do nexo-brain"],
+        notes=["lições propostas × aprovadas e issues abertas: ver os PRs e issues do nexo-brain (I-10 no feed)"],
     )

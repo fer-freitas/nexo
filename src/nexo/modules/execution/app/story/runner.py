@@ -247,7 +247,7 @@ class StoryRunner:
             self._save(run_id, st)
             if outcome is not None:
                 return outcome
-        return self._escalate(story_id, run_id, st, "limite de fases atingido")
+        return self._escalate(story_id, run_id, st, "limite de fases atingido (SEC-60)")
 
     # ---- QA test-first
 

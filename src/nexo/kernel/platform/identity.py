@@ -34,7 +34,10 @@ def mode(ctx: AppContext) -> str:
     value = str((res.values.get("identity") or {}).get("mode") or "verified")
     origin = res.origin.get("identity.mode", "default")
     if value != "verified" and origin not in TRUSTED_ORIGINS:
-        ctx.audit
+        ctx.audit(
+            "policy.violation",
+            {"rule": "SEC-52", "reason": f"identity.mode={value} só vale na org ou no squad", "origin": origin},
+        )
         return "verified"
     return value
 
@@ -68,7 +71,7 @@ def _lookup(ctx: AppContext, provider: str) -> str:
     if provider == "github":
         token = credentials.get_secret("github")
         if not token:
-            raise NexoError("identidade verificada exigida: rode `nexo login github`")
+            raise NexoError("identidade verificada exigida: rode `nexo login github` (SEC-52)")
         cached = _cache_get(ctx, provider, token)
         if cached:
             return cached

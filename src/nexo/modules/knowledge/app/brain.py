@@ -283,7 +283,7 @@ def propose(ctx: AppContext, path: Path, title: str | None) -> str | None:
 
     content = path.read_text(encoding="utf-8", errors="replace")
     if {f.kind for f in find(content)} - {"email"}:
-        raise NexoError("o arquivo contém segredo ou dado pessoal; remova antes de propor")
+        raise NexoError("o arquivo contém segredo ou dado pessoal; remova antes de propor (RF-54)")
     body = f"Proposta enviada por `{ctx.actor}` via `nexo brain propose`.\n\n```\n{redact(content)[:6000]}\n```\n"
     return create_issue(ctx, title or f"Proposta: {path.name}", body, ["nexo", "proposta"])
 
@@ -308,10 +308,11 @@ def propose_clone(ctx: AppContext, clone: Path, source: Path, target: str, title
         return result
     repo = str(_cfg(ctx).get("github_repo") or "")
     if repo:
-        from nexo.modules.delivery.adapters.scm.github import GitHubScm
+        from nexo.kernel import services
         from nexo.modules.demands.app.tracker import github_token
 
-        pr = GitHubScm(repo, github_token(ctx)).open_pr(result["branch"], title, f"Proposta de `{ctx.actor}`.")
+        scm = services.get("delivery.github", "GitHubScm")(repo, github_token(ctx))
+        pr = scm.open_pr(result["branch"], title, f"Proposta de `{ctx.actor}`.")
         result["pr"] = pr.get("html_url") or pr.get("number")
     return result
 

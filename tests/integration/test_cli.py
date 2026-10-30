@@ -109,7 +109,7 @@ def test_locked_key_is_policy_violation(nexo: Runner, nexo_home: Path) -> None:
 def test_secret_value_is_refused_and_masked_in_audit(nexo: Runner, nexo_home: Path) -> None:
     token = "ghp_abcdefghijklmnopqrstuvwxyz0123456789ABCD"
     code, _, _ = nexo("config", "set", "notes", f"token={token}")
-    assert code == 4
+    assert code == 5
     assert not (nexo_home / "config.yaml").exists() or token not in (nexo_home / "config.yaml").read_text(
         encoding="utf-8"
     )

@@ -1,4 +1,4 @@
-# Detector de insight. Ajuste limiares por PR em nexo-brain/insights/.
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
 id: I-06
 title: Rota ruim
 algorithm: bad_route

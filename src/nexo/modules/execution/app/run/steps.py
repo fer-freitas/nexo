@@ -62,7 +62,7 @@ def execute(
     while True:
         steps += 1
         if steps > o.max_steps:
-            return o._escalate(task, run_id, f"limite de {o.max_steps} passos atingido", routes)
+            return o._escalate(task, run_id, f"limite de {o.max_steps} passos atingido (SEC-60)", routes)
         used = run_context.run_tokens(o, run_id)
         if tokens.over_cap(used, o.max_task_tokens):
             o.ctx.audit(
@@ -81,7 +81,7 @@ def execute(
         prompt = run_context.prompt(o, task, packet)
         if o.opts.extra_prompt:
             prompt += "\n\n## Padrões a seguir nesta tarefa\n" + o.opts.extra_prompt
-        prompt += _spec_changes(o, task)
+        prompt += _spec_changes(o, task) + _method(o, task)
         if route.tool != "claude":
             prompt += run_context.team_skills(o, route.tool, task)
         redactions = len(find(prompt))
@@ -127,7 +127,7 @@ def execute(
         leak = pre_commit_scan(o, worktree, base)
         if leak:
             o.store.end_step(step_id, "policy_violation", ERR_POLICY, leak, None)
-            o.ctx.audit
+            o.ctx.audit("policy.violation", {"rule": "SEC-12", "reason": leak, "hook": "pre_commit"}, ref=run_id)
             return o._escalate(task, run_id, leak, routes)
         sha = git.checkpoint(worktree, f"nexo: checkpoint {step_id}")
         o.store.add_usage(step_id, outcome.usage)
@@ -396,9 +396,19 @@ def failure_reason(o: Orchestrator, outcome: AgentOutcome) -> str:
     return f"{outcome.error_kind or outcome.status}: {outcome.message[:200]}"
 
 
+def _method(o: Orchestrator, task: Task) -> str:
+    """A skill adotada que orienta esta etapa: quem escolhe é o Nexo, de forma determinística."""
+    from nexo.kernel import services
+
+    if not services.available("packs.packs"):
+        return ""
+    return str(services.load("packs.packs").guidance(o.role, str(task.kind or "")))
+
+
 def _spec_changes(o: Orchestrator, task: Task) -> str:
     """Depois de mudança na spec, a sessão nova recebe o que mudou, em vez da conversa antiga."""
     from nexo.kernel import services
+    from nexo.kernel.errors import NexoError
 
     if not task.story or not services.available("demands.proposals"):
         return ""

@@ -14,7 +14,19 @@ from typer._click.exceptions import ClickException, UsageError  # Typer ≥ 0.20
 
 from nexo.cli import look
 from nexo.cli.app import UNAUDITED, _state, app, apply_brand, console, ctx, emit, err_console, split_globals
-from nexo.cli.commands import
+from nexo.cli.commands import context as _context_commands  # noqa: F401 — importar registra os comandos
+from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
+    delivery,
+    execution,
+    finops,
+    integrations,
+    knowledge,
+    merged,
+    plan_more,
+    planning,
+    platform,
+    roles,
+)
 from nexo.cli import surface
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import ExitCode, NexoError, NotAvailableInPhase

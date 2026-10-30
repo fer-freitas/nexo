@@ -1,4 +1,4 @@
-# Etapas de segurança comuns a todas as stacks. Tokens: {out} = pasta de artefatos da execução.
+# Etapas de segurança comuns a todas as stacks (SEC-43). Tokens: {out} = pasta de artefatos da execução.
 stages:
   - id: secrets
     kind: security
