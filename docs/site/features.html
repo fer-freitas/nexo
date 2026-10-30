@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Features · Nexo</title><link rel="stylesheet" href="estilo.css"></head>
+<body>
+<header class="topo"><div><strong>Nexo</strong><a href="index.html">Início</a><a href="funcional.html">Como funciona</a><a href="arquitetura.html">Arquitetura</a><a href="features.html" aria-current="page">Features</a><a href="executivo.html">Para executivos</a><a href="usuarios.html">Guia do usuário</a></div></header>
+<main>
+<h1>Features</h1>
+<p class="lead">O que existe hoje e o que já foi provado. Passar nos testes automáticos não significa estar provado com a ferramenta real, por isso os dois estados são separados.</p>
+<p><span class="selo real">Provado</span> rodou de verdade &nbsp; <span class="selo sim">Com simulador</span> feito e testado, sem prova real &nbsp; <span class="selo falta">Pendente</span> depende de algo fora do código</p>
+<h2>Trabalho por papel</h2>
+<div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
+<tr><td>Comandos por papel</td><td><code>nexo pm</code>, <code>nexo qa</code>, <code>nexo tl</code> e <code>nexo dev</code> mostram o que está com a pessoa</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Planejamento com IA</td><td>Spec, dúvidas, análise técnica, requisito técnico e histórias</td><td><span class="selo real">Provado com Claude</span></td></tr>
+<tr><td>Construção com testes antes</td><td>QA escreve e trava os testes, e o dev implementa</td><td><span class="selo real">Provado com Claude</span></td></tr>
+<tr><td>Portão determinístico</td><td>Confiança por regras e decisão humana quando precisa</td><td><span class="selo real">Provado com Claude</span></td></tr>
+<tr><td>Bloqueio de política</td><td>Comando fora da lista é recusado durante a execução</td><td><span class="selo real">Provado com Claude</span></td></tr>
+<tr><td>Problema no meio</td><td>O dono decide e a IA refaz só o afetado</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Troca de ferramenta quando a cota acaba</td><td>A tarefa continua em outra, com o contexto</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Revisão por outro fornecedor</td><td>Quem revisa usa modelo de outro fornecedor. Sem isso, o portão exige uma pessoa</td><td><span class="selo falta">Falta Devin ou Copilot</span></td></tr>
+<tr><td>Teste livre</td><td><code>nexo try</code> e <code>nexo test</code> não criam demanda nem abrem PR</td><td><span class="selo sim">Com simulador</span></td></tr>
+</table></div>
+<h2>Contexto e conhecimento</h2>
+<div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
+<tr><td>Contexto do projeto</td><td>O projeto, as partes e o que cada repositório faz, usado pela IA</td><td><span class="selo real">Provado com Claude</span></td></tr>
+<tr><td>Enriquecer o contexto</td><td><code>nexo context enrich</code> sugere a partir de documentos, e a pessoa escolhe. <code>add</code> e <code>term</code> incluem direto</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Squad</td><td><code>nexo squad</code> informa e mostra de onde vem o valor</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Segundo cérebro</td><td>Git, PR, assinatura, lint e estrutura para o Obsidian</td><td><span class="selo falta">Falta abrir no Obsidian</span></td></tr>
+<tr><td>Packs de mercado</td><td>Superpowers e vibe-coding-toolkit travados por hash</td><td><span class="selo falta">Falta ver nas 3 CLIs</span></td></tr>
+<tr><td>Linhagem de componentes</td><td>Scanners de .NET, Terraform e AsyncAPI, sem CI, com consolidação entre times</td><td><span class="selo falta">Falta .NET real</span></td></tr>
+<tr><td>MCPs</td><td>Busca, aprovação pelo destino, versão fixa e prova</td><td><span class="selo falta">Faltam 3 reais</span></td></tr>
+</table></div>
+<h2>Gestão</h2>
+<div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
+<tr><td>Board de demandas</td><td>Todos os projetos e com quem está cada demanda</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>GitHub Issues</td><td>Sincroniza com responsável e etiqueta, sem duplicar</td><td><span class="selo falta">Falta conta real</span></td></tr>
+<tr><td>Portal</td><td>Features, dashboard, insights, board, kill switch e acessos</td><td><span class="selo falta">Falta implantar na AWS</span></td></tr>
+<tr><td>FinOps</td><td>Custo em reais por história, pessoa e squad</td><td><span class="selo falta">Falta conferir com a fatura</span></td></tr>
+<tr><td>DORA</td><td>Pela API do GitHub, em tarefa agendada na AWS</td><td><span class="selo falta">Falta implantar</span></td></tr>
+<tr><td>SSO da empresa</td><td>Porta pronta. Fica para depois, por decisão</td><td><span class="selo falta">Depois</span></td></tr>
+</table></div>
+<h2>Instalação e plataforma</h2>
+<div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
+<tr><td><code>nexo setup</code></td><td>Confere e instala o necessário, sempre com permissão</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td><code>nexo demo cli</code> e <code>nexo demo site</code></td><td>Experimentar com dados fictícios, sem gastar tokens</td><td><span class="selo real">Provado em macOS</span></td></tr>
+<tr><td>Binário sem Python</td><td>Instala sem administrador</td><td><span class="selo real">Provado em macOS</span></td></tr>
+<tr><td>Windows</td><td>Agendador, cofre, caminhos longos, proxy e TLS</td><td><span class="selo falta">Falta máquina da empresa</span></td></tr>
+<tr><td>Flags e módulos</td><td>Desligar por flag sem nova versão. O piso nunca desliga</td><td><span class="selo sim">Com simulador</span></td></tr>
+</table></div>
+</main>
+<footer>Nexo 0.1.0 · Documento interno, antes da primeira liberação. Cores aproximadas da identidade do Itaú Unibanco, a confirmar com o time de marca. O logo e a fonte da empresa dependem de liberação.</footer>
+</body>
+</html>

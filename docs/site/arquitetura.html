@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Arquitetura · Nexo</title><link rel="stylesheet" href="estilo.css"></head>
+<body>
+<header class="topo"><div><strong>Nexo</strong><a href="index.html">Início</a><a href="funcional.html">Como funciona</a><a href="arquitetura.html" aria-current="page">Arquitetura</a><a href="features.html">Features</a><a href="executivo.html">Para executivos</a><a href="usuarios.html">Guia do usuário</a></div></header>
+<main>
+<h1>Arquitetura</h1>
+<p class="lead">O trabalho acontece na máquina de cada pessoa. O GitHub guarda o que é compartilhado, e a AWS recebe só métricas, sem código nem prompt.</p>
+<figure><svg viewBox="0 0 1000 440" role="img" aria-label="Peças do Nexo: CLI na máquina de cada pessoa, repositórios no GitHub da empresa e central na AWS"><defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="sl" d="M0 0L10 5L0 10z"/></marker></defs><rect class="z" x="10" y="10" width="560" height="420" rx="8"/><text class="g" x="22" y="30">NA MÁQUINA DE CADA PESSOA · WINDOWS OU MACOS</text><rect class="b" x="30" y="40" width="520" height="74" rx="6"/><text class="t" x="42" y="62">CLI do Nexo</text><text class="p" x="42" y="80">nexo pm · nexo qa · nexo tl · nexo dev · nexo board</text><text class="p" x="42" y="96">Montada a partir dos manifestos dos módulos</text><rect class="b" x="30" y="130" width="250" height="92" rx="6"/><text class="t" x="42" y="152">Módulos</text><text class="p" x="42" y="170">demandas, execução, qualidade,</text><text class="p" x="42" y="186">linhagem, packs, MCP e outros.</text><text class="p" x="42" y="202">Só falam por serviço ou evento</text><rect class="d" x="300" y="130" width="250" height="92" rx="6"/><text class="t" x="312" y="152">Kernel e piso</text><text class="p" x="312" y="170">política, redação, auditoria, flags,</text><text class="p" x="312" y="186">portões e kill switch.</text><text class="p" x="312" y="202">Não conhece os módulos</text><path class="s" d="M165 114V129"/><path class="s" d="M425 114V129"/><path class="s" d="M280 176H299"/><rect class="b" x="30" y="238" width="160" height="88" rx="6"/><text class="t" x="42" y="260">CLIs de IA</text><text class="p" x="42" y="278">Claude Code,</text><text class="p" x="42" y="294">Devin, Copilot</text><rect class="b" x="205" y="238" width="160" height="88" rx="6"/><text class="t" x="217" y="260">Banco local</text><text class="p" x="217" y="278">SQLite, outbox</text><text class="p" x="217" y="294">e auditoria</text><rect class="b" x="380" y="238" width="170" height="88" rx="6"/><text class="t" x="392" y="260">Coleta de uso</text><text class="p" x="392" y="278">lê o consumo</text><text class="p" x="392" y="294">das CLIs, sem prompt</text><path class="s" d="M105 222V237"/><path class="s" d="M285 222V237"/><path class="s" d="M465 222V237"/><rect class="b" x="30" y="342" width="520" height="70" rx="6"/><text class="t" x="42" y="364">Agente de linhagem</text><text class="p" x="42" y="382">Tarefa de usuário a cada 30 minutos, com a máquina ligada.</text><text class="p" x="42" y="398">Lê os objetos do Git, sem tocar na pasta de trabalho</text><rect class="z" x="590" y="10" width="400" height="210" rx="8"/><text class="g" x="602" y="30">GITHUB DA EMPRESA</text><rect class="b" x="610" y="40" width="170" height="76" rx="6"/><text class="t" x="622" y="62">Código</text><text class="p" x="622" y="80">repositórios</text><text class="p" x="622" y="96">de cada time</text><rect class="b" x="800" y="40" width="170" height="76" rx="6"/><text class="t" x="812" y="62">nexo-&lt;time&gt;</text><text class="p" x="812" y="80">demandas, spec</text><text class="p" x="812" y="96">e linhagem</text><rect class="b" x="610" y="128" width="360" height="76" rx="6"/><text class="t" x="622" y="150">nexo-brain</text><text class="p" x="622" y="168">Conhecimento assinado, atualizado por PR.</text><text class="p" x="622" y="184">Abre no Obsidian como um vault</text><rect class="z" x="590" y="240" width="400" height="190" rx="8"/><text class="g" x="602" y="260">AWS · OPERADO PELO TIME DO NEXO</text><rect class="b" x="610" y="270" width="360" height="66" rx="6"/><text class="t" x="622" y="292">Central e portal, em ECS</text><text class="p" x="622" y="310">features, dashboard, insights, board e acessos</text><rect class="b" x="610" y="350" width="170" height="62" rx="6"/><text class="t" x="622" y="372">RDS</text><text class="p" x="622" y="390">métricas sem</text><text class="p" x="622" y="406">código nem prompt</text><rect class="b" x="800" y="350" width="170" height="62" rx="6"/><text class="t" x="812" y="372">Secrets e KMS</text><text class="p" x="812" y="390">segredos e</text><text class="p" x="812" y="406">assinatura</text><path class="s" d="M790 336V349"/><path class="s" d="M885 336V349"/><path class="s" d="M550 77H609"/><path class="s" d="M550 300H609"/></svg><figcaption>Visão geral. As setas entre as áreas são a sincronização com o GitHub e o envio de eventos para o central. Se o central cair, a CLI continua trabalhando, e os eventos esperam no outbox.</figcaption></figure>
+<h2>Por que assim</h2>
+<div class="tabela"><table><tr><th>Decisão</th><th>Motivo</th></tr>
+<tr><td>Sem GitHub Actions</td><td>A empresa não permite criar nem apagar tarefas no Actions. A validação e a linhagem rodam na máquina de cada pessoa</td></tr>
+<tr><td>Repositório do time para as demandas</td><td>Sincroniza entre máquinas sem servidor novo e funciona sem branches órfãos</td></tr>
+<tr><td>Central fora do caminho crítico</td><td>Métrica e painel nunca travam uma entrega</td></tr>
+<tr><td>Cérebro por PR e assinado</td><td>O agente só lê uma versão revisada, e dá para abrir no Obsidian sem quebrar a assinatura</td></tr>
+<tr><td>Portal com HTML do servidor</td><td>Sem JavaScript obrigatório nem CDN, o que evita problemas com proxy e política da empresa</td></tr>
+<tr><td>Login atrás de uma porta</td><td>Hoje é por convite. Conectar o SSO é configuração, não redesenho</td></tr>
+</table></div>
+<h2>Módulos</h2>
+<p>Cada módulo é uma pasta com um manifesto <code>module.yaml</code>, que declara comandos, flags e serviços. Um módulo novo entra sem editar arquivos centrais, e desligar a flag some com o comando. A regra é conferida por teste e pelo import-linter.</p>
+<div class="tabela"><table><tr><th>Módulo</th><th>O que faz</th></tr>
+<tr><td><code>demands</code></td><td>Ideia, etapas, responsáveis, propostas, reuniões e board</td></tr>
+<tr><td><code>planning</code></td><td>Spec, dúvidas, requisito técnico, backlog e contexto do projeto</td></tr>
+<tr><td><code>execution</code></td><td>Agentes, roteamento, cota, retomada e história até o portão</td></tr>
+<tr><td><code>quality</code></td><td>Receitas por stack: lint, testes, segurança e padrão de código</td></tr>
+<tr><td><code>delivery</code></td><td>PR, revisão, evidências e aprovações externas</td></tr>
+<tr><td><code>lineage</code></td><td>De onde vem e para onde vai cada componente, entre times</td></tr>
+<tr><td><code>knowledge</code></td><td>Cérebro, busca, lições e avaliação</td></tr>
+<tr><td><code>packs</code></td><td>Skills de mercado travadas por hash, e extensões</td></tr>
+<tr><td><code>mcp</code></td><td>Conexão com MCPs, com aprovação pelo destino e versão fixa</td></tr>
+<tr><td><code>finops</code>, <code>usage</code></td><td>Custo em reais, orçamento e leitura do consumo das CLIs</td></tr>
+<tr><td><code>sandbox</code>, <code>demo</code></td><td>Teste livre sem demanda e experimentação com dados fictícios</td></tr>
+<tr><td><code>setup</code>, <code>console</code>, <code>notify</code></td><td>Instalação, diagnóstico, squad, console conversacional e avisos</td></tr>
+</table></div>
+<h2>Segurança e dados</h2>
+<ul>
+<li><strong>Classe de dados:</strong> a <code>data_policy</code> define o que pode ir para cada fornecedor. Devin e Copilot não recebem <code>confidential</code> nem <code>restricted</code> até o bloqueio deles ser provado.</li>
+<li><strong>Central:</strong> recebe ferramenta, modelo, tokens e custo. Prompts, respostas, código e caminhos não saem da máquina.</li>
+<li><strong>Credenciais:</strong> ficam no cofre do sistema, e o agente recebe só o necessário.</li>
+<li><strong>Conteúdo de terceiros:</strong> packs travados por commit e hash. Script dentro de skill é bloqueado por padrão.</li>
+</ul>
+<p>O detalhe completo está na <a href="../../SPEC.md">especificação</a>.</p>
+</main>
+<footer>Nexo 0.1.0 · Documento interno, antes da primeira liberação. Cores aproximadas da identidade do Itaú Unibanco, a confirmar com o time de marca. O logo e a fonte da empresa dependem de liberação.</footer>
+</body>
+</html>

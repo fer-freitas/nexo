@@ -39,6 +39,11 @@ def main() -> int:
             "nexo",
             "--collect-submodules",
             "keyring.backends",
+            "--collect-submodules",
+            "uvicorn",
+            # `pyarrow` só serve à exportação do central na AWS
+            "--exclude-module",
+            "pyarrow",
             str(entry),
         ]
         done = subprocess.run(cmd, cwd=ROOT, check=False)

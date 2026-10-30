@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import subprocess
 import sys
 from typing import Annotated, Any
 
@@ -111,6 +110,16 @@ def register(root: typer.Typer, tools: Any) -> None:
         """Saúde do envio: pendências e atraso. Com o central fora, o trabalho segue e o envio espera."""
         raise typer.Exit(internal(["admin", "telemetry", "status"]))
 
+    def _serve(port: int) -> None:
+        import uvicorn
+
+        uvicorn.run("nexo.central.app:app", host="127.0.0.1", port=port, log_level="warning")
+
+    @central.command("serve", hidden=True)
+    def central_serve(port: Annotated[int, typer.Option("--port")] = 8080) -> None:
+        """Uso interno: sobe o servidor com o ambiente já definido por quem chamou. Funciona também no binário."""
+        _serve(port)
+
     @central.command("up")
     def central_up(
         port: Annotated[int, typer.Option("--port")] = 8080,
@@ -121,11 +130,5 @@ def register(root: typer.Typer, tools: Any) -> None:
             import uvicorn  # noqa: F401
         except ImportError as exc:
             raise NexoError("instale o extra: pip install nexo[central]") from exc
-        env = {**os.environ, "NX_COLLECTOR_DB": db}
-        raise typer.Exit(
-            subprocess.run(
-                [sys.executable, "-m", "uvicorn", "nexo.central.app:app", "--host", "127.0.0.1", "--port", str(port)],
-                env=env,
-                check=False,
-            ).returncode
-        )
+        os.environ["NX_COLLECTOR_DB"] = db
+        _serve(port)

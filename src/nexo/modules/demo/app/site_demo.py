@@ -7,7 +7,6 @@ import os
 import secrets
 import socket
 import subprocess
-import sys
 import tempfile
 import time
 import urllib.error
@@ -216,21 +215,10 @@ def start(port: int = 0, folder: Path | None = None) -> dict[str, Any]:
         "NX_COLLECTOR_PSEUDO_KEY": secrets.token_urlsafe(24),
         "NX_COLLECTOR_TOKEN_LOGIN": "1",
     }
-    server = subprocess.Popen(
-        [
-            sys.executable,
-            "-m",
-            "uvicorn",
-            "nexo.central.app:app",
-            "--host",
-            "127.0.0.1",
-            "--port",
-            str(chosen),
-            "--log-level",
-            "warning",
-        ],
-        env=env,
-    )
+    from nexo.kernel import services
+
+    command = services.get("execution.agents", "nexo_command")()
+    server = subprocess.Popen([*command, "central", "serve", "--port", str(chosen)], env=env)
     url = f"http://127.0.0.1:{chosen}"
     try:
         _wait(url)

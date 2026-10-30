@@ -4,6 +4,18 @@ CLI para PM, QA, tech lead e dev que conduz o trabalho do pedido até o PR. As s
 
 **Estado:** em construção, antes da primeira liberação. O que já foi provado e o que falta está em [docs/estado.md](docs/estado.md). Novos itens entram em [docs/backlog.md](docs/backlog.md). A especificação completa está em [SPEC.md](SPEC.md).
 
+## Documentação
+
+Abra [docs/site/index.html](docs/site/index.html) no navegador: como funciona, arquitetura, features, a apresentação para executivos e o guia do usuário.
+
+## Experimentar em dois minutos
+
+```bash
+nexo setup       # confere e instala o que falta, perguntando antes
+nexo demo cli    # repositório de exemplo com agente simulado, sem gastar tokens
+nexo demo site   # portal em 127.0.0.1, com um login por perfil
+```
+
 ## Começar
 
 Pré-requisitos: Python 3.12 ou mais recente e Git. Para rodar tarefas de IA, pelo menos uma destas ferramentas instalada e autenticada: Claude Code, Devin CLI ou GitHub Copilot CLI.
@@ -11,7 +23,7 @@ Pré-requisitos: Python 3.12 ou mais recente e Git. Para rodar tarefas de IA, pe
 ```bash
 python -m venv .venv
 .venv/bin/pip install -e ".[dev]"    # Windows: .venv\Scripts\pip install -e ".[dev]"
-.venv/bin/nexo doctor
+.venv/bin/nexo setup
 ```
 
 Em cada repositório de código, uma vez:
@@ -19,6 +31,8 @@ Em cada repositório de código, uma vez:
 ```bash
 nexo init
 nexo team link <time> --repo <endereço do repositório nexo-time>
+nexo squad set <seu-squad>
+nexo context init                    # poucas perguntas sobre o projeto e o repositório
 nexo lineage agent install           # opcional: mantém a linhagem atualizada nesta máquina
 ```
 

@@ -14,12 +14,16 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | Kit de contrato de módulo | Todos os módulos passam | `tests/architecture/test_module_contract.py` |
 | Portabilidade que dá para provar fora do Windows | Passa | `tests/architecture/test_portability.py` |
 | Claude Code real, em projeto descartável | Passou, sem PR e sem revisão por outro fornecedor | [Evidência](../evidence/p0/2026-10-30-claude-selftest.md) |
-| Binário `onedir` | Gerado e executado em macOS | `scripts/build_binary.py`, com `version`, `doctor`, `module list` e `pm idea --help` |
+| Binário `onedir` | Gerado e executado em macOS, 200 MB, com o portal de demonstração no ar | `scripts/build_binary.py` e `dist/nexo/nexo demo site` |
+| `nexo demo cli` | O roteiro impresso é executado comando a comando | `tests/integration/test_demo.py` |
 
 ## O que não foi verificado
 
 | Item | Situação | Quem destrava |
 |---|---|---|
+| **Identidade visual** | Só a paleta aproximada, porque o manual de marca não é público. Sem logo nem fonte da empresa | Time de marca |
+| **`nexo setup` instalando de verdade** | Só simulado. Os identificadores de pacote do `winget` não foram conferidos, e a TI pode bloquear | Prova na máquina da empresa |
+| **Aparência no Windows** | Cores do terminal e páginas conferidas só em macOS | Prova MF |
 | **Windows** | Nunca rodou: agendador, Credential Manager, binário, proxy e TLS, caminhos longos | Máquina da empresa (Q-02) |
 | **Claude em história real** | Fluxo completo em projeto descartável, com portão humano. Faltam PR no GitHub e revisão por outro fornecedor. [Evidência](../evidence/p0/2026-10-30-claude-selftest.md) | `nexo selftest --agent claude --github <dono>/nexo-selftest` |
 | **Devin e Copilot em história real** | Não rodaram. O Devin está instalado aqui, o Copilot não | `nexo selftest`, que consome créditos |
