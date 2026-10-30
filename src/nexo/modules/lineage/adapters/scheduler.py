@@ -53,10 +53,17 @@ def plan(system: str, nexo: str, home: Path, minutes: int = MINUTES) -> Plan:
         return Plan(
             system,
             {
-                str(service): f"[Unit]\nDescription=Linhagem do Nexo\n\n[Service]\nType=oneshot\nNice=10\nExecStart={nexo} lineage agent run\n",
-                str(timer): f"[Unit]\nDescription=Linhagem do Nexo\n\n[Timer]\nOnBootSec=5min\nOnUnitActiveSec={minutes}min\n\n[Install]\nWantedBy=timers.target\n",
+                str(
+                    service
+                ): f"[Unit]\nDescription=Linhagem do Nexo\n\n[Service]\nType=oneshot\nNice=10\nExecStart={nexo} lineage agent run\n",  # noqa: E501
+                str(
+                    timer
+                ): f"[Unit]\nDescription=Linhagem do Nexo\n\n[Timer]\nOnBootSec=5min\nOnUnitActiveSec={minutes}min\n\n[Install]\nWantedBy=timers.target\n",  # noqa: E501
             },
-            (("systemctl", "--user", "daemon-reload"), ("systemctl", "--user", "enable", "--now", "nexo-lineage.timer")),
+            (
+                ("systemctl", "--user", "daemon-reload"),
+                ("systemctl", "--user", "enable", "--now", "nexo-lineage.timer"),
+            ),
             (("systemctl", "--user", "disable", "--now", "nexo-lineage.timer"),),
             (str(service), str(timer)),
         )
@@ -78,7 +85,9 @@ def install(nexo: str, home: Path | None = None, system: str | None = None) -> d
         Path(name).parent.mkdir(parents=True, exist_ok=True)
         Path(name).write_text(body, encoding="utf-8", newline="\n")
     for cmd in p.install:
-        done = subprocess.run(list(cmd), capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
+        done = subprocess.run(
+            list(cmd), capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
+        )
         if done.returncode != 0:
             raise NexoError(f"o sistema recusou o agendamento ({cmd[0]}): {done.stderr.strip()[:200]}")
     return {"system": p.system, "installed": True}

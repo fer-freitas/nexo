@@ -10,7 +10,8 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from ruamel.yaml import YAML, YAMLError
+from ruamel.yaml import YAML
+from ruamel.yaml.error import YAMLError
 
 from nexo.modules.lineage.domain.model import normalize
 
@@ -43,7 +44,7 @@ def _line(text: str, pos: int) -> int:
 
 
 RESOURCE = re.compile(r'resource\s+"(aws_[a-z0-9_]+)"\s+"([\w-]+)"\s*\{', re.M)
-ATTR = re.compile(r'^\s*([a-z_]+)\s*=\s*(.+?)\s*$', re.M)
+ATTR = re.compile(r"^\s*([a-z_]+)\s*=\s*(.+?)\s*$", re.M)
 REF = re.compile(r"\b(aws_[a-z0-9_]+)\.([\w-]+)\.\w+")
 
 
@@ -102,9 +103,33 @@ def scan_terraform(files: dict[str, str], result: ScanResult) -> None:
             topics = re.findall(r'"([^"]+)"', attrs.get("topics", ""))
             if topics:
                 for topic in topics:
-                    result.findings.append(Finding("consumes", "kafka", topic, path, line, "terraform", "high", component=function, runtime="lambda"))
+                    result.findings.append(
+                        Finding(
+                            "consumes",
+                            "kafka",
+                            topic,
+                            path,
+                            line,
+                            "terraform",
+                            "high",
+                            component=function,
+                            runtime="lambda",
+                        )
+                    )
             elif source_kind and literal(source):
-                result.findings.append(Finding("consumes", source_kind, source, path, line, "terraform", "high", component=function, runtime="lambda"))
+                result.findings.append(
+                    Finding(
+                        "consumes",
+                        source_kind,
+                        source,
+                        path,
+                        line,
+                        "terraform",
+                        "high",
+                        component=function,
+                        runtime="lambda",
+                    )
+                )
             else:
                 result.unresolved.append({"file": path, "line": line, "reason": "gatilho de Lambda sem nome resolvido"})
         elif kind == "aws_sns_topic_subscription":
@@ -112,7 +137,9 @@ def scan_terraform(files: dict[str, str], result: ScanResult) -> None:
             target_kind, target = channel_of(attrs.get("endpoint", ""))
             if literal(topic) and target_kind == "sqs":
                 # a fila assina o tópico: quem consome a fila recebe o tópico
-                result.findings.append(Finding("subscribes", "sns", topic, path, line, "terraform", "high", component=f"sqs:{target}"))
+                result.findings.append(
+                    Finding("subscribes", "sns", topic, path, line, "terraform", "high", component=f"sqs:{target}")
+                )
             elif not literal(topic):
                 result.unresolved.append({"file": path, "line": line, "reason": "assinatura SNS sem nome resolvido"})
 
@@ -135,7 +162,9 @@ def flatten(data: Any, prefix: str = "") -> dict[str, str]:
 
 
 CONST = re.compile(r'\bconst\s+string\s+(\w+)\s*=\s*"([^"]+)"')
-CONFIG_KEY = re.compile(r'(?:\[\s*"([\w:.\-]+)"\s*\]|GetValue<string>\(\s*"([\w:.\-]+)"\s*\)|GetSection\(\s*"([\w:.\-]+)"\s*\))')
+CONFIG_KEY = re.compile(
+    r'(?:\[\s*"([\w:.\-]+)"\s*\]|GetValue<string>\(\s*"([\w:.\-]+)"\s*\)|GetSection\(\s*"([\w:.\-]+)"\s*\))'
+)
 SECRET_KEY = re.compile(r"(password|secret|token|connectionstring|apikey|api_key)", re.I)
 
 PATTERNS: tuple[tuple[str, str, re.Pattern[str]], ...] = (
@@ -189,27 +218,50 @@ def scan_csharp(files: dict[str, str], config: dict[str, str], result: ScanResul
         for direction, kind, pattern in PATTERNS:
             for m in pattern.finditer(text):
                 expr = m.group(1)
-                items = re.findall(r'"([^"]+)"', expr) if kind == "kafka" and direction == "consumes" and "{" in expr else [expr]
+                items = (
+                    re.findall(r'"([^"]+)"', expr)
+                    if kind == "kafka" and direction == "consumes" and "{" in expr
+                    else [expr]
+                )
                 for item in items:
                     raw = f'"{item}"' if items != [expr] else item
                     name, ok = resolve(raw)
                     line = _line(text, m.start())
                     if ok:
-                        result.findings.append(Finding(direction, kind, name, path, line, "code", "medium", component=component))
+                        result.findings.append(
+                            Finding(direction, kind, name, path, line, "code", "medium", component=component)
+                        )
                     else:
-                        result.unresolved.append({"file": path, "line": line, "reason": f"{kind}: nome montado em tempo de execução"})
+                        result.unresolved.append(
+                            {"file": path, "line": line, "reason": f"{kind}: nome montado em tempo de execução"}
+                        )
         for pattern in ROUTES:
             for m in pattern.finditer(text):
                 result.findings.append(
-                    Finding("exposes", "http", component, path, _line(text, m.start()), "code", "medium", component=component)
+                    Finding(
+                        "exposes",
+                        "http",
+                        component,
+                        path,
+                        _line(text, m.start()),
+                        "code",
+                        "medium",
+                        component=component,
+                    )
                 )
                 break
         for event, kind in LAMBDA_EVENTS.items():
             if re.search(rf"\b{event}\b\s+\w+", text):
                 result.components[component] = "lambda"
-                if not any(f.component == component and f.direction == "consumes" and f.kind == kind for f in result.findings):
+                if not any(
+                    f.component == component and f.direction == "consumes" and f.kind == kind for f in result.findings
+                ):
                     result.unresolved.append(
-                        {"file": path, "line": _line(text, text.index(event)), "reason": f"handler de {event}: gatilho não visto no Terraform"}
+                        {
+                            "file": path,
+                            "line": _line(text, text.index(event)),
+                            "reason": f"handler de {event}: gatilho não visto no Terraform",
+                        }
                     )
 
 
@@ -255,7 +307,17 @@ def scan_contract(path: str, text: str, result: ScanResult, component: str) -> N
             # na v2, `publish` é o que os outros publicam para este serviço consumir
             if side in channel:
                 result.findings.append(
-                    Finding(direction, kind_of(channel, name), address, path, 1, "contract", "high", message(channel[side]), component)
+                    Finding(
+                        direction,
+                        kind_of(channel, name),
+                        address,
+                        path,
+                        1,
+                        "contract",
+                        "high",
+                        message(channel[side]),
+                        component,
+                    )
                 )
     for op in (data.get("operations") or {}).values():
         if not isinstance(op, dict):
@@ -268,12 +330,16 @@ def scan_contract(path: str, text: str, result: ScanResult, component: str) -> N
             msgs = channel.get("messages") or {}
             msg = next(iter(msgs), "")
             label = f"{msg}@{major}" if msg and major else ""
-            result.findings.append(Finding(direction, kind_of(channel, ref), address, path, 1, "contract", "high", label, component))
+            result.findings.append(
+                Finding(direction, kind_of(channel, ref), address, path, 1, "contract", "high", label, component)
+            )
 
 
 PROJECT_SDK = re.compile(r'<Project\s+Sdk="([^"]+)"')
 TEST_NAME = re.compile(r"(?:^|[./\\])(tests?|\w*\.tests?|\w*specs?)(?:[./\\]|$)", re.I)
-ENTRY = re.compile(r"\b(WebApplication\.CreateBuilder|Host\.CreateDefaultBuilder|Host\.CreateApplicationBuilder|LambdaBootstrap|ILambdaContext)\b")
+ENTRY = re.compile(
+    r"\b(WebApplication\.CreateBuilder|Host\.CreateDefaultBuilder|Host\.CreateApplicationBuilder|LambdaBootstrap|ILambdaContext)\b"
+)
 
 
 def build_manifest(
@@ -295,9 +361,7 @@ def build_manifest(
     deployable = sorted(
         p
         for p in projects
-        if any(
-            ENTRY.search(t) for q, t in cs.items() if q.startswith(p.rsplit("/", 1)[0] + "/" if "/" in p else "")
-        )
+        if any(ENTRY.search(t) for q, t in cs.items() if q.startswith(p.rsplit("/", 1)[0] + "/" if "/" in p else ""))
     )
 
     def component_of(path: str) -> str:
@@ -387,7 +451,15 @@ def _assemble(
                 channel, _ = normalize(str(item.get("kind", "kafka")), str(item["name"]), env)
                 if (name, direction, channel) in seen:
                     continue
-                link = {"channel": channel, "evidence": {"source": "declared", "file": ".nexo/component.yaml", "line": 0, "confidence": "declared"}}
+                link = {
+                    "channel": channel,
+                    "evidence": {
+                        "source": "declared",
+                        "file": ".nexo/component.yaml",
+                        "line": 0,
+                        "confidence": "declared",
+                    },
+                }
                 if item.get("message"):
                     link["message"] = str(item["message"])
                 target.setdefault(direction, []).append(link)

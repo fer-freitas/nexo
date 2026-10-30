@@ -18,7 +18,9 @@ def make_brain(tmp_path: Path) -> Path:
     (root / "lessons").mkdir(parents=True)
     (root / "brain.yaml").write_text("schema_version: 2\n", encoding="utf-8")
     (root / ".gitignore").write_text(".obsidian/\n.trash/\n", encoding="utf-8")
-    (root / "lessons" / "boa.md").write_text("---\nid: boa\ntype: lesson\nscope: global\n---\n\nTexto.\n", encoding="utf-8")
+    (root / "lessons" / "boa.md").write_text(
+        "---\nid: boa\ntype: lesson\nscope: global\n---\n\nTexto.\n", encoding="utf-8"
+    )
     git(root.parent, "init", "-q", str(root))
     git(root, "config", "user.email", "t@t")
     git(root, "config", "user.name", "t")
@@ -57,7 +59,9 @@ def test_lint_index_and_propose_by_branch(tmp_path: Path, nexo: Runner) -> None:
     assert data["nodes"] == 1
     source = tmp_path / "nova.md"
     source.write_text("---\nid: nova\ntype: lesson\nscope: global\n---\n\nVeja [[boa]].\n", encoding="utf-8")
-    code, out, err = nexo("--json", "brain", "propose", str(source), "--clone", str(brain), "--target", "lessons/nova.md")
+    code, out, err = nexo(
+        "--json", "brain", "propose", str(source), "--clone", str(brain), "--target", "lessons/nova.md"
+    )
     assert code == 0, err
     result = json.loads(out)
     assert result["branch"] == "nexo/proposta/nova"
@@ -74,7 +78,9 @@ def test_promote_moves_to_global_in_a_branch(tmp_path: Path, nexo: Runner) -> No
     brain = make_brain(tmp_path)
     folder = brain / "projects" / "loja" / "lessons"
     folder.mkdir(parents=True)
-    (folder / "util.md").write_text("---\nid: util\ntype: lesson\nscope: project:loja\n---\n\nTexto.\n", encoding="utf-8")
+    (folder / "util.md").write_text(
+        "---\nid: util\ntype: lesson\nscope: project:loja\n---\n\nTexto.\n", encoding="utf-8"
+    )
     git(brain, "add", "-A")
     git(brain, "commit", "-qm", "nota")
     code, out, err = nexo("--json", "brain", "promote", str(brain), "util")

@@ -171,7 +171,8 @@ def state_of(channel: dict[str, list[Link]], stale_teams: set[str]) -> str:
 def neighbors(graph: Graph, component: str) -> dict[str, list[dict[str, str]]]:
     """Entradas e saídas do componente, com o estado de cada ligação."""
     channels = by_channel(graph)
-    entries, outputs = [], []
+    entries: list[dict[str, Any]] = []
+    outputs: list[dict[str, Any]] = []
     for link in graph.links:
         if link.component != component:
             continue
@@ -187,7 +188,12 @@ def neighbors(graph: Graph, component: str) -> dict[str, list[dict[str, str]]]:
             if other.component == component:
                 continue
             target.append(
-                {"channel": link.channel, "component": other.component, "state": state, "message": link.message or other.message}
+                {
+                    "channel": link.channel,
+                    "component": other.component,
+                    "state": state,
+                    "message": link.message or other.message,
+                }
             )
     key = lambda r: (r["channel"], r["component"])  # noqa: E731
     return {"entries": sorted(entries, key=key), "outputs": sorted(outputs, key=key)}
@@ -215,7 +221,11 @@ def walk(graph: Graph, component: str, direction: str, depth: int = 5) -> list[s
 def impact(graph: Graph, target: str) -> dict[str, Any]:
     """Quem pode ser afetado. "Consumidores conhecidos": a cobertura pode estar incompleta."""
     channels = by_channel(graph)
-    hits = [c for c, d in channels.items() if c == target or any(target and target in (x.message or "") for x in d["pub"] + d["sub"])]
+    hits = [
+        c
+        for c, d in channels.items()
+        if c == target or any(target and target in (x.message or "") for x in d["pub"] + d["sub"])
+    ]
     consumers: list[dict[str, str]] = []
     for channel in hits:
         data = channels[channel]
@@ -256,9 +266,12 @@ def coverage(graph: Graph) -> dict[str, Any]:
 def nodes_and_edges(graph: Graph) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     """Mesmo formato do índice do cérebro, para o grafo futuro unir código, cérebro e linhagem."""
     nodes = [
-        {"id": f"component:{c}", "type": "component", "title": c, "team": v["team"]} for c, v in sorted(graph.components.items())
+        {"id": f"component:{c}", "type": "component", "title": c, "team": v["team"]}
+        for c, v in sorted(graph.components.items())
     ]
-    nodes += [{"id": f"channel:{c}", "type": "channel", "title": c} for c in sorted({link.channel for link in graph.links})]
+    nodes += [
+        {"id": f"channel:{c}", "type": "channel", "title": c} for c in sorted({link.channel for link in graph.links})
+    ]
     edges = sorted(
         (
             {

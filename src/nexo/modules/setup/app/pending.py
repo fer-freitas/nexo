@@ -152,7 +152,16 @@ def _demand_steps(ctx: AppContext) -> list[Step]:
         rows = services.load("demands.core").holder_inbox(ctx)
     except (NexoError, OSError):
         return []
-    return [Step(f"{r['demand']}: {r['action']}", ("brief", str(r["demand"])), str(r["title"])[:70], str(r["demand"]), "decide") for r in rows[:5]]
+    return [
+        Step(
+            f"{r['demand']}: {r['action']}",
+            ("brief", str(r["demand"])),
+            str(r["title"])[:70],
+            str(r["demand"]),
+            "decide",
+        )
+        for r in rows[:5]
+    ]
 
 
 def _dev_unclear_steps(root: Path) -> list[Step]:

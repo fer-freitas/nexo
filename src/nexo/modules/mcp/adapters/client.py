@@ -30,7 +30,12 @@ class StdioClient:
         ]
         if tool:
             messages.append(
-                {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": tool, "arguments": arguments or {}}}
+                {
+                    "jsonrpc": "2.0",
+                    "id": 3,
+                    "method": "tools/call",
+                    "params": {"name": tool, "arguments": arguments or {}},
+                }
             )
         payload = "".join(json.dumps(m) + "\n" for m in messages)
         try:
@@ -74,6 +79,11 @@ class HttpClient:
         call = None
         if tool:
             call = self._post(
-                {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": tool, "arguments": arguments or {}}}
+                {
+                    "jsonrpc": "2.0",
+                    "id": 3,
+                    "method": "tools/call",
+                    "params": {"name": tool, "arguments": arguments or {}},
+                }
             )
         return {"tools": [t["name"] for t in (listed.get("result") or {}).get("tools", [])], "call": call}

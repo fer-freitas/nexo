@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json as _json
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 import typer
 
@@ -12,7 +12,7 @@ from nexo.modules.mcp.app import catalog
 
 def register(root: typer.Typer, tools: Any) -> None:
     ctx, emit, console = tools.ctx, tools.emit, tools.console
-    group = next(g.typer_instance for g in root.registered_groups if g.name == "mcp")
+    group = cast(typer.Typer, next(g.typer_instance for g in root.registered_groups if g.name == "mcp"))
 
     @group.command("search")
     def mcp_search(query: str) -> None:

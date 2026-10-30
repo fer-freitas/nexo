@@ -58,7 +58,12 @@ def team_repo(tmp: Path, name: str) -> Path:
 
 @pytest.fixture
 def world(tmp_path: Path, nexo: Runner, nexo_home: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
-    for k, v in {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}.items():
+    for k, v in {
+        "GIT_AUTHOR_NAME": "t",
+        "GIT_AUTHOR_EMAIL": "t@t",
+        "GIT_COMMITTER_NAME": "t",
+        "GIT_COMMITTER_EMAIL": "t@t",
+    }.items():
         monkeypatch.setenv(k, v)
     out: dict[str, Any] = {}
     for team, name, tree in (("time-traducao", "tradutor", TRADUTOR), ("time-posicao", "gestao", GESTAO)):
@@ -79,7 +84,9 @@ def j(nexo: Runner, *args: str) -> Any:
     return json.loads(out)
 
 
-def test_two_teams_linked_by_topic_with_no_ci(world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_two_teams_linked_by_topic_with_no_ci(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     for name in ("tradutor", "gestao"):
         monkeypatch.chdir(world[name])
         out = j(nexo, "lineage", "publish")
@@ -97,7 +104,9 @@ def test_two_teams_linked_by_topic_with_no_ci(world: dict[str, Any], nexo: Runne
     assert "linhagem de gestao" in log
 
 
-def test_scan_reads_origin_main_never_the_working_tree(world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_scan_reads_origin_main_never_the_working_tree(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     work = world["tradutor"]
     monkeypatch.chdir(work)
     git(work, "checkout", "-q", "-b", "feature/x")
@@ -110,7 +119,9 @@ def test_scan_reads_origin_main_never_the_working_tree(world: dict[str, Any], ne
     assert git(work, "rev-parse", "--abbrev-ref", "HEAD").strip() == "feature/x"
 
 
-def test_second_machine_same_commit_does_not_duplicate_and_old_never_overwrites(world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_second_machine_same_commit_does_not_duplicate_and_old_never_overwrites(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     work = world["tradutor"]
     monkeypatch.chdir(work)
     assert j(nexo, "lineage", "publish")["published"]
@@ -131,7 +142,9 @@ def test_second_machine_same_commit_does_not_duplicate_and_old_never_overwrites(
     assert not result["published"] and "mais antigo" in result["reason"]
 
 
-def test_agent_finishes_without_cost_when_nothing_changed_and_reports_errors(world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_agent_finishes_without_cost_when_nothing_changed_and_reports_errors(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     from nexo.modules.lineage.app import lineage
 
     work = world["gestao"]
@@ -146,16 +159,22 @@ def test_agent_finishes_without_cost_when_nothing_changed_and_reports_errors(wor
     assert third["errors"] and j(nexo, "lineage", "agent", "status")["last_error"]
 
 
-def test_invalid_manifest_in_another_team_is_ignored_and_reported(world: dict[str, Any], nexo: Runner, nexo_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_invalid_manifest_in_another_team_is_ignored_and_reported(
+    world: dict[str, Any], nexo: Runner, nexo_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.chdir(world["gestao"])
     j(nexo, "lineage", "publish")
     target = nexo_home / "teams" / "time-traducao" / "lineage" / "invasor.yaml"
-    dump_yaml(target, {"schema": "nexo.lineage/v1", "team": "time-posicao", "repo": "x", "commit": "y", "components": []})
+    dump_yaml(
+        target, {"schema": "nexo.lineage/v1", "team": "time-posicao", "repo": "x", "commit": "y", "components": []}
+    )
     data = j(nexo, "lineage", "coverage")
     assert data["invalid"] and "difere" in data["invalid"][0]["problem"]
 
 
-def test_export_to_obsidian_has_links(world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_export_to_obsidian_has_links(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.chdir(world["gestao"])
     j(nexo, "lineage", "publish")
     out = tmp_path / "vault" / "_linhagem"
@@ -164,10 +183,15 @@ def test_export_to_obsidian_has_links(world: dict[str, Any], nexo: Runner, monke
     assert "[[kafka-posicao-traduzida]]" in note and "type: component" in note
 
 
-def test_declared_component_for_what_scanners_cannot_reach(world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_declared_component_for_what_scanners_cannot_reach(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     work = world["tradutor"]
     monkeypatch.chdir(work)
-    dump_yaml(work / ".nexo" / "component.yaml", {"components": [{"name": "tradutor-worker", "publishes": [{"kind": "kafka", "name": "topico.declarado"}]}]})
+    dump_yaml(
+        work / ".nexo" / "component.yaml",
+        {"components": [{"name": "tradutor-worker", "publishes": [{"kind": "kafka", "name": "topico.declarado"}]}]},
+    )
     git(work, "add", "-A")
     git(work, "commit", "-qm", "declara")
     git(work, "push", "-q", "origin", "main")

@@ -58,7 +58,9 @@ def people_page(request: Request, token: str = "") -> Response:
         if token
         else ""
     )
-    sso = "SSO ligado: novos acessos vêm do provedor." if auth.oidc_enabled() else "Login provisório, até conectar o SSO."
+    sso = (
+        "SSO ligado: novos acessos vêm do provedor." if auth.oidc_enabled() else "Login provisório, até conectar o SSO."
+    )
     body = (
         f"<div class=top><div><h1>Pessoas e acessos</h1><p>{e(sso)}</p></div></div>{notice}"
         "<section class=card><div class=card-head><h2>Convidar</h2></div>"
@@ -100,7 +102,12 @@ async def people_revoke(request: Request) -> Response:
     return RedirectResponse("/dash/people", status_code=303)
 
 
-KILL_KINDS = (("tools", "ferramentas"), ("models", "modelos"), ("nexo_versions", "versões do Nexo"), ("brain_versions", "versões do cérebro"))
+KILL_KINDS = (
+    ("tools", "ferramentas"),
+    ("models", "modelos"),
+    ("nexo_versions", "versões do Nexo"),
+    ("brain_versions", "versões do cérebro"),
+)
 
 
 @app.get("/dash/killswitch", response_model=None)
@@ -163,7 +170,9 @@ def insights_config_page(request: Request) -> Response:
         return principal
     if not principal.can_page("flags"):
         raise HTTPException(403, "sem acesso a esta página")
-    settings = {str(r["detector"]): bool(r["enabled"]) for r in db().query("SELECT detector, enabled FROM insight_settings")}
+    settings = {
+        str(r["detector"]): bool(r["enabled"]) for r in db().query("SELECT detector, enabled FROM insight_settings")
+    }
     rows = ""
     for det in engine.load_detectors():
         on = settings.get(det.id, det.enabled)

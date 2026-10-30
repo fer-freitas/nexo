@@ -20,7 +20,9 @@ from nexo.modules.lineage.domain.scan import build_manifest, normalize
         ("sqs", "arn:aws:sqs:us-east-1:123456789012:posicao-correcoes-prod", "sqs:posicao-correcoes", ""),
     ],
 )
-def test_normalize_removes_environment_account_and_groups_retry(kind: str, raw: str, channel: str, relation: str) -> None:
+def test_normalize_removes_environment_account_and_groups_retry(
+    kind: str, raw: str, channel: str, relation: str
+) -> None:
     assert normalize(kind, raw) == (channel, relation)
 
 

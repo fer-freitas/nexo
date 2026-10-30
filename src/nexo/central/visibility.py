@@ -12,7 +12,19 @@ from dataclasses import dataclass, field
 
 from fastapi import HTTPException
 
-ROLES = ("pm", "qa", "dev", "lead", "manager", "director", "finops", "nexo", "security", "admin", "ci")  # ci: só integrações
+ROLES = (
+    "pm",
+    "qa",
+    "dev",
+    "lead",
+    "manager",
+    "director",
+    "finops",
+    "nexo",
+    "security",
+    "admin",
+    "ci",
+)  # ci: só integrações
 ALL_SQUADS_ROLES = frozenset({"director", "finops", "nexo", "security", "admin"})
 
 PAGES: dict[str, tuple[str, frozenset[str]]] = {

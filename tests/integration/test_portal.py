@@ -18,7 +18,12 @@ def csrf(page: str) -> str:
 def form(client: Any, path: str, **fields: str) -> Any:
     from urllib.parse import urlencode
 
-    return client.post(path, content=urlencode(fields), headers={"Content-Type": "application/x-www-form-urlencoded"}, follow_redirects=False)
+    return client.post(
+        path,
+        content=urlencode(fields),
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        follow_redirects=False,
+    )
 
 
 def test_health(people: Any) -> None:
@@ -26,7 +31,9 @@ def test_health(people: Any) -> None:
 
 
 def test_floor_is_refused_on_the_server_and_visible_as_locked(people: Any) -> None:
-    resp = people.put("/v2/admin/flags/audit", json={"value": False, "reason": "tentando desligar"}, headers=h("tok-admin"))
+    resp = people.put(
+        "/v2/admin/flags/audit", json={"value": False, "reason": "tentando desligar"}, headers=h("tok-admin")
+    )
     assert resp.status_code in (403, 404)
     _session(people, "tok-admin")
     page = people.get("/dash/flags").text
@@ -46,7 +53,9 @@ def test_flag_change_needs_reason_scope_and_history(people: Any) -> None:
 
 
 def test_common_person_cannot_change_flags(people: Any) -> None:
-    resp = people.put("/v2/admin/flags/run_story", json={"value": False, "reason": "não sou admin"}, headers=h("tok-sso-bia"))
+    resp = people.put(
+        "/v2/admin/flags/run_story", json={"value": False, "reason": "não sou admin"}, headers=h("tok-sso-bia")
+    )
     assert resp.status_code == 403
 
 
@@ -101,11 +110,17 @@ def test_insight_detector_can_be_turned_off_one_by_one(people: Any) -> None:
 
 
 def demand(did: str, stage: str, **extra: Any) -> dict[str, Any]:
-    return rec("event", "demand.transitioned", {"demand": did, "demand_type": "story", "stage": stage, "holders": "dev", **extra})
+    return rec(
+        "event",
+        "demand.transitioned",
+        {"demand": did, "demand_type": "story", "stage": stage, "holders": "dev", **extra},
+    )
 
 
 def test_board_shows_open_demands_and_titles_only_where_allowed(people: Any) -> None:
-    post(people, "tok-admin", "", [demand("US-1-1", "build", title="Ver parcelas", blocked=1), demand("US-1-2", "done")])
+    post(
+        people, "tok-admin", "", [demand("US-1-1", "build", title="Ver parcelas", blocked=1), demand("US-1-2", "done")]
+    )
     data = people.get("/v2/pages/board", headers=h("tok-admin")).json()
     kpis = {k["id"]: k["value"] for k in data["kpis"]}
     assert kpis["open"] == 1 and kpis["blocked"] == 1

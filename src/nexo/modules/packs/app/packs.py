@@ -138,7 +138,11 @@ def lint_all(base: Path | None = None) -> list[dict[str, str]]:
 
 
 def _fetch(source: str, commit: str, target: Path) -> None:
-    for args in (["init", "-q"], ["remote", "add", "origin", source], ["fetch", "-q", "--depth", "1", "origin", commit]):
+    for args in (
+        ["init", "-q"],
+        ["remote", "add", "origin", source],
+        ["fetch", "-q", "--depth", "1", "origin", commit],
+    ):
         subprocess.run(["git", *args], cwd=target, check=True, capture_output=True)
     subprocess.run(["git", "checkout", "-q", "FETCH_HEAD"], cwd=target, check=True, capture_output=True)
 
@@ -174,7 +178,7 @@ def update(
 ) -> dict[str, Any]:
     """Prepara a adoção num clone do cérebro. Não mexe no que está em uso: quem aplica é o PR, depois de revisado."""
     lock = lock_data(dest) if (dest / LOCK).is_file() else {"packs": []}
-    known = next((p for p in lock["packs"] if p["id"] == pack_id), {})
+    known: dict[str, Any] = next((p for p in lock["packs"] if p["id"] == pack_id), {})
     source = source or str(known.get("source", ""))
     adopted = adopted or list(known.get("adopted") or [])
     license_ = license_ or str(known.get("license", ""))
@@ -220,7 +224,12 @@ def update(
 
 def listing() -> list[dict[str, Any]]:
     return [
-        {"id": p["id"], "commit": str(p["commit"])[:12], "license": p["license"], "adopted": len(p.get("adopted") or [])}
+        {
+            "id": p["id"],
+            "commit": str(p["commit"])[:12],
+            "license": p["license"],
+            "adopted": len(p.get("adopted") or []),
+        }
         for p in lock_data().get("packs") or []
     ]
 

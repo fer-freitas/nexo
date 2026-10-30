@@ -231,7 +231,9 @@ def brain_propose_cmd(
 
 
 @brain_app.command("lint")
-def brain_lint_cmd(path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: pasta atual)")] = None) -> None:
+def brain_lint_cmd(
+    path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: pasta atual)")] = None,
+) -> None:
     """Confere ID, frontmatter e links. Com erro, o `brain sign` recusa assinar."""
     from nexo.modules.knowledge.app import notes
 
@@ -247,7 +249,9 @@ def brain_lint_cmd(path: Annotated[Path | None, typer.Argument(help="Clone do c�
 
 
 @brain_app.command("index")
-def brain_index_cmd(path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: a cópia verificada)")] = None) -> None:
+def brain_index_cmd(
+    path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: a cópia verificada)")] = None,
+) -> None:
     """Gera nós e arestas no cache local: a base do grafo. Nunca entra no Git."""
     from nexo.modules.knowledge.app import notes
 

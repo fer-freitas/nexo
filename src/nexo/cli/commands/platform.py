@@ -618,7 +618,7 @@ def module_list_cmd() -> None:
     """Módulos, versão, estado e dependências."""
     from nexo.kernel import modules
 
-    rows = [
+    rows: list[dict[str, Any]] = [
         {"id": m.id, "version": m.version, "title": m.title, "requires": m.requires, "flags": len(m.flags)}
         for m in modules.builtin()
     ]

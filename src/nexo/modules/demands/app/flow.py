@@ -8,7 +8,8 @@ from typing import Any
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError, PolicyViolation
 from nexo.kernel.runtime import yamlfile
-from nexo.kernel.workspace import specs, tasks as workspace_tasks
+from nexo.kernel.workspace import specs
+from nexo.kernel.workspace import tasks as workspace_tasks
 from nexo.modules.demands.app import core
 from nexo.modules.demands.domain import model as m
 
@@ -200,7 +201,10 @@ def suggest_assignees(ctx: AppContext, target: str) -> list[dict[str, Any]]:
         if x.type == "story" and m.stage_of(x, demands) != "done":
             for person in x.responsible.values():
                 load[person] = load.get(person, 0) + 1
-    least = lambda people: min(people, key=lambda p: load.get(p, 0)) if people else ""  # noqa: E731
+
+    def least(people: list[str]) -> str:
+        return min(people, key=lambda p: load.get(p, 0)) if people else ""
+
     return [
         {
             "story": s.id,
@@ -232,11 +236,7 @@ def _story_acs(ctx: AppContext, story: str) -> list[dict[str, Any]]:
         for s in backlog.stories:
             if s.id == d.id:
                 refs = list(s.ac_refs)
-    return [
-        {"id": a.id, "text": _scenario_text(a)}
-        for a in spec.acceptance
-        if not refs or a.id in refs
-    ]
+    return [{"id": a.id, "text": _scenario_text(a)} for a in spec.acceptance if not refs or a.id in refs]
 
 
 def _scenario_text(a: Any) -> str:

@@ -11,6 +11,7 @@ from nexo.cli.surface import role_app
 from nexo.kernel.errors import ExitCode, NexoError, PolicyViolation
 from nexo.modules.demands.app import core, flow, proposals, views
 from nexo.modules.demands.cli_meetings import register_meetings
+from nexo.modules.demands.cli_team import register_team
 from nexo.modules.demands.domain import model as m
 
 Reason = Annotated[str, typer.Option("--reason", help="Motivo")]
@@ -26,7 +27,7 @@ def _pairs(values: list[str] | None) -> dict[str, str]:
     return out
 
 
-def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de comandos
+def register(root: typer.Typer, tools: Any) -> None:
     ctx, emit, console, internal = tools.ctx, tools.emit, tools.console, tools.internal
 
     def show(data: Any, text: str | None = None) -> None:
@@ -62,13 +63,16 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
     def pm_idea(text: str, file: Annotated[str, typer.Option("--file", help="Documento de origem")] = "") -> None:
         """Registra a ideia e gera IDEA-n, sem IA."""
         data = flow.idea(ctx(), text, file)
-        show(data, f"{data['id']}: {data['title']}\n  próximo: nexo pm decide {data['id']} build --reason \"...\"")
+        show(data, f'{data["id"]}: {data["title"]}\n  próximo: nexo pm decide {data["id"]} build --reason "..."')
 
     @pm.command("decide")
     def pm_decide(did: str, decision: str, reason: Reason = "") -> None:
         """Decide a ideia: build, drop ou investigate."""
         data = flow.decide(ctx(), did, decision, reason)
-        show(data, f"{did}: {decision}" + (f"\n  próximo: nexo pm split {did} --feature \"...\"" if decision == "build" else ""))
+        show(
+            data,
+            f"{did}: {decision}" + (f'\n  próximo: nexo pm split {did} --feature "..."' if decision == "build" else ""),
+        )
 
     @pm.command("split")
     def pm_split(
@@ -87,7 +91,9 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         raise typer.Exit(internal(["plan", "discovery", *args]))
 
     @pm.command("refine")
-    def pm_refine(target: str, from_: Annotated[list[str] | None, typer.Option("--from", help="Insumos")] = None) -> None:
+    def pm_refine(
+        target: str, from_: Annotated[list[str] | None, typer.Option("--from", help="Insumos")] = None
+    ) -> None:
         """Enriquece a spec e gera dúvidas. Com a prontidão em 100%, gera as histórias em rascunho."""
         from nexo.kernel.workspace import specs
 
@@ -101,7 +107,7 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         if not (folder / "spec.yaml").is_file():
             from nexo.kernel import services
 
-            Planner = services.get("planning.plan", "Planner")  # noqa: N806
+            Planner = services.get("planning.plan", "Planner")
             title = d.title if d else target
             Planner(context).new([*inputs, title] if inputs else [title], title=title, fid=target)
             code = 0
@@ -163,12 +169,14 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         """Gera os testes antes do código e os bloqueia. `dev run` continua dali."""
         from nexo.kernel import services
 
-        RunOptions = services.get("execution.run", "RunOptions")  # noqa: N806
-        StoryRunner = services.get("execution.story", "StoryRunner")  # noqa: N806
+        RunOptions = services.get("execution.run", "RunOptions")
+        StoryRunner = services.get("execution.story", "StoryRunner")
         core.require_role(ctx(), "qa", "Escrever os testes")
         proposals.prepare_run(ctx(), story, force=True)
         o = ctx().options
-        report = StoryRunner(ctx(), RunOptions(profile=o.profile, tool=o.tool, model=o.model, stop_after_qa=True)).run(story)
+        report = StoryRunner(ctx(), RunOptions(profile=o.profile, tool=o.tool, model=o.model, stop_after_qa=True)).run(
+            story
+        )
         show({"story": story, "state": report.state}, f"{story}: testes prontos e bloqueados")
 
     @qa.command("trace")
@@ -220,7 +228,10 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         raise typer.Exit(code or internal(["graph", "build"]))
 
     @tl.command("analyze")
-    def tl_analyze(fid: str, components: Annotated[list[str] | None, typer.Option("--component", help="Componente alterado")] = None) -> None:
+    def tl_analyze(
+        fid: str,
+        components: Annotated[list[str] | None, typer.Option("--component", help="Componente alterado")] = None,
+    ) -> None:
         """Lacunas, riscos e impacto. Mostra quem consome o que a feature altera, com o estado de cada ligação."""
         from nexo.kernel import services
 
@@ -317,13 +328,15 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
     def dev_refine(
         story: str,
         add_task: Annotated[list[str] | None, typer.Option("--add-task", help="Título da nova tarefa")] = None,
-        propose: Annotated[list[str] | None, typer.Option("--propose", help="seção=texto, ex.: tecnica=trocar a fila")] = None,
+        propose: Annotated[
+            list[str] | None, typer.Option("--propose", help="seção=texto, ex.: tecnica=trocar a fila")
+        ] = None,
         blocking: Annotated[bool, typer.Option("--blocking", help="As propostas travam a história")] = False,
     ) -> None:
         """Melhora o refinamento: tarefas são suas; o resto vira proposta para o dono."""
         core.require_role(ctx(), "dev", "Refinar a história")
         d, demands = core.get(ctx(), story)
-        lines = []
+        lines: list[str] = []
         for title in add_task or []:
             n = len([x for x in demands.values() if x.parent == d.id and x.type == "task"]) + len(lines) + 1
             tid = f"T-{d.id.removeprefix('US-')}-{n}"
@@ -339,7 +352,10 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
             opened = proposals.suggest(ctx(), d.id, section, text, blocking or section in ("funcional", "tecnica"))
             lines.append(f"proposta {opened['id']} para {m.ROLE_LABEL[opened['owner']]}: {text}")
         core.store(ctx()).push(f"nexo: refinamento de {d.id}")
-        show({"story": d.id, "changes": lines}, "\n".join(lines) or f"{d.id}: sem mudanças\n  próximo: nexo dev approve {d.id}")
+        show(
+            {"story": d.id, "changes": lines},
+            "\n".join(lines) or f"{d.id}: sem mudanças\n  próximo: nexo dev approve {d.id}",
+        )
 
     @dev.command("approve")
     def dev_approve(story: str) -> None:
@@ -370,13 +386,16 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
 
     @dev.command("resume")
     def dev_resume(target: str) -> None:
-        """Retoma depois de cota, dúvida, orçamento ou mudança na spec. Com `--dry-run`, só mostra o que seria refeito."""
+        """Retoma depois de cota, dúvida, orçamento ou mudança na spec. Com `--dry-run`, só mostra o que seria refeito."""  # noqa: E501
         dry_run = ctx().options.dry_run
         known = target in core.load(ctx())
         if known:
             plan = proposals.resume_plan(ctx(), target)
             if dry_run:
-                lines = [f"refazer: {', '.join(plan['redo']) or 'nada'}", f"manter: {', '.join(plan['done_kept']) or 'nada'}"]
+                lines = [
+                    f"refazer: {', '.join(plan['redo']) or 'nada'}",
+                    f"manter: {', '.join(plan['done_kept']) or 'nada'}",
+                ]
                 lines += [f"mudou: [{c['section']}] {c['text']}" for c in plan["what_changed"]]
                 show(plan, "\n".join(lines))
                 return
@@ -403,7 +422,13 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         return run
 
     def _problem(
-        story: str, kind: str, text: str, evidence: str, ac: list[str] | None, file: list[str] | None, ref: list[str] | None
+        story: str,
+        kind: str,
+        text: str,
+        evidence: str,
+        ac: list[str] | None,
+        file: list[str] | None,
+        ref: list[str] | None,
     ) -> None:
         if not kind:
             options = [
@@ -418,7 +443,9 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
                 console.print(f"  {i}. {label}", markup=False)
             kind = options[int(typer.prompt("›")) - 1][0]
             text = text or typer.prompt("Descreva")
-            evidence = evidence or typer.prompt("Evidência (opcional, Enter para pular)", default="", show_default=False)
+            evidence = evidence or typer.prompt(
+                "Evidência (opcional, Enter para pular)", default="", show_default=False
+            )
         data = proposals.problem(ctx(), story, kind, text, evidence, ac, ref, file)
         owner = m.ROLE_LABEL.get(str(data.get("owner")), "")
         lines = [f"Vai para {owner}." if owner else "Registrado."]
@@ -574,7 +601,7 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
             return
         rows = proposals.listing(ctx(), mine)
         text = "\n".join(
-            f"{r['id']}  {r['demand']}  {r['section']}  {'bloqueante ' if r['blocking'] else ''}{r['status']}: {r['text'][:70]}"
+            f"{r['id']}  {r['demand']}  {r['section']}  {'bloqueante ' if r['blocking'] else ''}{r['status']}: {r['text'][:70]}"  # noqa: E501
             for r in rows
         )
         show(rows, text or "nenhuma proposta aberta")
@@ -623,57 +650,7 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         _problem(args[0], kind, text, "", None, None, None)
 
     register_meetings(root, ctx, emit, show)
-
-    team_app = typer.Typer(help="Repositório do time", no_args_is_help=True)
-    root.add_typer(team_app, name="team")
-
-    @team_app.command("init")
-    def team_init(
-        name: str,
-        path: Annotated[str, typer.Option("--path", help="Pasta do repositório do time")] = "",
-        mode: Annotated[str, typer.Option("--mode", help="team ou solo")] = "team",
-        member: Annotated[list[str] | None, typer.Option("--member", help="pessoa=pm,qa,tl,dev")] = None,
-    ) -> None:
-        """Cria a estrutura de um repositório de time."""
-        from pathlib import Path
-
-        from nexo.modules.demands.app import membership
-
-        members = [{"id": k, "roles": v.split(",")} for k, v in _pairs(member).items()]
-        folder = Path(path) if path else ctx().cwd / f"nexo-{name}"
-        membership.init_team_repo(folder, name, mode, members)
-        show({"team": name, "path": str(folder)}, f"Estrutura criada em {folder}. Faça o primeiro commit e o push.")
-
-    @team_app.command("link")
-    def team_link(
-        name: str,
-        repo: Annotated[str, typer.Option("--repo", help="Endereço do repositório do time")],
-    ) -> None:
-        """Liga este repositório de código ao time: demandas e refinamento passam a morar lá."""
-        from nexo.modules.demands.app import membership
-
-        data = membership.link(ctx(), name, repo)
-        show(data, f"Projeto {data['project']} ligado ao time {name}.")
-
-    @root.command("role")
-    def role_cmd() -> None:
-        """Mostra seus papéis no time."""
-        me = core.who(ctx())
-        t = core.team(ctx())
-        data = {"who": me, "mode": t.mode, "roles": t.roles_of(me) if t.declared else list(m.ROLE_LABEL)}
-        show(data, f"{me}: {', '.join(data['roles']) or 'sem papel'} (modo {t.mode})")
-
-    @root.command("join")
-    def join_cmd(
-        team: str,
-        repo: Annotated[str, typer.Option("--repo", help="Endereço do repositório do time")] = "",
-        project: Annotated[str, typer.Option("--project", help="Projeto dentro do time")] = "",
-    ) -> None:
-        """Entra no time sem precisar saber Git."""
-        from nexo.modules.demands.app import membership
-
-        data = membership.join(ctx(), team, repo, project)
-        show(data, f"Você entrou no time {team}. Projetos: {', '.join(data['projects']) or 'nenhum'}")
+    register_team(root, ctx, show)
 
     def _approved_text(data: dict[str, Any]) -> str:
         text = f"{data['story']}: {data['part']} aprovado por {data['by']}"

@@ -55,7 +55,7 @@ class CommandDecl(BaseModel):
 
     path: str
     summary: str
-    roles: list[Literal["pm", "qa", "tl", "dev", "all"]] = Field(default_factory=lambda: ["all"])
+    roles: list[Literal["pm", "qa", "tl", "dev", "all"]] = ["all"]
     kind: Literal["read", "write", "agent", "gate"] = "read"
     target: str = ""  # atalho: o comando de papel chama este comando interno
     flag: str = ""

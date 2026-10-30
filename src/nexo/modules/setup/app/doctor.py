@@ -139,7 +139,9 @@ def _team_checks(ctx: AppContext) -> list[Check]:
                     )
                 )
         else:
-            out.append(Check("team", "repositório do time", WARN, "sem time: as demandas ficam só nesta máquina", False))
+            out.append(
+                Check("team", "repositório do time", WARN, "sem time: as demandas ficam só nesta máquina", False)
+            )
     if services.available("lineage.app"):
         state = services.load("lineage.app").agent_state(ctx)
         if state["last_error"]:
@@ -148,7 +150,9 @@ def _team_checks(ctx: AppContext) -> list[Check]:
             detail = f"última passada: {state['last_run']}"
         else:
             detail = "ainda sem passada (`nexo lineage agent install`)"
-        out.append(Check("lineage", "linhagem", WARN if state["last_error"] or not state["last_run"] else OK, detail, False))
+        out.append(
+            Check("lineage", "linhagem", WARN if state["last_error"] or not state["last_run"] else OK, detail, False)
+        )
     return out
 
 

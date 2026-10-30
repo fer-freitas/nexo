@@ -13,7 +13,6 @@ from typing import Any
 from nexo.central.db import CollectorDB
 from nexo.kernel.config.flags import BY_KEY, FlagSource, resolve
 
-
 PROJECT_PREFIX = "project:"
 
 

@@ -63,9 +63,7 @@ def tree(root: Path, ref: str) -> dict[str, str]:
         parts = meta.split()
         if not path.endswith(RELEVANT) or (parts[3].isdigit() and int(parts[3]) > MAX_BYTES):
             continue
-        blob = subprocess.run(
-            ["git", "cat-file", "blob", parts[2]], cwd=root, capture_output=True, check=False
-        )
+        blob = subprocess.run(["git", "cat-file", "blob", parts[2]], cwd=root, capture_output=True, check=False)
         if blob.returncode == 0:
             out[path] = blob.stdout.decode("utf-8", errors="replace").replace("\r\n", "\n")
     return out

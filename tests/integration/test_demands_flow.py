@@ -143,7 +143,18 @@ def test_problem_during_build_premise_and_resume_plan(
 ) -> None:
     story = to_assigned(nexo, monkeypatch)
     as_(monkeypatch, "dani")
-    out = j(nexo, "dev", "problem", story, "--kind", "technical", "--text", "API recusa centavos", "--file", "src/svc/version.py")
+    out = j(
+        nexo,
+        "dev",
+        "problem",
+        story,
+        "--kind",
+        "technical",
+        "--text",
+        "API recusa centavos",
+        "--file",
+        "src/svc/version.py",
+    )
     pid = out["proposal"]
     assert out["owner"] == "tl" and out["blocks"]
     assert nexo("dev", "run", story)[0] != 0  # travada até decidir
@@ -165,13 +176,17 @@ def test_problem_during_build_premise_and_resume_plan(
     assert any(c["id"] == other["demand"] for c in j(nexo, "demand", "tree", story)["children"])
 
 
-def test_premise_refused_in_sensitive_area(project: Path, nexo: Runner, nexo_home: Path, scenario: Any, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_premise_refused_in_sensitive_area(
+    project: Path, nexo: Runner, nexo_home: Path, scenario: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
     dump_yaml(project / ".nexo" / "team" / "team.yaml", TEAM)
     dump_yaml(nexo_home / "brain" / "org" / "config.yaml", {"planning": {"role_flow": {"joint_session": "never"}}})
     scenario([{"tool": "claude", "events": [e]} for e in (READY, BACKLOG, BACKLOG)], tools={"claude": {}})
     story = to_assigned(nexo, monkeypatch)
     as_(monkeypatch, "dani")
-    pid = j(nexo, "dev", "problem", story, "--kind", "functional", "--text", "AC-1 incompleto", "--ac", "AC-1")["proposal"]
+    pid = j(nexo, "dev", "problem", story, "--kind", "functional", "--text", "AC-1 incompleto", "--ac", "AC-1")[
+        "proposal"
+    ]
     as_(monkeypatch, "ana")
     code, _, err = nexo("tl", "assume", pid, "--reason", "prazo")
     assert code != 0 and "sensível" in err
@@ -216,15 +231,27 @@ def test_gate_bug_becomes_demand_and_task_states_follow(
     assert j(nexo, "demand", "show", story)["state"] == "EmDev"
 
 
-def test_two_machines_through_team_repo(tmp_path: Path, workdir: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_two_machines_through_team_repo(
+    tmp_path: Path, workdir: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """Sem ninguém usar Git: a PM grava numa máquina e o tech lead recebe em outra."""
     bare = tmp_path / "team.git"
     subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(bare)], check=True)
     seed = tmp_path / "seed"
     subprocess.run(["git", "clone", "-q", str(bare), str(seed)], check=True, capture_output=True)
     dump_yaml(seed / "team.yaml", TEAM)
-    dump_yaml(seed / "projects" / "loja" / ".nexo" / "nexo.yaml", {"project": "loja", "team": {"name": "squad", "repo": str(bare)}})
-    for args in (["config", "user.email", "t@t"], ["config", "user.name", "t"], ["add", "-A"], ["commit", "-qm", "i"], ["branch", "-M", "main"], ["push", "-q", "-u", "origin", "main"]):
+    dump_yaml(
+        seed / "projects" / "loja" / ".nexo" / "nexo.yaml",
+        {"project": "loja", "team": {"name": "squad", "repo": str(bare)}},
+    )
+    for args in (
+        ["config", "user.email", "t@t"],
+        ["config", "user.name", "t"],
+        ["add", "-A"],
+        ["commit", "-qm", "i"],
+        ["branch", "-M", "main"],
+        ["push", "-q", "-u", "origin", "main"],
+    ):
         subprocess.run(["git", *args], cwd=seed, check=True, capture_output=True)
     env = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@t", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@t"}
     for k, v in env.items():
@@ -251,12 +278,28 @@ def test_two_machines_through_team_repo(tmp_path: Path, workdir: Path, nexo: Run
     machine("m-bia", "bia")
     assert {r["id"] for r in j(nexo, "board")} == {"IDEA-1", "IDEA-2"}
     assert (tmp_path / "m-ana" / "teams" / "squad" / ".git").exists()
-    log = subprocess.run(["git", "--git-dir", str(bare), "log", "--oneline", "main"], capture_output=True, text=True, encoding="utf-8", check=True).stdout
+    log = subprocess.run(
+        ["git", "--git-dir", str(bare), "log", "--oneline", "main"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=True,
+    ).stdout
     assert "IDEA-2" in log
 
 
-def test_try_and_test_create_no_demand(project: Path, nexo: Runner, scenario: Any, monkeypatch: pytest.MonkeyPatch) -> None:
-    scenario([{"tool": "claude", "events": [{"edit": {"path": "x.py", "content": "print(1)\n"}}, {"done": {"summary": "ok"}}]}], tools={"claude": {}})
+def test_try_and_test_create_no_demand(
+    project: Path, nexo: Runner, scenario: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    scenario(
+        [
+            {
+                "tool": "claude",
+                "events": [{"edit": {"path": "x.py", "content": "print(1)\n"}}, {"done": {"summary": "ok"}}],
+            }
+        ],
+        tools={"claude": {}},
+    )
     as_(monkeypatch, "bia")
     data = j(nexo, "try", "cria um arquivo")
     assert data["id"] == "TRY-1"

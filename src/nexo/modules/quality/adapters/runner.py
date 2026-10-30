@@ -60,7 +60,7 @@ def _contains(workdir: Path, pattern: str, text: str) -> bool:
 
 
 def _command(stage: dict[str, Any], workdir: Path, subs: dict[str, str]) -> list[str]:
-    """Comando da etapa com os argumentos opcionais que se aplicam. Argumento vazio depois da substituição sai: alvo vazio = padrão da ferramenta."""
+    """Comando da etapa com os argumentos opcionais que se aplicam. Argumento vazio depois da substituição sai: alvo vazio = padrão da ferramenta."""  # noqa: E501
     args = [str(a) for a in stage["run"]]
     for extra in stage.get("optional_args") or []:
         if applies({**extra, "_params": subs}, workdir) is None:

@@ -1,7 +1,8 @@
 """Fluxo por papéis: discovery do PM, sessão conjunta com a IA e aprovação de cada papel sobre o pacote.
 
 O pacote da feature tem duas partes: requisitos (aprova o PM) e design técnico e SDD (aprova o tech lead). Testes
-e plano são aprovados por história, pelo QA e pelo dev indicados. Cada aprovação guarda o hash da parte; a parte depende das anteriores, então mudar um requisito invalida as
+e plano são aprovados por história, pelo QA e pelo dev indicados. Cada aprovação guarda o hash da parte; a parte
+depende das anteriores, então mudar um requisito invalida as
 aprovações de design e plano. A sessão conjunta é exigida pelo risco e pelo tamanho da feature (política da org).
 """
 

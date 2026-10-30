@@ -80,7 +80,9 @@ def test_project_isolation() -> None:
 
 
 def test_expired_verification_is_a_warning() -> None:
-    a = n.parse("decisions/decision-fila.md", DECISION.replace("scope: global", "scope: global\nverified_at: 2020-01-01"))
+    a = n.parse(
+        "decisions/decision-fila.md", DECISION.replace("scope: global", "scope: global\nverified_at: 2020-01-01")
+    )
     assert [p["level"] for p in n.lint([a], date(2026, 11, 1))] == ["warning"]
 
 

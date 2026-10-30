@@ -67,7 +67,7 @@ def test_version(nexo: Runner) -> None:
 
 def test_lang_en(nexo: Runner) -> None:
     code, out, _ = nexo("--lang", "en", "help")
-    assert code == 0 and "GLOBAL OPTIONS" in out or "Usage" in out
+    assert (code == 0 and "GLOBAL OPTIONS" in out) or "Usage" in out
 
 
 def test_config_set_get_list(nexo: Runner, nexo_home: Path) -> None:

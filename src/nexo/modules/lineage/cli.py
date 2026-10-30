@@ -40,10 +40,14 @@ def register(root: typer.Typer, tools: Any) -> None:
         console.print(f"{data['component']}  {data.get('runtime', '')}", markup=False)
         console.print("ENTRADAS")
         for r in data["entries"] or []:
-            console.print(f"  {r['channel']:<36} ◄ {r['component']:<30} {r['state']}  {r.get('message', '')}", markup=False)
+            console.print(
+                f"  {r['channel']:<36} ◄ {r['component']:<30} {r['state']}  {r.get('message', '')}", markup=False
+            )
         console.print("SAÍDAS")
         for r in data["outputs"] or []:
-            console.print(f"  {r['channel']:<36} ► {r['component']:<30} {r['state']}  {r.get('message', '')}", markup=False)
+            console.print(
+                f"  {r['channel']:<36} ► {r['component']:<30} {r['state']}  {r.get('message', '')}", markup=False
+            )
 
     @app.command("upstream")
     def upstream_cmd(component: str, depth: Annotated[int, typer.Option("--depth")] = 5) -> None:

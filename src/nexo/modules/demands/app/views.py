@@ -134,7 +134,9 @@ def brief(ctx: AppContext, did: str) -> dict[str, Any]:
     if d.type == "story" and d.parent in demands:
         parent = demands[d.parent]
         decided += [f"{p.text} ({p.id}, na feature)" for p in parent.proposals if p.status == "accepted"]
-    open_items = [f"{p.id}: {p.text} ({'bloqueante, ' if p.blocking else ''}com {p.owner_role})" for p in d.proposals if p.open]
+    open_items = [
+        f"{p.id}: {p.text} ({'bloqueante, ' if p.blocking else ''}com {p.owner_role})" for p in d.proposals if p.open
+    ]
     command = next((v.format(id=d.id) for k, v in NEXT.items() if k == stage), "")
     if stage == "refinement" and mine:
         command = f"nexo {mine[0]['role']} {'plan' if mine[0]['role'] == 'qa' else 'refine'} {d.id}"
@@ -174,4 +176,10 @@ def verify(ctx: AppContext) -> dict[str, Any]:
         for d in demands.values()
         if m.stage_of(d, demands) not in ("done", "cancelled") and not m.holders_of(d, demands)
     ]
-    return {"events": len(ok_ids), "demands": len(demands), "bad_files": bad_files, "orphans": orphans, "ok": not bad_files and not orphans}
+    return {
+        "events": len(ok_ids),
+        "demands": len(demands),
+        "bad_files": bad_files,
+        "orphans": orphans,
+        "ok": not bad_files and not orphans,
+    }

@@ -237,10 +237,12 @@ def login_blocked(key: str) -> bool:
 
 def login_failed(key: str) -> None:
     row = db().one("SELECT attempts, until FROM portal_login_attempts WHERE key = ?", (key,))
-    expired = row is None or float(row["until"]) <= time.time()
-    attempts = 1 if expired else int(row["attempts"]) + 1
+    attempts = int(row["attempts"]) + 1 if row and float(row["until"]) > time.time() else 1
     db().execute("DELETE FROM portal_login_attempts WHERE key = ?", (key,))
-    db().execute("INSERT INTO portal_login_attempts (key, attempts, until) VALUES (?,?,?)", (key, attempts, time.time() + LOCK_SECONDS))
+    db().execute(
+        "INSERT INTO portal_login_attempts (key, attempts, until) VALUES (?,?,?)",
+        (key, attempts, time.time() + LOCK_SECONDS),
+    )
 
 
 def login_ok(key: str) -> None:

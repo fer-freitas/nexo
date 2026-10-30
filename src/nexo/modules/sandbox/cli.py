@@ -12,9 +12,12 @@ from nexo.modules.sandbox import app as sandbox
 
 def register(root: typer.Typer, tools: Any) -> None:
     ctx, emit, console, internal = tools.ctx, tools.emit, tools.console, tools.internal
+
     @root.command("try")
     def try_cmd(
-        words: Annotated[list[str] | None, typer.Argument(help="O pedido, ou: list, show <id>, discard <id>, promote <id>")] = None,
+        words: Annotated[
+            list[str] | None, typer.Argument(help="O pedido, ou: list, show <id>, discard <id>, promote <id>")
+        ] = None,
         agent: Annotated[str, typer.Option("--agent", help="Ferramenta de IA")] = "",
         skill: Annotated[str, typer.Option("--skill", help="Skill a usar")] = "",
     ) -> None:
@@ -37,7 +40,9 @@ def register(root: typer.Typer, tools: Any) -> None:
             if verb == "show":
                 data = sandbox.show(ctx(), args[1])
                 if not ctx().options.json:
-                    console.print(f"{args[1]}: {data.get('request')}\n{data.get('diff') or '(sem alterações)'}", markup=False)
+                    console.print(
+                        f"{args[1]}: {data.get('request')}\n{data.get('diff') or '(sem alterações)'}", markup=False
+                    )
                     return
             else:
                 data = getattr(sandbox, verb)(ctx(), args[1])

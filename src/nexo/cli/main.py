@@ -12,7 +12,7 @@ from typing import Any
 import typer
 from typer._click.exceptions import ClickException, UsageError  # Typer ≥ 0.20 embute o Click
 
-from nexo.cli import look
+from nexo.cli import look, surface
 from nexo.cli.app import UNAUDITED, _state, app, apply_brand, console, ctx, emit, err_console, split_globals
 from nexo.cli.commands import context as _context_commands  # noqa: F401 — importar registra os comandos
 from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
@@ -27,12 +27,10 @@ from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
     platform,
     roles,
 )
-from nexo.cli import surface
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import ExitCode, NexoError, NotAvailableInPhase
 from nexo.kernel.i18n import set_lang, t
 from nexo.kernel.platform import config
-
 
 EXT_VERBS = {
     "add": "Adiciona {one} (projeto, squad ou org)",

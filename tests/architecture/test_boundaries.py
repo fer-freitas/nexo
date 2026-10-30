@@ -39,7 +39,11 @@ def _edges() -> Counter[tuple[str, str]]:
 
 
 def test_kernel_and_central_never_depend_on_modules_or_cli() -> None:
-    bad = [e for e in _edges() if e[0] in ("kernel", "store") and (e[1].startswith("modules") or e[1] in ("cli", "central"))]
+    bad = [
+        e
+        for e in _edges()
+        if e[0] in ("kernel", "store") and (e[1].startswith("modules") or e[1] in ("cli", "central"))
+    ]
     bad += [e for e in _edges() if e[0] == "central" and (e[1].startswith("modules") or e[1] == "cli")]
     assert bad == []
 
@@ -108,7 +112,7 @@ def test_every_manifest_is_valid_and_declares_real_commands() -> None:
     missing = []
     for m in modules.builtin():
         for c in m.commands:
-            words = translate(c.path.split() + ["X"])[:-1] if c.target else c.path.split()
+            words = translate([*c.path.split(), "X"])[:-1] if c.target else c.path.split()
             words = [w for w in words if not w.startswith("-") and w not in ("X", "{0}")]
             node = root
             for w in words:

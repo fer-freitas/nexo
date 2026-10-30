@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import re
 
-from ruamel.yaml import YAML, YAMLError
+from ruamel.yaml import YAML
+from ruamel.yaml.error import YAMLError
 
 FRONT = re.compile(r"\A---\r?\n(.*?)\r?\n---", re.S)
 NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")

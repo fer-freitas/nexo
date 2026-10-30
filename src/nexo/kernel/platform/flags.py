@@ -147,7 +147,9 @@ def require(ctx: AppContext, key: str) -> None:
     squad = _squad(ctx)
     where = f"para o squad {squad}" if d.scope == "squad" else "para a empresa"
     ctx.audit("flag.blocked", {"flag": key, "source": d.source})
-    raise FeatureDisabled(f"funcionalidade desligada {where} por feature flag: {BY_KEY[key].title} ({key}, fonte {d.source})")
+    raise FeatureDisabled(
+        f"funcionalidade desligada {where} por feature flag: {BY_KEY[key].title} ({key}, fonte {d.source})"
+    )
 
 
 def check_command(ctx: AppContext, args: list[str]) -> None:

@@ -158,8 +158,8 @@ def run_quality(
     if st.get("review_unavailable") and result.decision != "fail":
         result.decision = "human"
         result.human_areas = [*result.human_areas, "revisão independente indisponível"]
-    from nexo.modules.execution.app import autonomy
     from nexo.kernel.workflow.autonomy import auto_gate
+    from nexo.modules.execution.app import autonomy
 
     st["autonomy"] = autonomy.level(r.ctx)  # autonomia conquistada do squad × área
     if result.decision == "auto" and not auto_gate(st["autonomy"]):

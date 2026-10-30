@@ -153,7 +153,10 @@ def _story_of(payload: dict[str, Any]) -> str | None:
 
 def _demand(d: CollectorDB, raw: dict[str, Any], payload: dict[str, Any], base: tuple[str, str, str]) -> None:
     """Estado atual de cada demanda, para o board: o evento mais novo vence, em qualquer ordem de chegada."""
-    current = d.one("SELECT updated_at, demand_type, title, parent, origin FROM fact_demand WHERE project = ? AND demand = ?", (base[0], payload.get("demand")))
+    current = d.one(
+        "SELECT updated_at, demand_type, title, parent, origin FROM fact_demand WHERE project = ? AND demand = ?",
+        (base[0], payload.get("demand")),
+    )
     if current is not None and str(current["updated_at"]) > str(raw["at"]):
         return
     d.execute("DELETE FROM fact_demand WHERE project = ? AND demand = ?", (base[0], payload.get("demand")))

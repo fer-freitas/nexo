@@ -17,7 +17,7 @@ from typing import Any
 
 from nexo.central import brand as collector_brand
 from nexo.central.dashboard_css import CSS
-from nexo.central.visibility import ALL_PAGES, PAGES, Principal
+from nexo.central.visibility import ALL_PAGES, Principal
 from nexo.kernel.brand import css as brand_css
 from nexo.kernel.finops.money import brl
 

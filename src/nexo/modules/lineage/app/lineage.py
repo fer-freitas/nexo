@@ -76,7 +76,7 @@ def publish(ctx: AppContext, root: Path | None = None, manifest: dict[str, Any] 
     """Grava no repositório do time. Nunca sobrescreve um manifesto mais novo com um antigo."""
     from nexo.kernel import services
 
-    Store = services.get("demands.store", "Store")  # noqa: N806
+    Store = services.get("demands.store", "Store")
     target = root or ctx.project_root
     if target is None:
         raise NexoError("rode dentro de um repositório do projeto")
@@ -226,15 +226,39 @@ def export_obsidian(ctx: AppContext, folder: Path) -> dict[str, Any]:
     count = 0
     for cid in sorted(graph.components):
         data = m.neighbors(graph, cid)
-        lines = ["---", f"id: {slug(cid)}", "type: component", f'title: "{cid}"', "---", "", f"# {cid}", "", "## Entradas"]
-        lines += [f"- [[{slug(r['channel'])}]] ← {r['component']} ({r['state']})" for r in data["entries"]] or ["- nenhuma conhecida"]
+        lines = [
+            "---",
+            f"id: {slug(cid)}",
+            "type: component",
+            f'title: "{cid}"',
+            "---",
+            "",
+            f"# {cid}",
+            "",
+            "## Entradas",
+        ]
+        lines += [f"- [[{slug(r['channel'])}]] ← {r['component']} ({r['state']})" for r in data["entries"]] or [
+            "- nenhuma conhecida"
+        ]
         lines += ["", "## Saídas"]
-        lines += [f"- [[{slug(r['channel'])}]] → {r['component']} ({r['state']})" for r in data["outputs"]] or ["- nenhuma conhecida"]
+        lines += [f"- [[{slug(r['channel'])}]] → {r['component']} ({r['state']})" for r in data["outputs"]] or [
+            "- nenhuma conhecida"
+        ]
         (folder / f"{slug(cid)}.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
         count += 1
     for channel, data2 in sorted(m.by_channel(graph).items()):
         state = m.state_of(data2, graph.stale_teams)
-        lines = ["---", f"id: {slug(channel)}", "type: channel", f'title: "{channel}"', f"state: {state}", "---", "", f"# {channel}", ""]
+        lines = [
+            "---",
+            f"id: {slug(channel)}",
+            "type: channel",
+            f'title: "{channel}"',
+            f"state: {state}",
+            "---",
+            "",
+            f"# {channel}",
+            "",
+        ]
         lines += [f"- publica: [[{slug(link.component)}]]" for link in data2["pub"]]
         lines += [f"- consome: [[{slug(link.component)}]]" for link in data2["sub"]]
         (folder / f"{slug(channel)}.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
@@ -278,7 +302,11 @@ def _save_state(data: dict[str, Any]) -> None:
 
 def agent_state(ctx: AppContext) -> dict[str, Any]:
     state = _load_state()
-    return {"last_run": state.get("last_run", ""), "last_error": state.get("last_error", ""), "repos": state.get("repos", {})}
+    return {
+        "last_run": state.get("last_run", ""),
+        "last_error": state.get("last_error", ""),
+        "repos": state.get("repos", {}),
+    }
 
 
 def run_agent(ctx: AppContext, repo: Path | None = None) -> dict[str, Any]:
@@ -357,7 +385,10 @@ def notify_consumers(ctx: AppContext, target: str, summary: str) -> dict[str, An
             "POST",
             f"https://api.github.com/repos/{repo}/issues",
             {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
-            {"title": f"Mudança em {target}", "body": f"{summary}\n\nAviso do Nexo: seu componente é um consumidor conhecido."},
+            {
+                "title": f"Mudança em {target}",
+                "body": f"{summary}\n\nAviso do Nexo: seu componente é um consumidor conhecido.",
+            },
         )
         sent.append(team)
     ctx.audit("lineage.notified", {"target": target, "teams": len(sent)})

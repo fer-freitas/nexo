@@ -11,7 +11,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
-from ruamel.yaml import YAML, YAMLError
+from ruamel.yaml import YAML
+from ruamel.yaml.error import YAMLError
 
 RELATIONS = frozenset(
     {"links_to", "derived_from", "supersedes", "applies_to", "depends_on", "contradicts", "part_of", "mentions"}
@@ -82,7 +83,9 @@ def _resolves(target: str, ids: set[str], stems: set[str], paths: set[str]) -> b
     return clean in ids or clean in stems or f"{clean}.md" in paths or clean in paths
 
 
-def lint(notes: list[Note], today: date | None = None, project_class: dict[str, str] | None = None) -> list[dict[str, str]]:
+def lint(
+    notes: list[Note], today: date | None = None, project_class: dict[str, str] | None = None
+) -> list[dict[str, str]]:
     """Problemas do cérebro. `error` barra o PR e a assinatura; `warning` só avisa."""
     problems: list[dict[str, str]] = []
     today = today or date.today()
@@ -136,22 +139,27 @@ def lint(notes: list[Note], today: date | None = None, project_class: dict[str, 
         lowered = note.stem.lower()
         if not is_skill:
             if lowered in seen_stems and seen_stems[lowered] != note.path:
-                add(note, "error", f"nome repetido, mesmo só por maiúscula: {note.stem} (também em {seen_stems[lowered]})")
+                add(
+                    note,
+                    "error",
+                    f"nome repetido, mesmo só por maiúscula: {note.stem} (também em {seen_stems[lowered]})",
+                )
             seen_stems[lowered] = note.path
         data_class = str(note.meta.get("data_class", "internal"))
         if data_class not in DATA_RANK:
             add(note, "error", f"data_class inválida: {data_class}")
-        elif expected_limit := (project_class or {}).get(_scope_of(note.path)):
-            if DATA_RANK[data_class] > DATA_RANK.get(expected_limit, 3):
-                add(note, "error", f"data_class {data_class} acima da do projeto ({expected_limit})")
+        elif (limit := (project_class or {}).get(_scope_of(note.path))) and DATA_RANK[data_class] > DATA_RANK.get(
+            limit, 3
+        ):
+            add(note, "error", f"data_class {data_class} acima da do projeto ({limit})")
         for link in wikilinks(note):
             if not _resolves(link, ids, stems, paths):
                 add(note, "error", f"link quebrado: [[{link}]]")
-        for link in typed_links(note):
-            if link["rel"] not in RELATIONS:
-                add(note, "error", f"relação desconhecida: {link['rel'] or '(vazia)'}")
-            if not _resolves(link["to"], ids, stems, paths):
-                add(note, "error", f"link quebrado: {link['to']}")
+        for typed in typed_links(note):
+            if typed["rel"] not in RELATIONS:
+                add(note, "error", f"relação desconhecida: {typed['rel'] or '(vazia)'}")
+            if not _resolves(typed["to"], ids, stems, paths):
+                add(note, "error", f"link quebrado: {typed['to']}")
         verified = note.meta.get("verified_at")
         if verified:
             try:

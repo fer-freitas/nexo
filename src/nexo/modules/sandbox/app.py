@@ -104,7 +104,7 @@ def run_agent(ctx: AppContext, data: dict[str, Any], ui: Any = None) -> dict[str
     from nexo.kernel import services
 
     run = services.load("execution.run")
-    Orchestrator, RunOptions = run.Orchestrator, run.RunOptions  # noqa: N806
+    Orchestrator, RunOptions = run.Orchestrator, run.RunOptions
     extra = f"Use a skill {data['skill']}." if data.get("skill") else ""
     extra += " É um experimento: não faça push, não abra PR e não altere nada fora desta pasta."
     options = RunOptions(tool=str(data.get("agent") or "") or None, extra_prompt=extra)
@@ -117,7 +117,9 @@ def run_agent(ctx: AppContext, data: dict[str, Any], ui: Any = None) -> dict[str
         routes=report.routes,
     )
     yamlfile.dump(_folder(ctx) / f"{data['id']}.yaml", data)
-    ctx.audit("sandbox.finished", {"id": data["id"], "state": report.state, "routes": report.routes}, ref=str(data["id"]))
+    ctx.audit(
+        "sandbox.finished", {"id": data["id"], "state": report.state, "routes": report.routes}, ref=str(data["id"])
+    )
     return data
 
 

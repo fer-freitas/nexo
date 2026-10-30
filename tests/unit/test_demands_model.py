@@ -7,14 +7,23 @@ from nexo.modules.demands.domain import model as m
 
 
 def ev(i: int, type_: str, demand: str, actor: str = "gh:x", **data: object) -> dict[str, object]:
-    return {"id": f"{i:04d}", "at": f"2026-11-0{1 + i % 8}T10:00:00+00:00", "actor": actor, "type": type_, "demand": demand, "data": data}
+    return {
+        "id": f"{i:04d}",
+        "at": f"2026-11-0{1 + i % 8}T10:00:00+00:00",
+        "actor": actor,
+        "type": type_,
+        "demand": demand,
+        "data": data,
+    }
 
 
 def world() -> list[dict[str, object]]:
     return [
         ev(1, "demand.created", "IDEA-1", type="idea", title="Parcelas", responsible={"pm": "gh:bia"}),
         ev(2, "demand.decided", "IDEA-1", decision="build"),
-        ev(3, "demand.created", "F-1", type="feature", title="Simulador", parent="IDEA-1", responsible={"pm": "gh:bia"}),
+        ev(
+            3, "demand.created", "F-1", type="feature", title="Simulador", parent="IDEA-1", responsible={"pm": "gh:bia"}
+        ),
         ev(4, "demand.created", "US-1-1", type="story", title="Ver parcelas", parent="F-1"),
     ]
 
@@ -56,7 +65,11 @@ def test_story_goes_to_qa_and_dev_at_the_same_time_and_then_ready() -> None:
 
 
 def test_story_path_after_build_validation_gate_pr_accept() -> None:
-    events = [*world(), ev(5, "demand.assigned", "US-1-1", role="dev", who="gh:d"), ev(6, "demand.assigned", "US-1-1", role="qa", who="gh:q")]
+    events = [
+        *world(),
+        ev(5, "demand.assigned", "US-1-1", role="dev", who="gh:d"),
+        ev(6, "demand.assigned", "US-1-1", role="qa", who="gh:q"),
+    ]
     stages = []
     for i, (kind, data) in enumerate(
         [

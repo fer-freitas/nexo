@@ -120,7 +120,7 @@ def test_assistant_command_outside_the_catalog_is_refused(
 
 from collections.abc import Iterator  # noqa: E402
 
-from nexo.kernel.runtime import http
+from nexo.kernel.runtime import http  # noqa: E402
 from tests.conftest import git_cmd  # noqa: E402
 from tests.fakes.http_fake import FakeCloud  # noqa: E402
 

@@ -149,7 +149,11 @@ def _task_refs(ctx: AppContext, story: str, demands: dict[str, m.Demand]) -> lis
 
 
 def compute_impact(
-    ctx: AppContext, story: str, acs: list[str] | None = None, refs: list[str] | None = None, files: list[str] | None = None
+    ctx: AppContext,
+    story: str,
+    acs: list[str] | None = None,
+    refs: list[str] | None = None,
+    files: list[str] | None = None,
 ) -> impact_mod.Impact:
     demands = core.load(ctx, sync=False)
     return impact_mod.compute(_task_refs(ctx, story, demands), acs or [], refs or [], files or [])
@@ -370,9 +374,7 @@ def resume_plan(ctx: AppContext, story: str) -> dict[str, Any]:
         "redo": affected,
         "done_kept": [t.id for t in tasks if t.state == "Concluido" and t.id not in affected],
         "from_lock": d.lock,
-        "what_changed": [
-            {"section": p.section, "text": p.text, "why": p.id, "status": p.status} for p in decided
-        ],
+        "what_changed": [{"section": p.section, "text": p.text, "why": p.id, "status": p.status} for p in decided],
         "do_not_touch": "testes bloqueados dos critérios que não mudaram",
     }
 

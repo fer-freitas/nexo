@@ -27,7 +27,7 @@ def store(ctx: AppContext) -> Store:
         settings = project_settings(root_of(ctx))
         cached = Store(settings.team_dir(), settings.project, settings.shared)
         ctx.__dict__["_demand_store"] = cached
-    return cached  # type: ignore[no-any-return]
+    return cached
 
 
 def who(ctx: AppContext) -> str:

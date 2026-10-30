@@ -62,11 +62,19 @@ def test_identity_is_the_destination_not_the_name() -> None:
 def fake_catalog(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     script = tmp_path / "srv.py"
     script.write_text(SERVER, encoding="utf-8")
-    entry = {"transport": "stdio", "command": sys.executable, "args": ["-I", str(script)], "vendor": "v", "product": "Teste"}
+    entry = {
+        "transport": "stdio",
+        "command": sys.executable,
+        "args": ["-I", str(script)],
+        "vendor": "v",
+        "product": "Teste",
+    }
     monkeypatch.setattr(catalog, "catalog", lambda: {"teste": entry})
 
 
-def test_state_needs_evidence_and_tool_call(tmp_path: Path, project: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_state_needs_evidence_and_tool_call(
+    tmp_path: Path, project: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
     fake_catalog(tmp_path, monkeypatch)
     out = json.loads(nexo("--json", "mcp", "add", "teste")[1])
     assert out["state"] == "configured" and out["approve"]["match"].startswith("stdio:")
@@ -78,8 +86,12 @@ def test_state_needs_evidence_and_tool_call(tmp_path: Path, project: Path, nexo:
         catalog.probe(ctx, "teste", "apagar")
 
 
-def test_approval_is_for_the_exact_destination(tmp_path: Path, project: Path, nexo: Runner, nexo_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_approval_is_for_the_exact_destination(
+    tmp_path: Path, project: Path, nexo: Runner, nexo_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     fake_catalog(tmp_path, monkeypatch)
-    dump_yaml(nexo_home / "brain" / "org" / "mcp-allowlist.yaml", {"servers": [{"id": "teste", "match": "stdio:outro 1.0"}]})
+    dump_yaml(
+        nexo_home / "brain" / "org" / "mcp-allowlist.yaml", {"servers": [{"id": "teste", "match": "stdio:outro 1.0"}]}
+    )
     ctx = AppContext(options=Options())
     assert "destino diferente" in catalog.identity_problem(ctx, "teste", catalog.catalog()["teste"], {})

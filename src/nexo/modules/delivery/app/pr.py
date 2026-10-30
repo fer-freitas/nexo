@@ -52,10 +52,10 @@ def _report_status(ctx: AppContext, scm: Any, story_id: str, sha: str) -> None:
 def sync(ctx: AppContext) -> list[dict[str, Any]]:
     from nexo.kernel.platform import flags
     from nexo.kernel.security.injection import check
+    from nexo.kernel.workflow.autonomy import merges
     from nexo.modules.execution.app import autonomy
     from nexo.modules.execution.app.run import RunOptions
     from nexo.modules.execution.app.story import StoryRunner
-    from nexo.kernel.workflow.autonomy import merges
     from nexo.store.runs import RunStore, project_key
 
     root = ctx.project_root

@@ -299,9 +299,13 @@ def holders_of(d: Demand, all_: dict[str, Demand] | None = None) -> list[dict[st
         return out
     if stage == "refinement":
         if not d.approved("testes"):
-            out.append({"role": "qa", "who": _who(d, "qa", all_), "action": "Aprovar o plano de teste", "since": d.since})
+            out.append(
+                {"role": "qa", "who": _who(d, "qa", all_), "action": "Aprovar o plano de teste", "since": d.since}
+            )
         if not d.approved("plano"):
-            out.append({"role": "dev", "who": _who(d, "dev", all_), "action": "Melhorar o refinamento", "since": d.since})
+            out.append(
+                {"role": "dev", "who": _who(d, "dev", all_), "action": "Melhorar o refinamento", "since": d.since}
+            )
     else:
         _level, role, action = STAGES[stage]
         out.append({"role": role, "who": _who(d, role, all_), "action": action, "since": d.since})
@@ -333,5 +337,7 @@ def why(d: Demand, all_: dict[str, Demand] | None = None) -> str:
 
 def merge_conflict_free_id(existing: list[str], prefix: str) -> str:
     """Próximo número livre, olhando o que já existe (a corrida entre máquinas é tratada no push)."""
-    numbers = [int(i.rsplit("-", 1)[1]) for i in existing if i.startswith(prefix + "-") and i.rsplit("-", 1)[1].isdigit()]
+    numbers = [
+        int(i.rsplit("-", 1)[1]) for i in existing if i.startswith(prefix + "-") and i.rsplit("-", 1)[1].isdigit()
+    ]
     return f"{prefix}-{max(numbers, default=0) + 1}"

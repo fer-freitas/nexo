@@ -214,8 +214,8 @@ def enqueue_step(ctx: AppContext, step_id: str) -> None:
     if not ctx.events._outbox:
         return
     from nexo.kernel import brain as brain_adapter
-    from nexo.kernel.finops.costs import usage_cost_brl
     from nexo.kernel import services
+    from nexo.kernel.finops.costs import usage_cost_brl
 
     costs = services.load("finops.costs")
     from nexo.store.events import enqueue

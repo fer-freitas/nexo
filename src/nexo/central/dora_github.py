@@ -26,7 +26,10 @@ def collect(d: CollectorDB, repos: list[str], squads: dict[str, str] | None = No
     total = 0
     sourceless = []
     for repo in repos:
-        items = http.request("GET", f"{API}/repos/{repo}/deployments?environment=production&per_page=50", _headers()).body or []
+        items = (
+            http.request("GET", f"{API}/repos/{repo}/deployments?environment=production&per_page=50", _headers()).body
+            or []
+        )
         kind = "deployment"
         if not items:
             items = http.request("GET", f"{API}/repos/{repo}/releases?per_page=50", _headers()).body or []

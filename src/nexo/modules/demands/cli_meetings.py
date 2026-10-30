@@ -10,7 +10,9 @@ import typer
 from nexo.modules.demands.app import meetings
 
 
-def register_meetings(root: typer.Typer, ctx: Callable[[], Any], emit: Callable[[Any], None], show: Callable[..., None]) -> None:
+def register_meetings(
+    root: typer.Typer, ctx: Callable[[], Any], emit: Callable[[Any], None], show: Callable[..., None]
+) -> None:
     meeting = typer.Typer(help="Reunião de refinamento", no_args_is_help=True)
     root.add_typer(meeting, name="meeting")
 
@@ -35,7 +37,9 @@ def register_meetings(root: typer.Typer, ctx: Callable[[], Any], emit: Callable[
         emit(meetings.import_file(ctx(), source))
 
     @meeting.command("close")
-    def meeting_close(ai: Annotated[bool, typer.Option("--ai", help="A IA separa também as transcrições")] = False) -> None:
+    def meeting_close(
+        ai: Annotated[bool, typer.Option("--ai", help="A IA separa também as transcrições")] = False,
+    ) -> None:
         """Separa o que foi dito por seção. Nada entra na spec e nada é aprovado."""
         data = meetings.close(ctx(), use_ai=ai)
         text = "\n".join(f"  {i['id']} [{i['section']}] {i['text']}" for i in data["items"])
@@ -50,4 +54,3 @@ def register_meetings(root: typer.Typer, ctx: Callable[[], Any], emit: Callable[
         """Cada dono aceita ou recusa o que é da própria seção."""
         data = meetings.review(ctx(), mid, accept or [], decline or [])
         show(data, f"{mid}: {len(data['decided'])} decidido(s), {len(data['pending'])} pendente(s)")
-

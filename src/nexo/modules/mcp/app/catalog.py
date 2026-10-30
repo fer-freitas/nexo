@@ -93,7 +93,12 @@ def search(ctx: AppContext, query: str) -> list[dict[str, Any]]:
     for item in body.get("servers") or []:
         server = item.get("server", item)
         rows.append(
-            {"id": str(server.get("name")), "source": "registro oficial", "product": server.get("description"), "approved": False}
+            {
+                "id": str(server.get("name")),
+                "source": "registro oficial",
+                "product": server.get("description"),
+                "approved": False,
+            }
         )
     return rows
 
@@ -169,7 +174,12 @@ def probe(ctx: AppContext, server: str, tool: str = "", arguments: dict[str, Any
         if allowed and not rules.tool_allowed(allowed, tool):
             raise NexoError(f"{tool} fora da lista aprovada")
         _record(ctx, server, "used", f"chamou {tool}")
-    return {"id": server, "state": state_of(ctx, server), "tools": result["tools"], "evidence": evidence(ctx).get(server, {})}
+    return {
+        "id": server,
+        "state": state_of(ctx, server),
+        "tools": result["tools"],
+        "evidence": evidence(ctx).get(server, {}),
+    }
 
 
 def _problems(server: str, entry: dict[str, Any], cfg: dict[str, Any]) -> tuple[list[str], dict[str, str]]:
