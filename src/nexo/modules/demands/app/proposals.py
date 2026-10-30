@@ -6,6 +6,7 @@ a premissa provisória só vale pelo tech lead e segura o merge, e a retomada re
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from nexo.kernel.context import AppContext
@@ -16,6 +17,7 @@ from nexo.modules.demands.app import core, flow, sections
 from nexo.modules.demands.domain import impact as impact_mod
 from nexo.modules.demands.domain import model as m
 
+AC_ID = re.compile(r"\bAC-\d+\b")
 KINDS = ("task", "technical", "functional", "test", "other")
 ROUTE = {"task": "dev", "technical": "tl", "functional": "pm", "test": "qa"}
 
@@ -137,7 +139,7 @@ def _task_refs(ctx: AppContext, story: str, demands: dict[str, m.Demand]) -> lis
             refs.append(
                 impact_mod.TaskRef(
                     id=x.id,
-                    ac_refs=tuple(t.acceptance) if t else (),
+                    ac_refs=tuple(sorted({a for text in t.acceptance for a in AC_ID.findall(text)})) if t else (),
                     section_refs=tuple(getattr(t, "section_refs", ()) or ()) if t else (),
                     files=tuple(t.files_hint) if t else (),
                     done=x.state == "Concluido",
@@ -373,6 +375,18 @@ def resume_plan(ctx: AppContext, story: str) -> dict[str, Any]:
         ],
         "do_not_touch": "testes bloqueados dos critérios que não mudaram",
     }
+
+
+def reopen_affected(ctx: AppContext, tasks: list[str]) -> None:
+    """Só o afetado volta a rodar. O restante continua concluído."""
+    from nexo.store.runs import RunStore, project_key
+
+    runs = RunStore(ctx.conn, project_key(core.root_of(ctx)))
+    for task in tasks:
+        if runs.item_state(task) == "Concluido":
+            runs.set_item_state(task, "Pronto")
+        core.record(ctx, "demand.state", task, {"state": "Pronto", "reason": "mudança na spec"}, push=False)
+    core.store(ctx).push("nexo: tarefas reabertas pela mudança na spec")
 
 
 def handoff_context(ctx: AppContext, story: str) -> str:

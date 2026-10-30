@@ -20,6 +20,7 @@ tool_kinds:
   Agent: deny
 
 forbidden_paths:
+  - "**/.github/workflows/**"  # os workflows seguem um padrão predefinido; o Nexo não cria nem altera
   - "**/.env"
   - "**/.env.*"
   - "**/*.pem"

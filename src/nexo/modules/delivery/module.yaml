@@ -28,3 +28,8 @@ flags:
     title: "Pacote de evidências por release"
     area: "Qualidade"
     commands: ["evidence"]
+  - key: commit_status
+    title: "Status nexo/gate no commit do PR, pela API, sem Actions"
+    area: "Entrega"
+    stage: experimental
+    default: false

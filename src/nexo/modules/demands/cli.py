@@ -349,6 +349,7 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
             if plan["blocked_by"]:
                 raise PolicyViolation(f"{target} aguarda decisão: {', '.join(plan['blocked_by'])}")
             proposals.freeze(ctx(), target)
+            proposals.reopen_affected(ctx(), plan["redo"])
         raise typer.Exit(internal(["resume", target]))
 
     def problem_cmd(role: str) -> Any:
@@ -626,6 +627,37 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         """Cada dono aceita ou recusa o que é da própria seção."""
         data = meetings.review(ctx(), mid, accept or [], decline or [])
         show(data, f"{mid}: {len(data['decided'])} decidido(s), {len(data['pending'])} pendente(s)")
+
+    team_app = typer.Typer(help="Repositório do time", no_args_is_help=True)
+    root.add_typer(team_app, name="team")
+
+    @team_app.command("init")
+    def team_init(
+        name: str,
+        path: Annotated[str, typer.Option("--path", help="Pasta do repositório do time")] = "",
+        mode: Annotated[str, typer.Option("--mode", help="team ou solo")] = "team",
+        member: Annotated[list[str] | None, typer.Option("--member", help="pessoa=pm,qa,tl,dev")] = None,
+    ) -> None:
+        """Cria a estrutura de um repositório de time."""
+        from pathlib import Path
+
+        from nexo.modules.demands.app import membership
+
+        members = [{"id": k, "roles": v.split(",")} for k, v in _pairs(member).items()]
+        folder = Path(path) if path else ctx().cwd / f"nexo-{name}"
+        membership.init_team_repo(folder, name, mode, members)
+        show({"team": name, "path": str(folder)}, f"Estrutura criada em {folder}. Faça o primeiro commit e o push.")
+
+    @team_app.command("link")
+    def team_link(
+        name: str,
+        repo: Annotated[str, typer.Option("--repo", help="Endereço do repositório do time")],
+    ) -> None:
+        """Liga este repositório de código ao time: demandas e refinamento passam a morar lá."""
+        from nexo.modules.demands.app import membership
+
+        data = membership.link(ctx(), name, repo)
+        show(data, f"Projeto {data['project']} ligado ao time {name}.")
 
     @root.command("role")
     def role_cmd() -> None:

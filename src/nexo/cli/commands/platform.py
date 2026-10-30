@@ -554,7 +554,7 @@ def monitor_synthetic_cmd(
 flags_app = typer.Typer(help="Feature flags", no_args_is_help=True)
 
 
-app.add_typer(flags_app, name="flags", hidden=True)
+app.add_typer(flags_app, name="flags")
 
 
 @flags_app.command("list")
@@ -581,6 +581,7 @@ def flags_set_cmd(
     value: Annotated[str, typer.Argument(help="on | off | inherit")],
     reason: Annotated[str, typer.Option("--reason")] = "",
     squad: Annotated[str | None, typer.Option("--squad", help="Só para este squad (padrão: empresa inteira)")] = None,
+    local: Annotated[bool, typer.Option("--local", help="Só nesta máquina; local só desliga")] = False,
 ) -> None:
     """Liga ou desliga remotamente (central): empresa inteira ou um squad; exige papel admin ou time do Nexo."""
     from nexo.kernel.platform import flags
@@ -588,11 +589,44 @@ def flags_set_cmd(
     mapping = {"on": True, "off": False, "inherit": None}
     if value not in mapping:
         raise NexoError("valor: on | off | inherit")
+    if local:
+        if value == "on":
+            raise NexoError("local só desliga: para ligar, use o portal ou o cérebro")
+        emit(flags.set_local(ctx(), key, value == "off"))
+        return
     data = flags.set_remote(ctx(), key, mapping[value], squad, reason)
     if ctx().options.json:
         emit(data)
         return
     console.print(f"{key}: {value} ({'squad ' + squad if squad else 'empresa'})")
+
+
+@flags_app.command("explain")
+def flags_explain_cmd(key: str) -> None:
+    """Valor, fonte vencedora e o que cada fonte diz."""
+    from nexo.kernel.platform import flags
+
+    emit(flags.explain(ctx(), key))
+
+
+module_app = typer.Typer(help="Módulos do Nexo", no_args_is_help=True)
+app.add_typer(module_app, name="module")
+
+
+@module_app.command("list")
+def module_list_cmd() -> None:
+    """Módulos, versão, estado e dependências."""
+    from nexo.kernel import modules
+
+    rows = [
+        {"id": m.id, "version": m.version, "title": m.title, "requires": m.requires, "flags": len(m.flags)}
+        for m in modules.builtin()
+    ]
+    if ctx().options.json:
+        emit(rows)
+        return
+    for r in rows:
+        console.print(f"{r['id']:<14} {r['version']:<8} {r['title']}  (requer: {', '.join(r['requires']) or '—'})")
 
 
 killswitch_app = typer.Typer(help="Kill switch", no_args_is_help=True)

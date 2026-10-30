@@ -55,6 +55,9 @@ class GateResult:
 
 def hard_gates(g: GateInput) -> list[str]:
     fails = [f"etapa obrigatória falhou: {s.id} ({s.summary})" for s in g.report.failed_required]
+    workflows = [f for f in g.changed_files if f.replace("\\", "/").startswith(".github/workflows/")]
+    if workflows:
+        fails.append(f"alteração em workflow predefinido: {', '.join(workflows)}")
     for s in g.report.stages:
         if s.kind == "security" and s.worst_severity() in BLOCKING_SEVERITIES:
             fails.append(f"{s.id}: achado {s.worst_severity()}")

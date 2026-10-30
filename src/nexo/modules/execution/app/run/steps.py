@@ -81,6 +81,7 @@ def execute(
         prompt = run_context.prompt(o, task, packet)
         if o.opts.extra_prompt:
             prompt += "\n\n## Padrões a seguir nesta tarefa\n" + o.opts.extra_prompt
+        prompt += _spec_changes(o, task)
         if route.tool != "claude":
             prompt += run_context.team_skills(o, route.tool, task)
         redactions = len(find(prompt))
@@ -393,6 +394,19 @@ def failure_reason(o: Orchestrator, outcome: AgentOutcome) -> str:
     if outcome.status == "timeout":
         return "tempo limite excedido"
     return f"{outcome.error_kind or outcome.status}: {outcome.message[:200]}"
+
+
+def _spec_changes(o: Orchestrator, task: Task) -> str:
+    """Depois de mudança na spec, a sessão nova recebe o que mudou, em vez da conversa antiga."""
+    from nexo.kernel import services
+
+    if not task.story or not services.available("demands.proposals"):
+        return ""
+    try:
+        text = services.load("demands.proposals").handoff_context(o.ctx, task.story)
+    except NexoError:
+        return ""
+    return f"\n\n## Mudanças na spec\n{text}" if text else ""
 
 
 def usage(o: Orchestrator, run_id: str) -> list[dict[str, Any]]:

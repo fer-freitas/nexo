@@ -130,7 +130,7 @@ def resolve(
         if key in src.global_:
             decision = Decision(key, bool(src.global_[key]), src.name, "global")
             break
-    if decision.enabled and key in local_off:
+    if decision.enabled and key in local_off:  # local só desliga
         return Decision(key, False, "local", "local")
     return decision
 

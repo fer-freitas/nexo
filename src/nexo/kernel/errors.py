@@ -37,5 +37,9 @@ class PolicyViolation(NexoError):
     exit_code = ExitCode.POLICY_VIOLATION
 
 
+class FeatureDisabled(NexoError):
+    exit_code = ExitCode.DISABLED
+
+
 class IntegrityFailure(NexoError):
     exit_code = ExitCode.INTEGRITY_FAILURE

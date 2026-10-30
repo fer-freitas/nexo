@@ -10,6 +10,10 @@ subscribe: "nexo.modules.demands.app.listen:handle"
 events:
   consumes: ["plan.created", "plan.packaged", "gate.decision", "state.transition", "bug.created", "ready.checked", "scm.pr", "scm.merged", "review.spec_issue_ignored"]
 cli: "nexo.modules.demands.cli:register"
+services:
+  demands.proposals: "nexo.modules.demands.app.proposals"
+  demands.core: "nexo.modules.demands.app.core"
+  demands.flow: "nexo.modules.demands.app.flow"
 commands:
   # PM
   - {path: "pm idea", summary: "Registra a ideia e gera IDEA-n, sem IA", roles: [pm], kind: write}

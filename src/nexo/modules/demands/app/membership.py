@@ -52,3 +52,22 @@ def init_team_repo(path: Path, name: str, mode: str, members: list[dict[str, Any
     path.mkdir(parents=True, exist_ok=True)
     (path / ".gitattributes").write_text("* text eol=lf\n", encoding="utf-8", newline="\n")
     yamlfile.dump(path / "team.yaml", {"name": name, "mode": mode, "members": members})
+
+
+def link(ctx: AppContext, team: str, repo: str) -> dict[str, Any]:
+    """Liga o repositório de código ao time e leva o projeto para o clone do time."""
+    if ctx.project_root is None:
+        raise NexoError("rode dentro de um repositório do projeto (`nexo init`)")
+    target = clone_dir(team)
+    if not target.exists():
+        join(ctx, team, repo)
+    config = ctx.project_root / ".nexo" / "nexo.yaml"
+    data = dict(yamlfile.load(config))
+    data["team"] = {"name": team, "repo": repo}
+    yamlfile.dump(config, data)
+    project = str(data.get("project") or ctx.project_root.name)
+    marker = target / "projects" / project / ".nexo" / "nexo.yaml"
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    if not marker.is_file():
+        yamlfile.dump(marker, {"project": project, "team": {"name": team, "repo": repo}})
+    return {"team": team, "project": project, "path": str(target)}

@@ -151,6 +151,15 @@ class GitHubScm:
     def blocked_checks(self, sha: str) -> list[str]:
         return sorted(str(r.get("name")) for r in self._failed_runs(sha) if self._not_started(r))
 
+    def set_status(self, sha: str, state: str, description: str, context: str = "nexo/gate") -> None:
+        """Status no commit pela API, sem Actions. A proteção de branch pode exigi-lo, se a organização permitir."""
+        http.request(
+            "POST",
+            f"{API}/repos/{self.repo}/statuses/{sha}",
+            self.headers,
+            {"state": state, "description": description[:140], "context": context},
+        )
+
     def fetch_ref(self, number: int) -> str:
         return f"pull/{number}/head"
 

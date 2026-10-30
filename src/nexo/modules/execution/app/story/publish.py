@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -77,6 +79,30 @@ def record(r: StoryRunner, story_id: str) -> Path | None:
     return path
 
 
+def _freeze_in_branch(r: StoryRunner, story_id: str, worktree: Path) -> list[str]:
+    """A spec aprovada segue no branch da história. Sem CI, a evidência no PR é o que o revisor confere."""
+    from nexo.kernel import services
+
+    if not services.available("demands.proposals"):
+        return []
+    demands = services.load("demands.proposals")
+    try:
+        frozen = demands.freeze(r.ctx, story_id)
+    except NexoError:
+        return []
+    source = demands.lock_path(r.ctx, story_id, frozen["version"])
+    target = worktree / ".nexo" / "specs" / f"{story_id}.lock.yaml"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    text = source.read_text(encoding="utf-8")
+    target.write_text(text, encoding="utf-8", newline="\n")
+    git.checkpoint(worktree, f"docs({story_id}): spec congelada v{frozen['version']}")
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+    problems = demands.lock_current(r.ctx, story_id)
+    lines = [f"- Spec congelada: v{frozen['version']} (hash {digest})"]
+    lines += [f"- ATENÇÃO: {p}" for p in problems]
+    return lines
+
+
 def publish(r: StoryRunner, story_id: str) -> None:
     """História concluída: push da branch e PR (GitHub, GitLab, Bitbucket ou Azure Repos) com `AB#id`,
     evidências e decisão do portão (4.4)."""
@@ -102,6 +128,7 @@ def publish(r: StoryRunner, story_id: str) -> None:
         from nexo.modules.delivery.app import scm as delivery_scm
 
         scm = delivery_scm.build(r.ctx)
+        evidence = _freeze_in_branch(r, story_id, Path(st["worktree"]))
         scm.push(Path(st["worktree"]), st["branch"])
         link = r.sync.ref(story_id)
         ab = f"AB#{link['ref']} " if link and r.sync.kind == "azure" else ""
@@ -115,6 +142,7 @@ def publish(r: StoryRunner, story_id: str) -> None:
                 f"- Bugs no ciclo: {', '.join(st.get('bugs') or []) or 'nenhum'}",
                 f"- Tarefas: {', '.join(st.get('tasks') or {})}",
                 "- Rastreabilidade: `.nexo/specs/*/traceability.yaml`",
+                *evidence,
                 "",
                 ab.strip(),
             ]

@@ -23,6 +23,32 @@ def _state(root: Path, run_id: str) -> tuple[Path, dict[str, Any]]:
     return path, (json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {})
 
 
+def _merge_held(ctx: AppContext, story_id: str) -> list[str]:
+    """Premissa provisória aberta ou spec desatualizada seguram o merge, mesmo com todo o resto verde."""
+    from nexo.kernel import services
+
+    if not services.available("demands.proposals"):
+        return []
+    try:
+        return list(services.load("demands.proposals").lock_current(ctx, story_id))
+    except NexoError:
+        return []
+
+
+def _report_status(ctx: AppContext, scm: Any, story_id: str, sha: str) -> None:
+    """Sinal `nexo/gate` no commit, pela API, sem Actions. Opcional: é um sinal, não uma prova."""
+    from nexo.kernel.platform import flags
+
+    if not (sha and hasattr(scm, "set_status") and flags.enabled(ctx, "commit_status")):
+        return
+    held = _merge_held(ctx, story_id)
+    state, text = ("failure", "; ".join(held)[:140]) if held else ("success", "portões do Nexo aprovados")
+    try:
+        scm.set_status(sha, state, text)
+    except (NexoError, OSError) as exc:
+        ctx.audit("scm.error", {"story": story_id, "error": str(exc)[:200]}, ref=story_id)
+
+
 def sync(ctx: AppContext) -> list[dict[str, Any]]:
     from nexo.kernel.platform import flags
     from nexo.kernel.security.injection import check
@@ -116,7 +142,11 @@ def sync(ctx: AppContext) -> list[dict[str, Any]]:
             report = runner.pr_feedback(story_id, "review", [f"pedido de mudança no PR:\n{fenced}"], who)
             actions.append({"story": story_id, "action": "review_fix", "state": report.state, "reason": report.reason})
             continue
-        if merges(level) and item["state"] == "Concluido" and sha and flags.enabled(ctx, "auto_merge"):
+        _report_status(ctx, scm, story_id, sha)
+        held = _merge_held(ctx, story_id)
+        if held:
+            actions.append({"story": story_id, "action": "merge_held", "reasons": held})
+        if not held and merges(level) and item["state"] == "Concluido" and sha and flags.enabled(ctx, "auto_merge"):
             counts = scm.checks(sha)
             pending = sum(v for k, v in counts.items() if k not in ("success", "skipped", "neutral"))
             if counts.get("success") and not pending and pr.get("mergeable") is not False:
