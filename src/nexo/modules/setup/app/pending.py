@@ -133,7 +133,9 @@ def next_steps(ctx: AppContext, limit: int = 9) -> list[Step]:
         + _autopilot_steps(root)
     )
     context = _context_step(ctx, root)
-    later = _docs_step(ctx, root) + _setup_steps(ctx, root) + _finops_steps(ctx)  # depois da ação principal
+    later = (
+        _squad_step(ctx) + _docs_step(ctx, root) + _setup_steps(ctx, root) + _finops_steps(ctx)
+    )  # depois da ação principal
     if not steps and not stories:
         steps += [
             *context,
@@ -229,11 +231,19 @@ def _docs_step(ctx: AppContext, root: Path) -> list[Step]:
     return [Step("escolher onde fica a documentação", ("docs", "target"), detail)]
 
 
+def _squad_step(ctx: AppContext) -> list[Step]:
+    if config.resolved(ctx).values.get("squad"):
+        return []
+    return [Step("informar o seu squad", ("squad",), "custo, métricas e flags por squad dependem disso")]
+
+
 def _context_step(ctx: AppContext, root: Path) -> list[Step]:
-    """projeto sem contexto — a IA planeja melhor sabendo o produto, a parte e o que o repositório faz."""
+    """projeto sem contexto — a IA planeja melhor sabendo o projeto, a parte e o que o repositório faz."""
     if (root / ".nexo" / "contexto.md").is_file():
         return []
-    return [Step("contar ao Nexo sobre este projeto", ("context", "init"), "produto, parte do produto e o que ele faz")]
+    return [
+        Step("contar ao Nexo sobre este repositório", ("context", "init"), "projeto, parte do projeto e o que ele faz")
+    ]
 
 
 def _autopilot_steps(root: Path) -> list[Step]:
@@ -525,7 +535,7 @@ def _is_tech_lead(ctx: AppContext) -> bool:
 
 
 def _portal_steps(ctx: AppContext, root: Path, store: Any) -> list[Step]:
-    """o que o portal do produto apontaria neste repositório, para o tech lead resolver aqui mesmo:
+    """o que o portal do projeto apontaria neste repositório, para o tech lead resolver aqui mesmo:
     feature com história entregue e sem requisito técnico, e o código usando outra parte sem declarar."""
     from nexo.kernel.workspace import specs
 
@@ -540,7 +550,7 @@ def _portal_steps(ctx: AppContext, root: Path, store: Any) -> list[Step]:
         done = [s.id for s in backlog.stories if store.item_state(s.id) == "Concluido"]
         if done:
             fid = "-".join(folder.name.split("-")[:2])
-            detail = f"{', '.join(done[:3])} já entregue(s); o portal do produto aponta essa falta"
+            detail = f"{', '.join(done[:3])} já entregue(s); o portal do projeto aponta essa falta"
             out.append(Step(f"{fid}: escrever o requisito técnico", ("tech", "spec", fid), detail, fid, "problem"))
     return out
 

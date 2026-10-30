@@ -193,12 +193,12 @@ def _story_changes(ctx: AppContext, root: Path, stories: list[str]) -> list[str]
 def knowledge(ctx: AppContext, root: Path) -> tuple[str, str]:
     """Resumo determinístico dos documentos para o cérebro: (caminho no cérebro, conteúdo)."""
     cfg = config.resolved(ctx).values
-    product = _slug(str(cfg.get("product") or cfg.get("squad") or "produto"))
+    product = _slug(str(dict(cfg.get("context") or {}).get("project") or cfg.get("squad") or "projeto"))
     service = _slug(str(cfg.get("project") or root.name))
     lines = [
         f"# {service}",
         "",
-        f"Conhecimento do serviço `{service}` (produto `{product}`), gerado pelo agente writer a partir de `docs/`"
+        f"Conhecimento do serviço `{service}` (projeto `{product}`), gerado pelo agente writer a partir de `docs/`"
         " do repositório. Fonte oficial: o repositório; este resumo serve para busca pelos agentes de outros squads.",
         "",
     ]

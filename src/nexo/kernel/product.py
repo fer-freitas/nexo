@@ -1,11 +1,11 @@
-"""Contexto do produto: projetos interligados que formam um produto e os componentes que eles dividem.
+"""Contexto do projeto: repositórios interligados que formam um projeto e os componentes que eles dividem.
 
-Um produto tem **visões** (sistemas que o usuário vê, ex.: carteira passiva, custódia banco, custódia cliente) e
+Um projeto tem **visões** (sistemas que o usuário vê, ex.: carteira passiva, custódia banco, custódia cliente) e
 **componentes** compartilhados (bibliotecas, serviços) que as visões consomem. Cada parte vive num repositório
 próprio ou numa pasta de um monorepo; squads diferentes podem cuidar de partes diferentes.
 
-O produto fica no cérebro da org (`produtos/<id>/produto.yaml`, `contexto.md`, `glossario.md`): vale para todos os
-squads. Cada repositório diz a que produto e a que parte pertence (`product.id`/`product.repo` na configuração) e
+O projeto fica no cérebro da org (`projetos/<id>/projeto.yaml`, `contexto.md`, `glossario.md`): vale para todos os
+squads. Cada repositório diz a que projeto e a que parte pertence (`context.project`/`context.part` na configuração) e
 guarda o que é só dele em `.nexo/contexto.md`.
 """
 
@@ -22,8 +22,8 @@ KINDS = ("visao", "componente", "externo")
 
 
 class Part(BaseModel):
-    """Uma parte do produto: visão, componente (num repositório ou numa pasta de monorepo) ou sistema externo
-    (fora do produto, sem repositório: entra no desenho da solução)."""
+    """Uma parte do projeto: visão, componente (num repositório ou numa pasta de monorepo) ou sistema externo
+    (fora do projeto, sem repositório: entra no desenho da solução)."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -31,7 +31,7 @@ class Part(BaseModel):
     kind: Literal["visao", "componente", "externo"]
     name: str = ""
     description: str = ""
-    repo: str = ""  # ex.: org/custodia-cliente (vazio: mesmo repositório do produto, ver `path`)
+    repo: str = ""  # ex.: org/custodia-cliente (vazio: mesmo repositório do projeto, ver `path`)
     path: str = ""  # monorepo: pasta da parte dentro do repositório
     squads: list[str] = Field(default_factory=list)
     uses: list[str] = Field(default_factory=list)  # componentes e sistemas externos que esta parte consome
@@ -143,9 +143,9 @@ def impact(product: Product, here: str, text: str) -> Impact:
 
 
 def describe(product: Product, here: str) -> str:
-    """Resumo curto da posição do repositório no produto (vai para o prompt e para o `nexo context`)."""
+    """Resumo curto da posição do repositório no projeto (vai para o prompt e para o `nexo context`)."""
     part = product.part(here)
-    lines = [f"Produto: {product.label}" + (f" — {product.description}" if product.description else "")]
+    lines = [f"Projeto: {product.label}" + (f" — {product.description}" if product.description else "")]
     visions = [p.label for p in product.parts if p.kind == "visao"]
     components = [p for p in product.parts if p.kind == "componente"]
     external = [p.label for p in product.parts if p.kind == "externo"]

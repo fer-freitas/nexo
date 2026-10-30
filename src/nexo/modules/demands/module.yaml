@@ -56,6 +56,8 @@ commands:
   - {path: "qa problem", summary: "Problema descoberto na validação", roles: [qa], kind: write}
   # Tech lead
   - {path: "tl setup", summary: "Prepara o repositório: mapa do código, grafo e pipeline existente", roles: [tl], kind: write}
+  - {path: "pm context", summary: "Contexto do projeto: o que a IA sabe antes de planejar", roles: [pm], target: "context"}
+  - {path: "tl context", summary: "Contexto do projeto: o que a IA sabe antes de planejar", roles: [tl], target: "context"}
   - {path: "tl return", summary: "Devolve ao PM a lacuna funcional", roles: [tl], target: "tech return {0}", kind: write}
   - {path: "tl analyze", summary: "Lacunas, riscos, impacto e consumidores conhecidos", roles: [tl], kind: agent}
   - {path: "tl spec", summary: "Requisito técnico com premissas", roles: [tl], kind: agent, target: "tech spec"}

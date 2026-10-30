@@ -1,4 +1,4 @@
-"""produto: visões e componentes compartilhados, impacto cruzado e resumo para o prompt."""
+"""projeto: visões e componentes compartilhados, impacto cruzado e resumo para o prompt."""
 
 from __future__ import annotations
 
@@ -52,6 +52,6 @@ def test_invalid_product_is_explained() -> None:
 
 def test_summary_tells_the_ai_where_the_repository_sits() -> None:
     text = describe(custodia(), "motor-posicao")
-    assert "Produto: Custódia" in text and "Visões: Carteira passiva, Custódia banco, Custódia cliente" in text
+    assert "Projeto: Custódia" in text and "Visões: Carteira passiva, Custódia banco, Custódia cliente" in text
     assert "Este repositório é componente compartilhado Motor de posição" in text
     assert "mudanças aqui afetam Carteira passiva, Custódia banco" in text

@@ -18,6 +18,8 @@ flags:
     area: "Observabilidade"
 cli: "nexo.modules.setup.cli:register"
 commands:
+  - {path: "setup", summary: "Confere e instala o que é preciso para rodar", kind: write}
+  - {path: "squad", summary: "De qual squad você participa", kind: write}
   - {path: "central", summary: "Liga esta máquina ao coletor central da empresa", kind: write}
   - {path: "flags", summary: "Funcionalidades ligadas e de onde vem cada valor"}
   - {path: "module", summary: "Módulos do Nexo"}

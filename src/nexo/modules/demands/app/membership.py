@@ -16,6 +16,10 @@ def clone_dir(team: str) -> Path:
 
 
 def join(ctx: AppContext, team: str, repo: str = "", project: str = "") -> dict[str, Any]:
+    from nexo.kernel.platform import config as settings
+
+    if not settings.resolved(ctx).values.get("squad"):
+        settings.set_value(ctx, "squad", team, level="personal")  # o time é o ponto de partida; `nexo squad set` troca
     target = clone_dir(team)
     if not target.exists():
         if not repo:

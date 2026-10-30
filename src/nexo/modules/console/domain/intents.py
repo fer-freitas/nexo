@@ -175,10 +175,10 @@ def _phrase(raw: str, low: str, focus: Focus) -> Intent:
         return need("story", ("check",), "conferir se a {} está pronta de verdade")
     if _has(low, "base de conhecimento", "docusaurus", "site da documentacao"):
         return Intent("command", ("docs", "site"), note="atualizar a base de conhecimento do projeto")
-    if _has(low, "contexto", "produto"):  # contexto do produto e do projeto
+    if _has(low, "contexto"):  # contexto do projeto e do repositório
         if _has(low, "configurar", "configura", "definir", "define", "preparar", "prepara", "criar", "cria"):
-            return Intent("command", ("context", "init"), note="contar ao Nexo sobre o projeto e o produto")
-        return Intent("command", ("context",), note="contexto do produto e do projeto")
+            return Intent("command", ("context", "init"), note="contar ao Nexo sobre o repositório e o projeto")
+        return Intent("command", ("context",), note="contexto do projeto e do repositório")
     if _has(low, "custo", "custou", "gastei", "gasto", "gastos", "quanto paguei", "fatura"):
         if story or (_has(low, "historia", "ela", "essa") and focus.story):
             target = story or focus.story

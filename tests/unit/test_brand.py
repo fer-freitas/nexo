@@ -19,9 +19,9 @@ def test_default_brand_has_every_token_for_both_themes() -> None:
     b = default()
     assert b.name == "Nexo"
     assert set(b.light) == set(b.dark) == set(brand.THEME_KEYS)
-    assert b.light["accent"] == "#2F5FC4" and b.dark["accent"] == "#7FA6F5"
+    assert b.light["accent"] == "#BF5600" and b.dark["accent"] == "#FF8A1F"
     css = brand.css(b)
-    assert "--accent:#2F5FC4" in css and "--surface-2:" in css and "--sans:" in css
+    assert "--accent:#BF5600" in css and "--surface-2:" in css and "--sans:" in css
     assert ':root:not([data-theme="light"])' in css and ':root[data-theme="dark"]' in css  # três estados do tema
     assert css.count(";color-scheme:dark") == 2
 

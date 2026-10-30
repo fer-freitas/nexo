@@ -83,6 +83,7 @@ def run_checks(ctx: AppContext) -> list[Check]:
         checks.append(_isolation_check(ctx))
         checks.append(_guard_check(ctx))
         checks.append(_approval_check(ctx))
+        checks.append(_squad_check(ctx))
         checks.append(_unguarded_check(ctx))
         checks.append(_pricing_check(ctx))
         checks.append(_gitignore_check(ctx))
@@ -235,6 +236,15 @@ def _isolation_check(ctx: AppContext) -> Check:
 
     problems = isolation.check(ctx)
     return Check("isolation", "segurança", WARN if problems else OK, "; ".join(problems) or "ok ou não exigido", False)
+
+
+def _squad_check(ctx: AppContext) -> Check:
+    from nexo.modules.setup.app import squad
+
+    data = squad.current(ctx)
+    if not data["squad"]:
+        return Check("squad", "base", WARN, "não informado (nexo squad set <nome>)", False)
+    return Check("squad", "base", OK, f"{data['squad']} (fonte: {data['source']})", False)
 
 
 def _approval_check(ctx: AppContext) -> Check:

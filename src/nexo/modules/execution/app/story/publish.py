@@ -27,8 +27,8 @@ def _state(r: StoryRunner, run_id: str) -> dict[str, Any]:
 def record(r: StoryRunner, story_id: str) -> Path | None:
     """`.nexo/entregas/<história>.yaml` na branch da história, no mesmo commit que vai para o PR.
 
-    É o que o portal do produto lê de cada repositório (o estado local do Nexo não vai para o git): o que foi
-    entregue, em qual feature e parte do produto, quem aprovou, o que mudou e quais decisões a feature tem.
+    É o que o portal do projeto lê de cada repositório (o estado local do Nexo não vai para o git): o que foi
+    entregue, em qual feature e parte do projeto, quem aprovou, o que mudou e quais decisões a feature tem.
     Um arquivo por história evita conflito quando vários devs entregam no mesmo dia. Falha aqui não bloqueia a
     entrega: fica na trilha."""
     from nexo.kernel import services

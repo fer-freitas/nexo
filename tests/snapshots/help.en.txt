@@ -14,6 +14,7 @@ PM  nexo pm mostra o que está com você
   pm accept            Aceite de negócio depois da entrega
   pm confirm           Confirma uma premissa provisória
   pm decline           Recusa uma premissa provisória
+  pm context           Contexto do projeto: o que a IA sabe antes de planejar
 
 QA  nexo qa mostra o que está com você
   qa plan              Matriz critério → cenário → tipo de teste
@@ -31,6 +32,7 @@ QA  nexo qa mostra o que está com você
 
 TECH LEAD  nexo tl mostra o que está com você
   tl setup             Prepara o repositório: mapa do código, grafo e pipeline existente
+  tl context           Contexto do projeto: o que a IA sabe antes de planejar
   tl return            Devolve ao PM a lacuna funcional
   tl analyze           Lacunas, riscos, impacto e consumidores conhecidos
   tl spec              Requisito técnico com premissas
@@ -77,6 +79,8 @@ TODOS
   lineage              De onde vem e para onde vai cada componente
   mcp                  Busca, liga e prova a conexão com MCPs
   pack                 Conteúdo de terceiros com commit fixado, hash e licença
+  setup                Confere e instala o que é preciso para rodar
+  squad                De qual squad você participa
   central              Liga esta máquina ao coletor central da empresa
   flags                Funcionalidades ligadas e de onde vem cada valor
   module               Módulos do Nexo

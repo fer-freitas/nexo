@@ -1,5 +1,9 @@
 # Identidade visual do Nexo: o dashboard e o console leem as cores, as fontes e o nome daqui.
 #
+# Paleta inspirada na identidade pública do Itaú Unibanco. Os valores NÃO vêm do manual oficial de marca, que não é
+# público: o laranja é o usado publicamente, e os demais são aproximações. Confirmar com o time de marca. A fonte
+# própria e o logo da empresa não estão aqui: dependem de liberação e entram por um `brand.yaml` no cérebro.
+#
 # Para trocar a marca, não edite este arquivo. Crie um `brand.yaml` só com o que muda:
 #   - no cérebro da org (raiz do nexo-brain): vale para o console de todo mundo;
 #   - no coletor central: aponte `NX_BRAND=/caminho/brand.yaml` (vale para o dashboard).
@@ -15,19 +19,19 @@
 name: Nexo
 
 fonts:
-  sans: '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
-  mono: '"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace'
+  sans: '"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif'
+  mono: 'ui-monospace, Consolas, "SF Mono", Menlo, monospace'
 
 light:
-  bg: "#F3F5F9"
+  bg: "#FAFAF8"
   surface: "#FFFFFF"
-  surface_2: "#EEF2F8"
-  line: "#D9E0EA"
-  text: "#15202E"
-  muted: "#5D6B80"
-  faint: "#8794A8"
-  accent: "#2F5FC4"
-  accent_soft: "#E3EBFB"
+  surface_2: "#FFF4EA"
+  line: "#E6E2DA"
+  text: "#14213D"
+  muted: "#56607A"
+  faint: "#808899"
+  accent: "#BF5600"
+  accent_soft: "#FDE9D7"
   on_accent: "#FFFFFF"
   good: "#1F8F62"
   good_soft: "#DFF3EA"
@@ -37,16 +41,16 @@ light:
   bad_soft: "#FBE3E1"
 
 dark:
-  bg: "#0B121B"
-  surface: "#121C28"
-  surface_2: "#172434"
-  line: "#24344A"
-  text: "#E4EBF4"
-  muted: "#93A2B8"
-  faint: "#6C7B92"
-  accent: "#7FA6F5"
-  accent_soft: "#1B2B47"
-  on_accent: "#0B121B"
+  bg: "#0F1A3D"
+  surface: "#16244F"
+  surface_2: "#1C2B6B"
+  line: "#2C3C78"
+  text: "#F2F4FA"
+  muted: "#AEB8D2"
+  faint: "#8491B3"
+  accent: "#FF8A1F"
+  accent_soft: "#3A2A22"
+  on_accent: "#0F1A3D"
   good: "#45C08A"
   good_soft: "#12301F"
   warn: "#E2B04A"
@@ -56,7 +60,7 @@ dark:
 
 # Console: cores que funcionam em terminal claro e escuro (o terminal não diz qual é o fundo).
 terminal:
-  accent: "#5B8DEF"
+  accent: "#EC7000"
   good: "#2FAE73"
   warn: "#D69A1E"
   bad: "#E5534B"
