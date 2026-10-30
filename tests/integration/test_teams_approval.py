@@ -13,7 +13,7 @@ from tests.conftest import Runner
 from tests.integration.test_story import OK_REVIEWS, QA, impl, run_json
 from tests.integration.test_telemetry import TOKENS, enable, login
 
-PEOPLE = {**TOKENS, "tok-ci": {"role": "ci", "dev": "teams-flow"}}
+PEOPLE = {**TOKENS, "tok-ci": {"role": "integration", "dev": "teams-flow"}}
 
 
 def gated_story(planned, nexo: Runner, scenario, nexo_home: Path, central: Any, monkeypatch: pytest.MonkeyPatch) -> str:  # type: ignore[no-untyped-def]

@@ -397,7 +397,7 @@ def login_cmd(provider: str) -> None:
         "gemini_api",
         "gitlab",  # repositório
         "bitbucket",
-        "jsm",  # Jira Service Management (sem ela, vale a credencial do Jira)
+        "jsm",  # aprovações pelo Jira Service Management
         "google_chat",  # webhook do espaço
     )
     if provider.startswith("mcp_"):  # credencial de um MCP oficial do catálogo

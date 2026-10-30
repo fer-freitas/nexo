@@ -45,7 +45,7 @@ def people_page(request: Request, token: str = "") -> Response:
         return principal
     rows = db().query("SELECT dev, role FROM org_people ORDER BY dev")
     invites = {str(r["dev"]): float(r["expires_at"]) for r in db().query("SELECT dev, expires_at FROM portal_invites")}
-    options = "".join(f"<option>{e(r)}</option>" for r in ROLES if r != "ci")
+    options = "".join(f"<option>{e(r)}</option>" for r in ROLES if r != "integration")
     table = "".join(
         f"<tr><td>{e(r['dev'])}</td><td>{e(r['role'])}</td><td>{'convite ativo' if str(r['dev']) in invites else '—'}</td>"
         f'<td><form method=post action="/dash/people/revoke"><input type=hidden name=csrf value="{e(_csrf(request))}">'
@@ -81,7 +81,7 @@ async def people_invite(request: Request) -> Response:
     form = await _form(request)
     auth.check_csrf(request, form.get("csrf", ""))
     role = form.get("role", "dev")
-    if role not in ROLES or role == "ci":
+    if role not in ROLES or role == "integration":
         raise HTTPException(400, "perfil inválido")
     dev = form.get("dev", "").strip()
     if not dev:

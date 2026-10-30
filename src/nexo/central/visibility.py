@@ -23,8 +23,8 @@ ROLES = (
     "nexo",
     "security",
     "admin",
-    "ci",
-)  # ci: só integrações
+    "integration",
+)  # integration: só integrações, nunca uma pessoa
 ALL_SQUADS_ROLES = frozenset({"director", "finops", "nexo", "security", "admin"})
 
 PAGES: dict[str, tuple[str, frozenset[str]]] = {
@@ -36,10 +36,10 @@ PAGES: dict[str, tuple[str, frozenset[str]]] = {
     "brain": ("Conhecimento", frozenset({"nexo", "admin"})),
     "fleet": ("Frota de agentes", frozenset({"nexo", "security", "admin"})),
     "dora": ("DORA e ROI", frozenset({"director", "manager", "lead", "finops", "nexo", "admin"})),
-    "board": ("Demandas", frozenset(ROLES) - {"ci"}),
-    "insights": ("Insights", frozenset(ROLES) - {"ci"}),
+    "board": ("Demandas", frozenset(ROLES) - {"integration"}),
+    "insights": ("Insights", frozenset(ROLES) - {"integration"}),
     "flags": ("Feature flags", frozenset({"nexo", "admin"})),
-    "me": ("Meu painel", frozenset(ROLES) - {"ci"}),
+    "me": ("Meu painel", frozenset(ROLES) - {"integration"}),
 }
 # telas de operação do portal, sem página de dados
 PORTAL_PAGES: dict[str, tuple[str, frozenset[str]]] = {

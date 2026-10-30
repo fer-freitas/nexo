@@ -54,7 +54,7 @@ def itsm_channel(ctx: AppContext, name: str, cfg: dict[str, Any]) -> Any:
     jsm = dict(cfg.get("jsm") or {})
     token = credentials.get_secret("jsm")
     if not token:
-        raise NexoError("credencial 'jsm' ausente: rode `nexo login jsm` (ou use a do Jira)")
+        raise NexoError("credencial 'jsm' ausente: rode `nexo login jsm`")
     missing = [k for k in ("base_url", "email", "service_desk_id", "request_type_id") if not jsm.get(k)]
     if missing:
         raise NexoError(f"Jira Service Management sem {', '.join(missing)} em approvals.jsm")

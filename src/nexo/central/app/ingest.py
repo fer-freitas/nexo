@@ -232,12 +232,12 @@ class IncidentIn(BaseModel):
 @app.post("/v2/deployments")
 def post_deployment(body: DeploymentIn, ident: dict[str, str] = Depends(identity)) -> dict[str, Any]:  # noqa: B008
     """Implantação vinda do pipeline: serviço, ambiente, status e commits (com marca do Nexo)."""
-    _require(ident, "ci", "admin", "nexo")
+    _require(ident, "integration", "admin", "nexo")
     return dora.record_deployment(db(), body.model_dump())
 
 
 @app.post("/v2/incidents")
 def post_incident(body: IncidentIn, ident: dict[str, str] = Depends(identity)) -> dict[str, Any]:  # noqa: B008
     """Incidente vindo do ServiceNow; ligado à implantação e à mudança do Nexo pelo commit causador."""
-    _require(ident, "ci", "admin", "nexo")
+    _require(ident, "integration", "admin", "nexo")
     return dora.record_incident(db(), body.model_dump())

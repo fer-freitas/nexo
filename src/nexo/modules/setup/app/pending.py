@@ -418,10 +418,8 @@ def _finops_steps(ctx: AppContext) -> list[Step]:
 
 
 def _setup_steps(ctx: AppContext, root: Path) -> list[Step]:
-    """Projeto recém-preparado: CI com a mesma receita, mapa do código existente e linha de base das métricas."""
+    """Projeto recém-preparado: mapa do código existente e linha de base das métricas."""
     out: list[Step] = []
-    if not (root / ".github" / "workflows" / "nexo-quality.yml").is_file():
-        out.append(Step("gerar o CI com a mesma receita de qualidade", ("quality", "ci"), "workflow do GitHub Actions"))
     has_code = any(
         p.suffix in {".py", ".cs", ".java", ".ts", ".tsx", ".js"} for p in root.glob("src/**/*") if p.is_file()
     )

@@ -1,6 +1,12 @@
 id: mcp
 version: 1.0.0
 title: "Conexão com MCPs"
+flags:
+  - key: mcp.external
+    title: "Conexão com MCPs externos"
+    area: "Integrações"
+    stage: beta
+    commands: ["mcp search", "mcp add", "mcp approve", "mcp test"]
 cli: "nexo.modules.mcp.cli:register"
 services:
   mcp.catalog: "nexo.modules.mcp.app.catalog"

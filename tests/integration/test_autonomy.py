@@ -194,7 +194,7 @@ PEOPLE = {
     **TOKENS,
     "tok-gil": {"role": "manager", "dev": "gil"},
     "tok-lia": {"role": "lead", "dev": "lia"},
-    "tok-ci": {"role": "ci", "dev": "pipeline"},
+    "tok-ci": {"role": "integration", "dev": "pipeline"},
 }
 
 

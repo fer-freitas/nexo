@@ -6,6 +6,11 @@ flags:
     title: "Skills, hooks e tools de extensão (instalar e gerenciar)"
     area: "Qualidade"
     commands: ["skill", "tool", "hook add", "hook remove", "hook list"]
+  - key: packs.use
+    title: "Packs de skills de mercado"
+    area: "Qualidade"
+    stage: beta
+    commands: ["pack"]
 cli: "nexo.modules.packs.cli:register"
 services:
   packs.extensions: "nexo.modules.packs.app.extensions"

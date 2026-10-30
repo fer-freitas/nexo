@@ -91,7 +91,7 @@ def register_clarification(body: ClarificationIn, ident: dict[str, str] = Depend
 @app.post("/v2/clarifications/{cid}/answer")
 def answer_clarification(cid: str, body: AnswerIn, ident: dict[str, str] = Depends(identity)) -> dict[str, str]:  # noqa: B008
     """Resposta vinda do cartão do Teams (fluxo do Power Automate com o papel `ci`) ou da pessoa pelo dashboard."""
-    _require(ident, "ci", "admin", "dev", "lead", "manager")
+    _require(ident, "integration", "admin", "dev", "lead", "manager")
     row = db().one("SELECT id, answer FROM clarifications WHERE id = ?", (cid,))
     if row is None:
         raise HTTPException(404, "pergunta desconhecida")
@@ -168,13 +168,13 @@ def register_approval(body: ApprovalIn, ident: dict[str, str] = Depends(identity
 
 @app.post("/v2/approvals/{aid}/decide")
 def decide_approval(aid: str, body: DecisionIn, ident: dict[str, str] = Depends(identity)) -> dict[str, str]:  # noqa: B008
-    """Decisão do cartão do Teams (fluxo com papel `ci`, que informa `by`) ou da pessoa pelo formulário (SSO)."""
-    _require(ident, "ci", "admin", "dev", "lead", "manager")
+    """Decisão do cartão do Teams (fluxo com papel `integration`, que informa `by`) ou da pessoa pelo formulário (SSO)."""
+    _require(ident, "integration", "admin", "dev", "lead", "manager")
     if body.decision not in ("approve", "reject"):
         raise HTTPException(400, "decisão deve ser approve ou reject")
     if body.decision == "reject" and len(body.reason.strip()) < 5:
         raise HTTPException(400, "reprovação exige motivo")
-    decider = (body.by or ident["dev"]) if ident["role"] == "ci" else ident["dev"]
+    decider = (body.by or ident["dev"]) if ident["role"] == "integration" else ident["dev"]
     row = db().one("SELECT dev_pid, decision FROM remote_approvals WHERE id = ?", (aid,))
     if row is None:
         raise HTTPException(404, "aprovação desconhecida")

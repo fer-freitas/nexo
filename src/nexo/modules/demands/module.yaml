@@ -2,8 +2,18 @@ id: demands
 version: 1.0.0
 title: "Demandas e fluxo por papel"
 flags:
+  - key: demands.board
+    title: "Visão consolidada de demandas"
+    area: "Demandas"
+    stage: ga
+    commands: ["board", "brief", "demand", "proposals"]
+  - key: demands.flow
+    title: "Fluxo por papel: ideia, refinamento, reuniões e responsáveis"
+    area: "Demandas"
+    stage: ga
+    commands: ["pm", "qa", "tl", "dev", "suggest", "return", "problem", "meeting", "team", "role", "join"]
   - key: tracker_sync
-    title: "Sincronização com o tracker (Azure Boards, GitHub, Jira)"
+    title: "Sincronização com a ferramenta de gestão (GitHub Issues e CSV)"
     area: "Integrações"
     commands: ["tracker"]
 subscribe: "nexo.modules.demands.app.listen:handle"

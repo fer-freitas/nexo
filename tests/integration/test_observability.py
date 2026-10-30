@@ -287,7 +287,11 @@ def test_dora_roi_and_nexo_incidents(central: Any, monkeypatch: pytest.MonkeyPat
     monkeypatch.setenv(
         "NX_COLLECTOR_TOKENS",
         json.dumps(
-            {**TOKENS, "tok-ci": {"role": "ci", "dev": "pipeline"}, "tok-dir": {"role": "director", "dev": "dir"}}
+            {
+                **TOKENS,
+                "tok-ci": {"role": "integration", "dev": "pipeline"},
+                "tok-dir": {"role": "director", "dev": "dir"},
+            }
         ),
     )
     now = datetime.now(UTC)

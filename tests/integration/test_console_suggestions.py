@@ -114,17 +114,14 @@ def test_tracker_by_csv_asks_to_bring_the_states_back(project: Path, nexo: Runne
         ctx.close()
 
 
-def test_fresh_project_suggests_ci_and_map_after_planning(project: Path) -> None:
+def test_fresh_project_suggests_the_map_after_planning(project: Path) -> None:
     ctx = AppContext(options=Options())
     try:
         labels = list(_labels(ctx))
-        assert labels.index("planejar uma feature nova") < labels.index("gerar o CI com a mesma receita de qualidade")
-        assert "mapear o código existente" in labels  # há código em src/
-        (project / ".github" / "workflows").mkdir(parents=True)
-        (project / ".github" / "workflows" / "nexo-quality.yml").write_text("on: push\n", encoding="utf-8")
+        assert labels.index("planejar uma feature nova") < labels.index("mapear o código existente")
+        assert not any("CI" in label for label in labels), "o Nexo não cria workflow"
         (project / ".nexo" / "map").mkdir(parents=True)
-        labels = list(_labels(ctx))
-        assert "gerar o CI com a mesma receita de qualidade" not in labels and "mapear o código existente" not in labels
+        assert "mapear o código existente" not in list(_labels(ctx))
     finally:
         ctx.close()
 

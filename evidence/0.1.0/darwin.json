@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "python": "3.13.16",
+  "steps": [
+    {
+      "step": "termos proibidos",
+      "ok": true,
+      "seconds": 0,
+      "checked": true
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "seconds": 0.0
+    },
+    {
+      "step": "formata\u00e7\u00e3o",
+      "ok": true,
+      "seconds": 0.0
+    },
+    {
+      "step": "camadas",
+      "ok": true,
+      "seconds": 0.1
+    },
+    {
+      "step": "arquitetura",
+      "ok": true,
+      "seconds": 8.4
+    },
+    {
+      "step": "tipos",
+      "ok": true,
+      "seconds": 0.4
+    },
+    {
+      "step": "testes",
+      "ok": true,
+      "seconds": 69.2
+    },
+    {
+      "step": "gitleaks",
+      "ok": true,
+      "seconds": 0,
+      "checked": false
+    },
+    {
+      "step": "pip-audit",
+      "ok": true,
+      "seconds": 0,
+      "checked": false
+    },
+    {
+      "step": "semgrep",
+      "ok": true,
+      "seconds": 0,
+      "checked": false
+    }
+  ]
+}

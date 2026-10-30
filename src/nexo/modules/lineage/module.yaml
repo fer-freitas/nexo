@@ -2,6 +2,22 @@ id: lineage
 version: 1.0.0
 title: "Linhagem de componentes"
 flags:
+  - key: lineage.read
+    title: "Linhagem: consulta do mapa de componentes"
+    area: "Linhagem de componentes"
+    stage: beta
+    commands:
+      - "lineage show"
+      - "lineage upstream"
+      - "lineage downstream"
+      - "lineage impact"
+      - "lineage coverage"
+      - "lineage export"
+      - "lineage notify"
+      - "lineage validate"
+      - "lineage confirm"
+      - "lineage sync"
+      - "lineage agent"
   - key: lineage.scan
     title: "Linhagem: geração do manifesto"
     area: "Linhagem de componentes"

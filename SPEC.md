@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Versão** | 2.1 (rascunho para implementação) |
+| **Versão** | 2.2 |
 | **Data** | 2026-10-30 |
-| **Estado do repositório** | Vazio. Nada foi implementado. |
+| **Estado do repositório** | M0 a M8 implementadas e validadas em macOS com simuladores. Sem prova real: ver [docs/estado.md](docs/estado.md) e o §27. |
 | **Referência externa** | `vibe-coding-toolkit` (commit `21b71b6`) |
 
 **Em uma frase:** o Nexo é uma CLI para PM, QA, tech lead e dev que conduz o trabalho do pedido até o PR. Ela usa skills e fluxos conhecidos do mercado, passa tudo pelos portões determinísticos herdados da base e registra cada demanda gerada, em cada projeto.
@@ -2178,6 +2178,28 @@ O acesso fica atrás de uma porta, `AuthProvider`, e **o restante do portal só 
 - Perfis ganham o `pm` e o `qa`, que hoje não existem na matriz.
 - Perfil `ci` da matriz sai: não há integração por Actions (D-27).
 - Marca e textos passam para Nexo, sem compatibilidade com os nomes antigos.
+
+## 27. Desvios da implementação
+
+O que foi construído de forma diferente do texto acima, e por quê. O estado de cada prova está em [docs/estado.md](docs/estado.md).
+
+| Tema | O texto diz | Como ficou | Motivo |
+|---|---|---|---|
+| **Comandos internos** | CLI montada só dos manifestos | Os comandos de papel vêm dos manifestos e apontam, por `target`, para comandos internos em `src/nexo/cli/commands`, ocultos na ajuda | Mantém uma só implementação de cada operação e as regras que já estavam testadas |
+| **Recursos** | `resources` por módulo | Centralizados em `src/nexo/resources` | Política, receitas e skills são lidos por vários módulos, e a cascata com o cérebro já trabalha assim |
+| **Módulo fala com módulo** | Por porta ou evento | Por `kernel.services`, serviço nomeado no manifesto, ou evento. O acoplamento lógico continua existindo, mas é declarado e não é mais de import | O import direto zerou; separar de fato cada par é trabalho contínuo |
+| **Histórias em rascunho** | Aparecem no refinamento | Aparecem quando a prontidão chega a 100% | Evita história baseada em dúvida ainda aberta |
+| **Perfil `ci` da matriz** | Sai | Virou `integration`, nunca atribuído a pessoa | O cartão de aprovação e a ingestão de integrações ainda precisam de um token que não é pessoa. Não tem relação com Actions |
+| **Flags de demandas** | `demands.external_sync` | Mantida como `tracker_sync`, ao lado de `demands.board` e `demands.flow` | Nome já usado pelo código e pela política |
+| **Adaptadores de repositório** | GitLab, Bitbucket e Azure Repos seguem (§14.4) | Seguem, mas sem prova e fora do MVP | Conforme o texto, registrado para não parecer esquecimento |
+| **Worktree** | `%LOCALAPPDATA%\\nexo\\wt\\<hash>` | Vale só no Windows. Em macOS e Linux, continua em `.nexo/worktrees/` | Não há limite de caminho nesses sistemas |
+| **Assinatura** | KMS é a pergunta Q-22 | `awskms://`, pela CLI da AWS da própria pessoa, sem dependência nova. O Azure Key Vault continua aceito | Segue o padrão assumido em Q-22 |
+| **Descoberta no Kafka** | Tópicos, grupos e ACLs | Lê um JSON `{"grupo": ["tópico"]}` exportado pelo time de Kafka. Sem ACL nem schema registry | A credencial do cluster não entra no Nexo, e não há dependência nova. Falta conferir com Q-12 |
+| **Efeito antes de confirmar flag** | Máquinas naquele escopo | Mostra o total de máquinas ativas na empresa e as dependências da flag | A tabela de dispositivos não guarda o squad. Por escopo, fica para depois |
+| **Portão de contrato** | Contrato incompatível vai para decisão humana | Segura só o merge automático, com a flag `lineage.gate`, desligada até medir o scanner. Sem a flag, só avisa no PR | O §19 pede a medição antes de usar a linhagem no portão. AsyncAPI é o único formato comparado |
+| **Validação local** | Inclui gitleaks, pip-audit, semgrep, SBOM e cobertura de domínio | gitleaks, pip-audit e semgrep rodam se instalados, e ficam como `não verificado` se não. SBOM e cobertura de domínio não estão no script | Falta decidir como instalá-los sem dependência travada no ambiente do projeto |
+
+---
 
 ## Anexo — Fontes externas
 
