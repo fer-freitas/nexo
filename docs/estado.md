@@ -9,7 +9,7 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | Verificação | Resultado | Como |
 |---|---|---|
 | Lint, formatação e tipos estritos | Passam | `scripts/validate.py`, em macOS |
-| Testes automáticos | 1069 testes passam, com ferramentas simuladas | `scripts/validate.py`, em macOS |
+| Testes automáticos | 1.119 testes passam, com ferramentas simuladas | `scripts/validate.py`, em macOS |
 | Camadas: módulo não importa módulo | Zero dependências diretas | import-linter e `tests/architecture` |
 | Kit de contrato de módulo | Todos os módulos passam | `tests/architecture/test_module_contract.py` |
 | Portabilidade que dá para provar fora do Windows | Passa | `tests/architecture/test_portability.py` |
