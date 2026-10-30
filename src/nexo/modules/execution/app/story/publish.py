@@ -102,6 +102,15 @@ def _freeze_in_branch(r: StoryRunner, story_id: str, worktree: Path) -> list[str
     return lines
 
 
+def _lineage_note(r: StoryRunner, worktree: Path) -> tuple[list[str], list[str]]:
+    from nexo.kernel import services
+
+    if not services.available("lineage.changes"):
+        return [], []
+    lines, held = services.load("lineage.changes").pr_lines(r.ctx, worktree)
+    return list(lines), list(held)
+
+
 def publish(r: StoryRunner, story_id: str) -> None:
     """História concluída: push da branch e PR (GitHub, GitLab, Bitbucket ou Azure Repos) com `AB#id`,
     evidências e decisão do portão (4.4)."""
@@ -128,6 +137,8 @@ def publish(r: StoryRunner, story_id: str) -> None:
 
         scm = delivery_scm.build(r.ctx)
         evidence = _freeze_in_branch(r, story_id, Path(st["worktree"]))
+        lineage_lines, st["lineage_held"] = _lineage_note(r, Path(st["worktree"]))
+        evidence += lineage_lines
         scm.push(Path(st["worktree"]), st["branch"])
         link = r.sync.ref(story_id)
         ab = f"AB#{link['ref']} " if link and r.sync.kind == "azure" else ""

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json as _json
+from pathlib import Path
 from typing import Annotated, Any, cast
 
 import typer
@@ -29,6 +30,14 @@ def register(root: typer.Typer, tools: Any) -> None:
     def mcp_add(server: str) -> None:
         """Liga no projeto e mostra o trecho a aprovar no cérebro, por PR. Sem aprovação, não entra nas execuções."""
         emit(catalog.add(ctx(), server))
+
+    @group.command("approve")
+    def mcp_approve(
+        server: str,
+        brain: Annotated[Path | None, typer.Option("--brain", help="Clone do cérebro onde preparar o PR")] = None,
+    ) -> None:
+        """Exige o papel de tech lead. Prepara a entrada na allowlist; ela só vale depois de revisada no cérebro."""
+        emit(catalog.approve(ctx(), server, brain))
 
     @group.command("test")
     def mcp_test(

@@ -102,6 +102,7 @@ def test_mcp_serve_protocol(run_id: str, nexo_home: Path, project: Path) -> None
         "run_checks",
         "record_decision",
         "check_dependency",
+        "lineage_neighbors",
     }
     assert "version() retorna 0.1.0" in by_id[3]["result"]["structuredContent"]["content"]
     assert by_id[4]["result"]["structuredContent"]["results"][0]["title"] == "python-standards"

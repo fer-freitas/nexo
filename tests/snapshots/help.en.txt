@@ -31,6 +31,7 @@ QA  nexo qa mostra o que está com você
 
 TECH LEAD  nexo tl mostra o que está com você
   tl setup             Prepara o repositório: mapa do código, grafo e pipeline existente
+  tl return            Devolve ao PM a lacuna funcional
   tl analyze           Lacunas, riscos, impacto e consumidores conhecidos
   tl spec              Requisito técnico com premissas
   tl plan              Primeira quebra em tarefas e o que roda em paralelo

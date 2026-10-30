@@ -248,6 +248,20 @@ def brain_lint_cmd(
         raise typer.Exit(ExitCode.GATE)
 
 
+@brain_app.command("review")
+def brain_review_cmd(
+    number: int,
+    path: Annotated[Path | None, typer.Option("--path", help="Clone do cérebro (padrão: pasta atual)")] = None,
+) -> None:
+    """Confere um PR do cérebro sem depender de CI: mesmo lint que o `brain sign` exige."""
+    from nexo.modules.knowledge.app import notes
+
+    data = notes.review_pr(path or ctx().cwd, number)
+    emit(data)
+    if data["errors"]:
+        raise typer.Exit(ExitCode.GATE)
+
+
 @brain_app.command("index")
 def brain_index_cmd(
     path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: a cópia verificada)")] = None,

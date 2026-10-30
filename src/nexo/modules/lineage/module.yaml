@@ -17,6 +17,7 @@ flags:
     area: "Linhagem de componentes"
     stage: experimental
     default: false
+    commands: ["lineage discover"]
   - key: lineage.gate
     title: "Linhagem: mudança de contrato vai para decisão humana"
     area: "Linhagem de componentes"
@@ -25,5 +26,6 @@ flags:
 cli: "nexo.modules.lineage.cli:register"
 services:
   lineage.app: "nexo.modules.lineage.app.lineage"
+  lineage.changes: "nexo.modules.lineage.app.changes"
 commands:
   - {path: "lineage", summary: "De onde vem e para onde vai cada componente"}

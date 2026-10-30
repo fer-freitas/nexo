@@ -13,13 +13,14 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import urllib.parse
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from nexo.kernel.context import AppContext
-from nexo.kernel.errors import NexoError
+from nexo.kernel.errors import NexoError, PolicyViolation
 from nexo.kernel.platform import config
 from nexo.kernel.runtime import http
 from nexo.kernel.runtime.resources import load_yaml
@@ -129,6 +130,42 @@ def allowlist_entry(server: str, entry: dict[str, Any], values: dict[str, str] |
         "match": rules.identity(entry, values).key,
         "tools": {"allow": [], "write": []},
     }
+
+
+def approve(ctx: AppContext, server: str, clone: Path | None = None) -> dict[str, Any]:
+    """A aprovação é uma entrada em `org/mcp-allowlist.yaml`. Com o clone, deixa o branch pronto para o PR."""
+    from nexo.kernel import services
+    from nexo.kernel.runtime import yamlfile
+
+    entry = catalog().get(server)
+    if entry is None:
+        raise NexoError(f"{server} não está no catálogo; use `nexo mcp search`")
+    if services.available("demands.core"):
+        services.load("demands.core").require_role(ctx, "tl", "Aprovar um MCP")
+    problems, values = _problems(server, entry, _settings(ctx).get(server, {}))
+    pin = rules.pin_problem(entry, values)
+    if pin:
+        raise PolicyViolation(pin)
+    item = allowlist_entry(server, entry, values)
+    ctx.audit("mcp.approve_prepared", {"server": server, "match": item["match"]})
+    if clone is None:
+        return {"id": server, "entry": item, "pending": problems, "next": "use --brain <clone> ou leve o trecho ao PR"}
+    path = clone / "org" / "mcp-allowlist.yaml"
+    data = dict(yamlfile.load(path)) if path.is_file() else {}
+    servers = [e for e in (data.get("servers") or []) if e.get("id") != server]
+    yamlfile.dump(path, {**data, "servers": sorted([*servers, item], key=lambda e: str(e["id"]))})
+    branch = f"nexo/mcp/{server}"
+    for args in (
+        ("checkout", "-q", "-B", branch),
+        ("add", "org/mcp-allowlist.yaml"),
+        ("commit", "-q", "-m", f"Aprova o MCP {server}"),
+    ):
+        done = subprocess.run(
+            ["git", *args], cwd=clone, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
+        )
+        if done.returncode != 0:
+            raise NexoError(f"git {args[0]} falhou: {done.stderr.strip()[:200]}")
+    return {"id": server, "entry": item, "pending": problems, "branch": branch, "next": "faça o push e abra o PR"}
 
 
 def allowlist(ctx: AppContext) -> dict[str, dict[str, Any]]:

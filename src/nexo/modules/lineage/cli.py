@@ -7,7 +7,8 @@ from typing import Annotated, Any
 
 import typer
 
-from nexo.modules.lineage.app import lineage
+from nexo.kernel.errors import ExitCode, NexoError
+from nexo.modules.lineage.app import changes, lineage
 
 
 def register(root: typer.Typer, tools: Any) -> None:
@@ -95,6 +96,45 @@ def register(root: typer.Typer, tools: Any) -> None:
     def notify_cmd(target: str, summary: Annotated[str, typer.Option("--summary", help="O que mudou")]) -> None:
         """Avisa os times consumidores conhecidos, por issue."""
         emit(lineage.notify_consumers(ctx(), target, summary))
+
+    @app.command("validate")
+    def validate_cmd() -> None:
+        """Confere os manifestos desta máquina. Um adulterado é ignorado na leitura e aparece aqui."""
+        data = changes.validate(ctx())
+        emit(data)
+        if data["invalid"]:
+            raise typer.Exit(ExitCode.GATE)
+
+    @app.command("confirm")
+    def confirm_cmd(
+        where: Annotated[str, typer.Argument(help="arquivo:linha do não resolvido")] = "",
+        channel: Annotated[str, typer.Option("--channel", help="Nome do canal")] = "",
+        direction: Annotated[str, typer.Option("--direction", help="publishes ou consumes")] = "publishes",
+        kind: Annotated[str, typer.Option("--kind", help="kafka, sns, sqs ou http")] = "kafka",
+        component: Annotated[str, typer.Option("--component", help="Componente; padrão: o repositório")] = "",
+    ) -> None:
+        """Sem argumentos, lista o que o scanner não resolveu. Com eles, grava a confirmação de uma pessoa."""
+        if not where:
+            emit(changes.unresolved(ctx()))
+            return
+        if not channel:
+            raise NexoError("informe --channel")
+        emit(changes.confirm(ctx(), where, channel, direction, kind, component))
+
+    discover = typer.Typer(help="Lê a infraestrutura, só por comando de quem tem permissão", no_args_is_help=True)
+    app.add_typer(discover, name="discover")
+
+    @discover.command("aws")
+    def discover_aws_cmd() -> None:
+        """Assinaturas SNS→SQS, gatilhos de Lambda e serviços ECS, sem o ID da conta."""
+        emit(changes.discover_aws(ctx()))
+
+    @discover.command("kafka")
+    def discover_kafka_cmd(
+        source: Annotated[Path, typer.Option("--from-file", help='JSON exportado: {"grupo": ["tópico"]}')],
+    ) -> None:
+        """Grupos de consumidores viram nós não identificados até o time dono se apresentar."""
+        emit(changes.discover_kafka(ctx(), source))
 
     agent = typer.Typer(help="Gatilho automático na máquina", no_args_is_help=True)
     app.add_typer(agent, name="agent")

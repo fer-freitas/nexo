@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import tempfile
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -116,6 +117,21 @@ def require_clean_and_valid(root: Path) -> None:
     if result["errors"]:
         first = "; ".join(f"{p['file']}: {p['message']}" for p in result["problems"] if p["level"] == "error")[:400]
         raise PolicyViolation(f"cérebro com {result['errors']} erro(s) de lint: {first}")
+
+
+def review_pr(root: Path, number: int) -> dict[str, Any]:
+    """Sem CI, quem revisa roda isto: traz o PR para uma pasta temporária e aplica o mesmo lint da assinatura."""
+    if not is_repo(root):
+        raise NexoError(f"{root} não é um clone do cérebro")
+    ref = f"refs/nexo/review/{number}"
+    _git(root, "fetch", "-q", "origin", f"+refs/pull/{number}/head:{ref}")
+    with tempfile.TemporaryDirectory(prefix="nexo-review-", ignore_cleanup_errors=True) as tmp:
+        folder = Path(tmp) / "pr"
+        _git(root, "-c", "core.longpaths=true", "worktree", "add", "-q", "--detach", str(folder), ref)
+        try:
+            return {"pr": number, "commit": _git(folder, "rev-parse", "HEAD").strip(), **lint(folder)}
+        finally:
+            _git(root, "worktree", "remove", "--force", str(folder), check=False)
 
 
 def propose_pr(root: Path, source: Path, target: str, title: str) -> dict[str, Any]:

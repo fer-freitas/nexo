@@ -342,6 +342,11 @@ ENTRY = re.compile(
 )
 
 
+def _open(unresolved: list[dict[str, Any]], declared: dict[str, Any] | None) -> list[dict[str, Any]]:
+    confirmed = set((declared or {}).get("confirmed") or [])
+    return [u for u in unresolved if f"{u['file']}:{u['line']}" not in confirmed]
+
+
 def build_manifest(
     team: str,
     repo: str,
@@ -478,5 +483,5 @@ def _assemble(
         "generated_at": generated_at,
         "scanner": SCANNER_VERSION,
         "components": ordered,
-        "unresolved": sorted(result.unresolved, key=lambda u: (u["file"], u["line"], u["reason"])),
+        "unresolved": sorted(_open(result.unresolved, declared), key=lambda u: (u["file"], u["line"], u["reason"])),
     }

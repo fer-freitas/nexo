@@ -143,7 +143,7 @@ def sync(ctx: AppContext) -> list[dict[str, Any]]:
             actions.append({"story": story_id, "action": "review_fix", "state": report.state, "reason": report.reason})
             continue
         _report_status(ctx, scm, story_id, sha)
-        held = _merge_held(ctx, story_id)
+        held = [*_merge_held(ctx, story_id), *(st.get("lineage_held") or [])]
         if held:
             actions.append({"story": story_id, "action": "merge_held", "reasons": held})
         if not held and merges(level) and item["state"] == "Concluido" and sha and flags.enabled(ctx, "auto_merge"):

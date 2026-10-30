@@ -88,3 +88,22 @@ def test_promote_moves_to_global_in_a_branch(tmp_path: Path, nexo: Runner) -> No
     assert json.loads(out)["target"] == "lessons/util.md"
     assert "scope: global" in (brain / "lessons" / "util.md").read_text(encoding="utf-8")
     assert not (folder / "util.md").exists()
+
+
+def test_review_applies_the_same_lint_to_a_pull_request(tmp_path: Path, nexo: Runner) -> None:
+    brain = make_brain(tmp_path)
+    remote = tmp_path / "remote.git"
+    git(tmp_path, "clone", "-q", "--bare", str(brain), str(remote))
+    git(brain, "remote", "add", "origin", str(remote))
+    git(brain, "checkout", "-q", "-b", "proposta")
+    (brain / "lessons" / "ruim.md").write_text(
+        "---\nid: ruim\ntype: lesson\nscope: global\n---\n\n[[nada]]\n", encoding="utf-8"
+    )
+    git(brain, "add", "-A")
+    git(brain, "commit", "-qm", "ruim")
+    git(brain, "push", "-q", "origin", "proposta:refs/pull/7/head")
+    git(brain, "checkout", "-q", "main")
+    code, out, _ = nexo("--json", "brain", "review", "7", "--path", str(brain))
+    assert code != 0 and json.loads(out)["errors"]
+    assert not (brain / "lessons" / "ruim.md").exists(), "a revisão não mexe na pasta de trabalho"
+    assert "nexo-review" not in git(brain, "worktree", "list")

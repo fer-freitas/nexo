@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+from nexo.kernel.workspace.specs import project_settings
 from tests.conftest import Runner, dump_yaml
 from tests.unit.test_lineage_model import GESTAO, TRADUTOR
 
@@ -199,3 +200,122 @@ def test_declared_component_for_what_scanners_cannot_reach(
     data = j(nexo, "lineage", "scan")
     links = {x["channel"]: x for c in data["components"] for x in c.get("publishes", [])}
     assert links["kafka:topico.declarado"]["evidence"]["source"] == "declared"
+
+
+UNRESOLVED_CS = """
+class Publisher {
+    void Send(string name) { _producer.ProduceAsync(name + "-v1", message); }
+}
+"""
+
+
+def commit_all(work: Path, message: str) -> None:
+    git(work, "add", "-A")
+    git(work, "commit", "-qm", message)
+    git(work, "push", "-q", "origin", "main")
+
+
+def test_confirm_needs_a_person_and_clears_the_unresolved_item(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    work = world["tradutor"]
+    monkeypatch.chdir(work)
+    (work / "src").mkdir(exist_ok=True)
+    (work / "src" / "Dyn.cs").write_text(UNRESOLVED_CS, encoding="utf-8")
+    commit_all(work, "dinamico")
+    pending = j(nexo, "lineage", "confirm")
+    assert pending, "nome montado em tempo de execução precisa aparecer como não resolvido"
+    where = f"{pending[0]['file']}:{pending[0]['line']}"
+    assert nexo("lineage", "confirm", "nao/existe.cs:1", "--channel", "x")[0] != 0
+    j(nexo, "lineage", "confirm", where, "--channel", "eventos.dinamico")
+    commit_all(work, "confirma")
+    data = j(nexo, "lineage", "scan")
+    assert where not in {f"{u['file']}:{u['line']}" for u in data["unresolved"]}
+    channels = {link["channel"] for c in data["components"] for link in c.get("publishes", [])}
+    assert "kafka:eventos.dinamico" in channels
+
+
+def test_discovery_is_off_by_default_and_never_keeps_the_account_id(
+    world: dict[str, Any], nexo: Runner, nexo_home: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nexo.modules.lineage.adapters import aws
+
+    monkeypatch.chdir(world["gestao"])
+    source = tmp_path / "grupos.json"
+    source.write_text(json.dumps({"risco-consumidor": ["posicao.traduzida"]}), encoding="utf-8")
+    code, _, err = nexo("lineage", "discover", "kafka", "--from-file", str(source))
+    assert code != 0 and "lineage.discover" in err
+    dump_yaml(nexo_home / "brain" / "org" / "flags.yaml", {"flags": {"lineage.discover": True}})
+    assert j(nexo, "lineage", "discover", "kafka", "--from-file", str(source))["components"] == 1
+    monkeypatch.setattr(
+        aws,
+        "inventory",
+        lambda: {
+            "subscriptions": [
+                {
+                    "Protocol": "sqs",
+                    "TopicArn": "arn:aws:sns:sa-east-1:123456789012:posicao",
+                    "Endpoint": "arn:aws:sqs:sa-east-1:123456789012:risco-fila",
+                }
+            ],
+            "mappings": [
+                {
+                    "EventSourceArn": "arn:aws:sqs:sa-east-1:123456789012:posicao-fila",
+                    "FunctionArn": "arn:aws:lambda:sa-east-1:123456789012:function:calcula",
+                }
+            ],
+            "services": ["arn:aws:ecs:sa-east-1:123456789012:service/c/gestao"],
+        },
+    )
+    assert j(nexo, "lineage", "discover", "aws")["components"] == 3
+    folder = project_settings(world["gestao"]).team_dir() / "lineage" / "discovery"
+    saved = "".join(p.read_text(encoding="utf-8") for p in folder.glob("*.yaml"))
+    assert "123456789012" not in saved and "sns:posicao" in saved
+    impact = j(nexo, "lineage", "impact", "kafka:posicao.traduzida")
+    assert "?kafka-group:risco-consumidor" in {c["component"] for c in impact["known_consumers"]} | {
+        str(c) for c in impact.get("unidentified", [])
+    }
+    assert j(nexo, "lineage", "validate")["invalid"] == []
+
+
+def test_tampered_manifest_shows_up_in_validate(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(world["gestao"])
+    j(nexo, "lineage", "publish")
+    published = next((project_settings(world["gestao"]).team_dir() / "lineage").rglob("*.yaml"))
+    published.write_text(published.read_text(encoding="utf-8") + "\nextra: 1\n", encoding="utf-8")
+    code, out, _ = nexo("--json", "lineage", "validate")
+    assert code != 0 and json.loads(out)["invalid"]
+
+
+def test_branch_report_shows_diff_deviation_and_contract_break(
+    world: dict[str, Any], nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nexo.kernel.context import AppContext, Options
+    from nexo.modules.lineage.app import changes
+
+    work = world["tradutor"]
+    monkeypatch.chdir(work)
+    contract = "asyncapi: 2.6.0\ninfo: {title: t, version: 1.0.0}\nchannels:\n  a.b:\n    subscribe:\n      message: {name: M}\n"
+    declared = "components:\n  - name: tradutor-worker\n    publishes:\n      - {kind: kafka, name: a.b}\n"
+    (work / "asyncapi.yaml").write_text(contract, encoding="utf-8")
+    (work / ".nexo").mkdir(exist_ok=True)
+    (work / ".nexo" / "component.yaml").write_text(declared, encoding="utf-8")
+    commit_all(work, "contrato")
+    git(work, "checkout", "-q", "-b", "mudanca")
+    (work / "asyncapi.yaml").write_text(contract.replace("version: 1.0.0", "version: 2.0.0"), encoding="utf-8")
+    (work / "src").mkdir(exist_ok=True)
+    (work / "src" / "Novo.cs").write_text(
+        'class N { void S() { _producer.ProduceAsync("novo.topico", m); } }', encoding="utf-8"
+    )
+    git(work, "add", "-A")
+    git(work, "commit", "-qm", "muda")
+    context = AppContext(options=Options())
+    report = changes.branch_report(context, work)
+    assert any("novo.topico" in item for item in report["diff"]["added"])
+    assert any("novo.topico" in item for item in report["undeclared"])
+    assert any("versão maior" in item for item in report["breaks"])
+    lines, held = changes.pr_lines(context, work)
+    assert any("agora" in line for line in lines) and any("decisão humana" in line for line in lines)
+    assert held == [], "sem a flag lineage.gate, avisa mas não segura"

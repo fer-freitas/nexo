@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 from nexo.kernel.context import AppContext, Options
+from nexo.kernel.workspace.specs import project_settings
 from nexo.modules.mcp.app import catalog
 from nexo.modules.mcp.domain import rules
 from tests.conftest import Runner, dump_yaml
@@ -95,3 +96,33 @@ def test_approval_is_for_the_exact_destination(
     )
     ctx = AppContext(options=Options())
     assert "destino diferente" in catalog.identity_problem(ctx, "teste", catalog.catalog()["teste"], {})
+
+
+def test_approve_requires_tech_lead_and_only_prepares_the_pr(
+    tmp_path: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import subprocess
+
+    server = next(k for k, v in catalog.catalog().items() if v.get("transport") == "http")
+    clone = tmp_path / "brain"
+    clone.mkdir()
+    for args in (["init", "-q", "-b", "main"], ["config", "user.email", "t@t"], ["config", "user.name", "t"]):
+        subprocess.run(["git", *args], cwd=clone, check=True)
+    (clone / "README.md").write_text("x", encoding="utf-8")
+    subprocess.run(["git", "add", "-A"], cwd=clone, check=True)
+    subprocess.run(["git", "commit", "-qm", "i"], cwd=clone, check=True)
+    project = tmp_path / "p"
+    project.mkdir()
+    monkeypatch.chdir(project)
+    assert nexo("init")[0] == 0
+    team_file = project_settings(project).team_dir() / "team.yaml"
+    dump_yaml(team_file, {"name": "t", "mode": "team", "members": [{"id": "outra", "roles": ["tl"]}]})
+    code, _, err = nexo("mcp", "approve", server, "--brain", str(clone))
+    assert code != 0 and "tech lead" in err
+    team_file.unlink()
+    code, out, err = nexo("--json", "mcp", "approve", server, "--brain", str(clone))
+    assert code == 0, err + out
+    assert json.loads(out)["branch"] == f"nexo/mcp/{server}"
+    assert server in (clone / "org" / "mcp-allowlist.yaml").read_text(encoding="utf-8")
+    context = AppContext(options=Options())
+    assert server not in catalog.allowlist(context), "sem PR e assinatura, a aprovação não vale"
