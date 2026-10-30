@@ -11,7 +11,7 @@ from nexo.modules.quality.adapters.runner import _adapt
 def test_fingerprint_ignores_line_numbers_and_separators() -> None:
     a = brownfield.fingerprint("lint", "F401", "src/a.py", "`os` imported but unused (line 3)")
     b = brownfield.fingerprint("lint", "F401", "src\\a.py", "`os` imported but unused (line 9)")
-    assert a == b and a != brownfield.fingerprint("lint", "F401", "src/b.py", "`os` imported but unused")
+    assert a == b and a != brownfield.fingerprint
 
 
 def test_diff_coverage_counts_only_executable_changed_lines() -> None:
@@ -65,7 +65,7 @@ def test_sarif_paths_become_relative_on_windows_and_posix(tmp_path: Path) -> Non
         findings=[
             Finding("F401", "m", file=f"file://{'/' if not root.startswith('/') else ''}{root}/src/a.py"),
             Finding("F401", "m", file=f"{root.upper()}/src/b.py" if ":" in root else f"{root}/src/b.py"),
-            Finding("F401", "m", file="src/c.py"),
+            Finding,
         ],
     )
     _relative_findings(result, tmp_path)

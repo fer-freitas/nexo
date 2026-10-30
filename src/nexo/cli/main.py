@@ -14,19 +14,7 @@ from typer._click.exceptions import ClickException, UsageError  # Typer ≥ 0.20
 
 from nexo.cli import look
 from nexo.cli.app import UNAUDITED, _state, app, apply_brand, console, ctx, emit, err_console, split_globals
-from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
-    context,
-    delivery,
-    execution,
-    finops,
-    integrations,
-    knowledge,
-    merged,
-    plan_more,
-    planning,
-    platform,
-    roles,
-)
+from nexo.cli.commands import
 from nexo.cli import surface
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import ExitCode, NexoError, NotAvailableInPhase
@@ -136,7 +124,7 @@ def utf8_streams() -> None:
 
 
 def _telemetry_session_start(context: Any) -> None:
-    """Início de sessão: envia pendências em segundo plano e avisa se a telemetria está atrasada (RN-101)."""
+    """Início de sessão: envia pendências em segundo plano e avisa se a telemetria está atrasada."""
     from nexo.kernel.platform import observability, telemetry
 
     with contextlib.suppress(OSError):  # O-02: retenção das transcrições (uma vez por dia)

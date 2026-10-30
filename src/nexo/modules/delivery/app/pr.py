@@ -29,7 +29,7 @@ def sync(ctx: AppContext) -> list[dict[str, Any]]:
     from nexo.modules.execution.app import autonomy
     from nexo.modules.execution.app.run import RunOptions
     from nexo.modules.execution.app.story import StoryRunner
-    from nexo.modules.execution.domain.autonomy import merges
+    from nexo.kernel.workflow.autonomy import merges
     from nexo.store.runs import RunStore, project_key
 
     root = ctx.project_root

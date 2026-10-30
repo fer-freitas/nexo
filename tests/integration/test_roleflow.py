@@ -258,7 +258,7 @@ def test_discovery_gaps_and_status() -> None:
         approvals=[r.Approval(part="requisitos", by="a", at="1", digest="d1")],
         rejections=[r.Rejection(part="design", by="b", at="2", reason="motivo", digest="d2")],
         sessions=[
-            r.Session(id="S-1", started_at="0", started_by="a", participants={"pm": ["a"], "dev": ["c"]}, closed_at="1")
+            r.Session
         ],
     )
     st = {s.part: s.status for s in r.part_status(rec, {"requisitos": "d1", "design": "d2", "plano": "d3"})}

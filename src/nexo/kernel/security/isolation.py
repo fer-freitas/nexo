@@ -90,7 +90,7 @@ def squid_conf(domains: list[str]) -> str:
 
 def compose(proxy_image: str = "ubuntu/squid:6.6-24.04_beta") -> str:
     return (
-        "# Rede isolada do Nexo (S-04): `docker compose -f egress.compose.yml up -d`\n"
+        "# Rede isolada do Nexo: `docker compose -f egress.compose.yml up -d`\n"
         "services:\n"
         "  nexo-egress:\n"
         f"    image: {proxy_image}\n"

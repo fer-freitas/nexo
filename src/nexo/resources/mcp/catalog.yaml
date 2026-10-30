@@ -8,7 +8,7 @@
 # Campos: transport http (url) ou stdio (command/args); `url: null` = informar em `mcp.servers.<id>.url`;
 # auth: bearer (credencial `nexo login mcp_<id>` ou a variável `token_env`), oauth (a pessoa autentica uma vez
 # na própria ferramenta de IA) ou env (variáveis do próprio servidor, em `env`); `vars`: o que configurar em
-# `mcp.servers.<id>.vars`; status: ga | preview | beta; verified: conferido com conta real (V-08).
+# `mcp.servers.<id>.vars`; status: ga | preview | beta; verified: conferido com conta real.
 version: 1
 as_of: "2026-10-01"
 servers:

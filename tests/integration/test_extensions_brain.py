@@ -84,13 +84,13 @@ def test_brain_signed_pull_and_tamper_refused(workdir: Path, nexo: Runner, tmp_p
     dump_yaml(repo / "org/config.yaml", {"max_parallel": 16})
     git_cmd(repo, "commit", "-qam", "mudança sem assinatura")
     code, _, err = nexo("brain", "pull")
-    assert code == 5 and "difere do manifesto" in err
+    assert code == 7 and "difere do manifesto" in err
     assert json.loads(nexo("--json", "config", "get", "max_parallel")[1])["value"] == 2
     # chave errada
     nexo("config", "set", "brain.trusted_keys", "[AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]")
     git_cmd(repo, "revert", "--no-edit", "HEAD")
     code, _, err = nexo("brain", "pull")
-    assert code == 5 and "não confiável" in err
+    assert code == 7 and "não confiável" in err
     logs = json.loads(nexo("--json", "logs", "-n", "100")[1])
     assert any(e["type"] == "brain.pull_failed" for e in logs)
 
@@ -176,7 +176,7 @@ def test_skill_with_secret_is_blocked(project: Path, nexo: Runner, tmp_path: Pat
         encoding="utf-8",
     )
     code, _, err = nexo("skill", "add", str(src))
-    assert code == 4 and "segredo" in err
+    assert code == 5 and "segredo" in err
     assert not (project / ".nexo/extensions/skills/leaky").exists()
 
 
@@ -260,7 +260,7 @@ def test_locked_org_extension_cannot_be_overridden(
     src.parent.mkdir()
     src.write_text(SKILL, encoding="utf-8")
     code, _, err = nexo("skill", "add", str(src), "--name", "secure-payments")
-    assert code == 4 and "travada" in err
+    assert code == 5 and "travada" in err
     listing = json.loads(nexo("--json", "skill", "list")[1])
     assert next(s for s in listing if s["name"] == "secure-payments")["scope"] == "org"
 

@@ -23,7 +23,7 @@ stages:
     kind: lint
     tool: flutter
     run: ["flutter", "analyze", "--no-fatal-infos", "."]
-    changed_only: [".dart"]  # código existente (F13): só os arquivos alterados
+    changed_only: [".dart"]  # código existente: só os arquivos alterados
     # test-first: o teste de aceite cita código que ainda não existe e o analisador de tipos sempre reprovaria;
     # antes de travar os testes vale só a formatação (achado no e2e). No pipeline da história ele roda normalmente.
     skip_on_new_tests: true

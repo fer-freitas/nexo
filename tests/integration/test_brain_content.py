@@ -77,7 +77,7 @@ def test_prompt_breaking_contract_is_refused(workdir: Path, nexo: Runner, tmp_pa
     (repo / "prompts/developer.md").write_text(broken, encoding="utf-8")
     resign(nexo, repo, key, "2026.10.01-2")
     code, _, err = nexo("brain", "pull")
-    assert code == 5 and "contrato quebrado" in err and "acceptance" in err and "segredo" in err
+    assert code == 7 and "contrato quebrado" in err and "acceptance" in err and "segredo" in err
     assert MARK in (nexo_home / "brain/prompts/developer.md").read_text(encoding="utf-8")  # cache anterior mantido
     # cache adulterado localmente: a execução ignora o prompt e usa a baseline
     (nexo_home / "brain/prompts/developer.md").write_text(broken, encoding="utf-8")
@@ -101,7 +101,7 @@ def test_incompatible_brain_keeps_previous_cache(
     (repo / "brain.yaml").write_text(compat, encoding="utf-8")
     resign(nexo, repo, key, "2026.10.01-9")
     code, _, err = nexo("brain", "pull")
-    assert code == 5 and message in err
+    assert code == 7 and message in err
     assert json.loads(nexo("--json", "brain", "status")[1])["version"] == "2026.10.01-1"
 
 
@@ -166,7 +166,7 @@ def test_org_hooks_and_tools(project: Path, nexo: Runner, tmp_path: Path, nexo_h
     (repo / "org/tools.yaml").write_text("roles:\n  reviewer: [shell_exec]\n", encoding="utf-8")
     resign(nexo, repo, key, "2026.10.01-3")
     code, _, err = nexo("brain", "pull")
-    assert code == 5 and "pre_send é hook de segurança" in err and "shell_exec" in err
+    assert code == 7 and "pre_send é hook de segurança" in err and "shell_exec" in err
 
 
 def test_skill_canary_by_squad(project: Path, nexo: Runner, tmp_path: Path) -> None:

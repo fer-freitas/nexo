@@ -16,7 +16,7 @@ from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config
 from nexo.kernel.runtime import http
-from nexo.modules.execution.domain.autonomy import DEFAULT_LEVEL, LEVELS
+from nexo.kernel.workflow.autonomy import DEFAULT_LEVEL, LEVELS
 
 TRUSTED = ("default", "org", "squad")
 TTL = 300

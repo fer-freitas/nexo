@@ -14,7 +14,7 @@ import pytest
 
 from nexo.kernel.backlog import Backlog
 from nexo.kernel.monitoring.telemetry import CONTRACT
-from nexo.modules.execution.domain.autonomy import auto_gate, demoted, eligibility, merges, opens_pr
+from nexo.kernel.workflow.autonomy import auto_gate, demoted, eligibility, merges, opens_pr
 from tests.conftest import Runner, dump_yaml
 from tests.fakes.http_fake import FakeCloud
 from tests.integration.test_story import OK_REVIEWS, QA, SPEC, impl, review, run_json

@@ -1,4 +1,4 @@
-# Etapas de segurança comuns a todas as stacks (SEC-43). Tokens: {out} = pasta de artefatos da execução.
+# Etapas de segurança comuns a todas as stacks. Tokens: {out} = pasta de artefatos da execução.
 stages:
   - id: secrets
     kind: security
@@ -19,7 +19,7 @@ stages:
     report: "{out}/semgrep.sarif"
     required: true
     timeout: 900
-  # F15 (S-10): infraestrutura como código, contêiner, licenças, SBOM por entrega e DAST — opcionais: só rodam
+  # F15: infraestrutura como código, contêiner, licenças, SBOM por entrega e DAST — opcionais: só rodam
   # quando o artefato existe (e a ferramenta está instalada). Achado alto/crítico reprova quando a etapa roda.
   - id: iac
     kind: security
@@ -65,7 +65,7 @@ stages:
     default_severity: high
     required: false
   # F48: padrão de código garantido — regras determinísticas das skills (resources/standards + cérebro + projeto);
-  # regra `error` reprova, `warning` só registra. No código existente (F13), só violação nova bloqueia.
+  # regra `error` reprova, `warning` só registra. No código existente, só violação nova bloqueia.
   - id: standards
     kind: standards
     builtin: standards

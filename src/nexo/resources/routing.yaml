@@ -27,7 +27,7 @@ routes:
   - { id: gemini-api/flash,          tool: gemini-api,   model: gemini-2.5-flash,  tool_vendor: google,    model_vendor: google,    tier: cheap, cost: 1 }
   - { id: gemini-api/pro,            tool: gemini-api,   model: gemini-2.5-pro,    tool_vendor: google,    model_vendor: google,    tier: mid,   cost: 4 }
 
-# Probabilidade de sucesso a priori por papel × tier (substituída pelo histórico a partir da F7).
+# Probabilidade de sucesso a priori por papel × tier.
 priors:
   default:    { cheap: 0.55, mid: 0.75, top: 0.85 }
   classifier: { cheap: 0.90, mid: 0.93, top: 0.95 }

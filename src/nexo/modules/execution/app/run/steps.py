@@ -62,7 +62,7 @@ def execute(
     while True:
         steps += 1
         if steps > o.max_steps:
-            return o._escalate(task, run_id, f"limite de {o.max_steps} passos atingido (SEC-60)", routes)
+            return o._escalate(task, run_id, f"limite de {o.max_steps} passos atingido", routes)
         used = run_context.run_tokens(o, run_id)
         if tokens.over_cap(used, o.max_task_tokens):
             o.ctx.audit(
@@ -126,7 +126,7 @@ def execute(
         leak = pre_commit_scan(o, worktree, base)
         if leak:
             o.store.end_step(step_id, "policy_violation", ERR_POLICY, leak, None)
-            o.ctx.audit("policy.violation", {"rule": "SEC-12", "reason": leak, "hook": "pre_commit"}, ref=run_id)
+            o.ctx.audit
             return o._escalate(task, run_id, leak, routes)
         sha = git.checkpoint(worktree, f"nexo: checkpoint {step_id}")
         o.store.add_usage(step_id, outcome.usage)

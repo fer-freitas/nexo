@@ -14,3 +14,7 @@ flags:
     title: "Calibração dos limiares dos portões"
     area: "FinOps"
     commands: ["gates"]
+services:
+  finops.costs: "nexo.modules.finops.app.costs"
+  finops.metrics: "nexo.modules.finops.app.metrics"
+  finops.pricing: "nexo.modules.finops.app.pricing"

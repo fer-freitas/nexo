@@ -1,4 +1,4 @@
-# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+# Detector de insight. Ajuste limiares por PR em nexo-brain/insights/.
 id: I-14
 title: Divergência de fatura
 algorithm: invoice_divergence

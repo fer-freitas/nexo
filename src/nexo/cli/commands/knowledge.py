@@ -11,7 +11,7 @@ from rich.table import Table
 from nexo.cli import render
 from nexo.cli.app import app, console, ctx, emit
 from nexo.cli.shared import _ext_group
-from nexo.kernel.errors import NexoError
+from nexo.kernel.errors import ExitCode, NexoError
 from nexo.kernel.finops.money import brl
 
 docs_app = typer.Typer(help="Agente writer: documentação viva e conhecimento no cérebro", no_args_is_help=True)
@@ -215,11 +215,59 @@ def brain_search_cmd(query: str, limit: Annotated[int, typer.Option("--limit")] 
 
 
 @brain_app.command("propose")
-def brain_propose_cmd(path: Path, title: Annotated[str | None, typer.Option("--title")] = None) -> None:
+def brain_propose_cmd(
+    path: Path,
+    title: Annotated[str | None, typer.Option("--title")] = None,
+    clone: Annotated[Path | None, typer.Option("--clone", help="Clone de trabalho do cérebro: abre um branch")] = None,
+    target: Annotated[str, typer.Option("--target", help="Caminho da nota no cérebro")] = "",
+) -> None:
     from nexo.modules.knowledge.app import brain as knowledge_brain
 
+    if clone is not None:
+        emit(knowledge_brain.propose_clone(ctx(), clone, path, target or f"knowledge/{path.name}", title or path.stem))
+        return
     url = knowledge_brain.propose(ctx(), path, title)
     console.print(f"Proposta: {url or 'na fila (repositório/credencial não configurados)'}")
+
+
+@brain_app.command("lint")
+def brain_lint_cmd(path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: pasta atual)")] = None) -> None:
+    """Confere ID, frontmatter e links. Com erro, o `brain sign` recusa assinar."""
+    from nexo.modules.knowledge.app import notes
+
+    data = notes.lint(path or ctx().cwd)
+    if ctx().options.json:
+        emit(data)
+    else:
+        for p in data["problems"]:
+            console.print(f"[{p['level']}] {p['file']}: {p['message']}", markup=False)
+        console.print(f"{data['notes']} nota(s) · {data['errors']} erro(s) · {data['warnings']} aviso(s)")
+    if data["errors"]:
+        raise typer.Exit(ExitCode.GATE)
+
+
+@brain_app.command("index")
+def brain_index_cmd(path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: a cópia verificada)")] = None) -> None:
+    """Gera nós e arestas no cache local: a base do grafo. Nunca entra no Git."""
+    from nexo.modules.knowledge.app import notes
+
+    emit(notes.index(ctx(), path))
+
+
+@brain_app.command("migrate-notes")
+def brain_migrate_notes_cmd(path: Path) -> None:
+    """Dá frontmatter aos arquivos que ainda não têm."""
+    from nexo.modules.knowledge.app import notes
+
+    emit(notes.migrate(path))
+
+
+@brain_app.command("promote")
+def brain_promote_cmd(path: Path, note_id: str) -> None:
+    """Abre o branch que leva uma nota de projeto para o global, para revisão humana."""
+    from nexo.modules.knowledge.app import notes
+
+    emit(notes.promote(path, note_id))
 
 
 @brain_app.command("init")

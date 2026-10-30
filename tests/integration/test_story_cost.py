@@ -77,7 +77,7 @@ def test_raise_above_twice_estimate_needs_another_person(
     nexo("config", "set", "budget.story_cap.fixed_brl", "8", "--project")
     run_json(nexo, "run", "story", "US-1-1")
     code, _, err = nexo("approve", "US-1-1", "--raise", "400")  # R$ 40 > R$ 30
-    assert code == 4 and "SEC-52" in err
+    assert code == 5 and "segregação" in err
     monkeypatch.setenv("NX_ACTOR", "tech-lead")
     code, rep = run_json(nexo, "approve", "US-1-1", "--raise", "400")
     assert code == 0 and rep["state"] == "Concluido"
@@ -121,7 +121,7 @@ def test_feature_cap_needs_another_person(
     nexo("config", "set", "budget.feature_cap_brl", "10", "--project")
     code, rep = run_json(nexo, "run", "story", "US-1-1")
     assert rep["cost_gate"]["kind"] == "feature" and "teto de custo da feature" in rep["reason"]
-    assert nexo("approve", "US-1-1", "--raise", "10")[0] == 4
+    assert nexo("approve", "US-1-1", "--raise", "10")[0] == 5
     monkeypatch.setenv("NX_ACTOR", "gestor")
     code, rep = run_json(nexo, "approve", "US-1-1", "--raise", "100")
     assert code == 0 and rep["state"] == "Concluido"

@@ -99,7 +99,7 @@ def test_locked_key_is_policy_violation(nexo: Runner, nexo_home: Path) -> None:
     org.mkdir(parents=True)
     (org / "config.yaml").write_text("profile: balanceado\nlocked: [profile]\n", encoding="utf-8")
     code, _, err = nexo("config", "set", "profile", "economico")
-    assert code == 4 and "bloqueada" in err
+    assert code == 5 and "bloqueada" in err
     data = json.loads(nexo("--json", "config", "get", "profile")[1])
     assert data["locked_by"] == "org" and data["value"] == "balanceado"
     events = json.loads(nexo("--json", "logs", "-n", "20")[1])
@@ -127,7 +127,7 @@ def test_audit_verify_and_tamper(nexo: Runner, nexo_home: Path) -> None:
     db.commit()
     db.close()
     code, _, err = nexo("audit", "verify")
-    assert code == 5 and "COMPROMETIDA" in err
+    assert code == 7 and "COMPROMETIDA" in err
 
 
 def test_logs_filter_and_table(nexo: Runner) -> None:

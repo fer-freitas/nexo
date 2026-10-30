@@ -7,9 +7,13 @@ class ExitCode:
     OK = 0
     ERROR = 1
     USAGE = 2
-    NOT_AVAILABLE = 3
-    POLICY_VIOLATION = 4
-    INTEGRITY_FAILURE = 5
+    GATE = 3  # portão reprovado
+    WAITING = 4  # aguardando pessoa
+    POLICY_VIOLATION = 5
+    DISABLED = 6  # desligado por flag ou kill switch
+    INTEGRITY_FAILURE = 7
+    NO_CREDENTIAL = 8
+    NOT_AVAILABLE = 3  # mantido para quem usa o nome anterior
 
 
 class NexoError(Exception):

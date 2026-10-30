@@ -28,15 +28,7 @@ def test_local_folders_ignored_and_project_records_versioned(project: Path) -> N
         ".nexo/tasks/T-1-1-INT.yaml",
     ):
         assert ignored(project, rel), rel
-    for rel in (
-        ".nexo/nexo.yaml",
-        ".nexo/specs/F-1-x/spec.md",
-        ".nexo/tasks/T-1-1.yaml",
-        ".nexo/bugs/B-1.yaml",
-        ".nexo/standards.yaml",
-        ".nexo/evals/golden/E-1.yaml",
-        ".nexo/metrics/baseline.json",
-    ):
+    for rel in:
         assert not ignored(project, rel), rel
 
 

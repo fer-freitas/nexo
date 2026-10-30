@@ -39,8 +39,9 @@ class Verification:
 
 
 def _files(root: Path, meta_dir: str = ".brain") -> dict[str, str]:
+    """Arquivos cobertos pela assinatura. `.obsidian/` e a lixeira dele nunca entram."""
     out: dict[str, str] = {}
-    skip = {".git", meta_dir}
+    skip = {".git", meta_dir, ".obsidian", ".trash"}
     for path in sorted(root.rglob("*")):
         rel = path.relative_to(root)
         if path.is_file() and rel.parts[0] not in skip:

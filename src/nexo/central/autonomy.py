@@ -10,7 +10,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from nexo.central.db import CollectorDB
-from nexo.modules.execution.domain.autonomy import (
+from nexo.kernel.workflow.autonomy import (
     DEFAULT_LEVEL,
     LEVELS,
     Criteria,

@@ -277,7 +277,7 @@ def guard_status_cmd() -> None:
 def logs_cmd(
     ref: Annotated[str | None, typer.Argument()] = None,
     limit: Annotated[int, typer.Option("--limit", "-n")] = 50,
-    trace: Annotated[str | None, typer.Option("--trace", help="Replay redigido de uma execução (O-02)")] = None,
+    trace: Annotated[str | None, typer.Option("--trace", help="Replay redigido de uma execução")] = None,
     reason: Annotated[str, typer.Option("--reason", help="Motivo da leitura do replay (auditado)")] = "",
 ) -> None:
     if trace:

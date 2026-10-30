@@ -89,7 +89,7 @@ def pr_feedback(r: StoryRunner, story_id: str, source: str, failures: list[str],
     if run is None:
         raise NexoError(f"nenhuma execução encontrada para {story_id}")
     if not r.workflow.can(r.store.item_state(story_id) or "", "pr_feedback"):
-        raise NexoError("o workflow de história não tem o evento `pr_feedback`: atualize o cérebro (F14)")
+        raise NexoError("o workflow de história não tem o evento `pr_feedback`: atualize o cérebro")
     st = r._load_state(run.id)
     r._transition(story_id, "pr_feedback", f"{source}: {failures[0][:120]}")
     if st["attempts"] >= r.max_attempts:
@@ -136,11 +136,8 @@ def check_segregation(
         and res.origin.get("gates.allow_self_approval", "default") in identity.TRUSTED_ORIGINS
     )  # desligar a segregação é decisão da org/squad, nunca do próprio dev
     if author == approver.id and not allow:
-        r.ctx.audit(
-            "policy.violation",
-            {"rule": "SEC-52", "reason": "autor não aprova o próprio portão", "actor": approver.id},
-        )
-        raise PolicyViolation("segregação de funções (SEC-52): o autor não pode aprovar/reprovar o próprio portão")
+        r.ctx.audit
+        raise PolicyViolation("segregação de funções: o autor não pode aprovar/reprovar o próprio portão")
     return approver
 
 

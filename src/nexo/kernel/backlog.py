@@ -147,7 +147,7 @@ def validate(backlog: Backlog, ac_ids: list[str]) -> BacklogCheck:
         if missing:
             check.errors.append(f"{t.id}: depende de tarefa inexistente {', '.join(missing)}")
         if t.size == "L":
-            check.errors.append(f"{t.id}: tarefa grande demais (L) — quebre em tarefas menores (RN-11)")
+            check.errors.append(f"{t.id}: tarefa grande demais (L) — quebre em tarefas menores")
         if len(t.files_hint) > MAX_FILES_PER_TASK:
             check.errors.append(f"{t.id}: {len(t.files_hint)} arquivos previstos (máx. {MAX_FILES_PER_TASK})")
         if not t.files_hint:
@@ -175,7 +175,7 @@ def validate(backlog: Backlog, ac_ids: list[str]) -> BacklogCheck:
                 continue
             for t in backlog.tasks:
                 if t.story == story and t.kind != "contract" and not set(contracts) & ancestors(tasks, t.id):
-                    check.errors.append(f"{t.id}: deve depender do contrato {contracts[0]} (RN-12)")
+                    check.errors.append(f"{t.id}: deve depender do contrato {contracts[0]}")
     return check
 
 

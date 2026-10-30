@@ -11,14 +11,11 @@ from tests.conftest import Runner, dump_yaml
 
 def seed(project: Path) -> None:
     (project / "src" / "svc" / "pagamento.py").write_text(
-        "def estornar(valor):\n    # estorno só até 90 dias (ADR-0003)\n    return -valor\n", encoding="utf-8"
+        "def estornar(valor):\n    # estorno só até 90 dias\n    return -valor\n", encoding="utf-8"
     )
     adr = project / "spec" / "adr"
     adr.mkdir(parents=True)
-    (adr / "0003-estorno-90-dias.md").write_text(
-        "# ADR-0003 — Estorno em até 90 dias\n\nDecisão: estorno só até 90 dias pela regra do banco.\n",
-        encoding="utf-8",
-    )
+    (adr / "0003-estorno-90-dias.md").write_text
 
 
 def test_retrieval_finds_code_and_decisions(project: Path) -> None:

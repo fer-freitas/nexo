@@ -6,3 +6,5 @@ flags:
     title: "Consumo de IA fora do Nexo (leitura local e envio agregado)"
     area: "FinOps"
     commands: ["usage"]
+services:
+  usage.external: "nexo.modules.usage.app.external_usage"

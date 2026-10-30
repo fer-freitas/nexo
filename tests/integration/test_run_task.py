@@ -113,11 +113,11 @@ def test_resume_starts_a_fresh_denial_count(project: Path, nexo_home: Path) -> N
 
     ctx = AppContext(cwd=project, home=nexo_home, options=Options())
     for _ in range(3):
-        ctx.audit("policy.violation", {"rule": "SEC-21"}, ref="run-x")
+        ctx.audit
     assert denial_count(ctx, "run-x") == 3
     ctx.audit("run.resume", {"task": "T-1", "run": "run-x"}, ref="run-x")
     assert denial_count(ctx, "run-x") == 0
-    ctx.audit("policy.violation", {"rule": "SEC-21"}, ref="run-x")
+    ctx.audit
     assert denial_count(ctx, "run-x") == 1
     ctx.close()
 

@@ -52,7 +52,9 @@ def spec(ctx: AppContext, data_class: str) -> dict[str, Any] | None:
 
 def setup(ctx: AppContext) -> dict[str, Any]:
     """Gera o proxy de saída (squid) com a lista de permissões e a rede interna do Docker/Podman."""
-    from nexo.modules.execution.app import agents as agents_app
+    from nexo.kernel import services
+
+    agents_app = services.load("execution.agents")
 
     trusted, _ = _cfg(ctx)
     vendors = {v for r in agents_app.catalog(ctx).routes.values() for v in r.vendors}

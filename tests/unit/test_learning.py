@@ -20,13 +20,7 @@ from nexo.modules.knowledge.domain.learning.model import (
 
 
 def test_dedup_lessons() -> None:
-    a = Lesson(
-        "pitfall",
-        "Estorno sem idempotência",
-        "Toda chamada de estorno deve usar chave de idempotência "
-        "para evitar duplicidade quando o cliente repete a requisição.",
-        ["bug:B-1"],
-    )
+    a = Lesson
     b = Lesson(
         "pitfall",
         "Estorno sem idempotência (2)",

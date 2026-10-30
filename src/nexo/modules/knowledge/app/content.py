@@ -245,7 +245,7 @@ def _skill_meta(name: str, skill_md: str) -> str:
     )
 
 
-KILL_SWITCH_TEMPLATE = """# Kill switch (S-05): bloqueios em incidente. Checado no roteamento e no início de cada passo.
+KILL_SWITCH_TEMPLATE = """# Kill switch: bloqueios em incidente. Checado no roteamento e no início de cada passo.
 # Efeito imediato para toda a empresa: use também o central (PUT /v2/admin/kill-switch, admin ou Segurança).
 # Exemplos:
 #   tools: {devin: "INC-123 instabilidade do fornecedor"}
@@ -257,7 +257,7 @@ models: {}
 nexo_versions: {}
 brain_versions: {}
 """
-REVOKED_TEMPLATE = """# Chaves de assinatura revogadas (S-08): impressões digitais de `nexo brain pubkey`.
+REVOKED_TEMPLATE = """# Chaves de assinatura revogadas: impressões digitais de `nexo brain pubkey`.
 # Uma vez vista num cérebro verificado, a revogação vale para sempre naquela instalação.
 revoked: []
 """
@@ -268,7 +268,7 @@ def flags_template() -> str:
     from nexo.kernel.config.flags import CATALOG
 
     lines = [
-        "# Feature flags da empresa (F17). Por squad: squads/<squad>/flags.yaml com o mesmo formato.",
+        "# Feature flags da empresa. Por squad: squads/<squad>/flags.yaml com o mesmo formato.",
         "# Para efeito imediato use o central (nexo admin flags set / dashboard › Feature flags), que tem precedência.",
         "# O piso de segurança não tem flag. Descomente para desligar/ligar:",
         "flags: {}",
@@ -304,7 +304,7 @@ def baseline_files() -> dict[str, str]:
     files["org/security/revoked-signers.yaml"] = REVOKED_TEMPLATE
     files["org/security/policy.yaml"] = (
         "# Política da org. O Nexo mescla com o PISO embutido: aqui só se RESTRINGE (acrescentar negações e\n"
-        "# caminhos proibidos, remover comandos permitidos). Afrouxar o piso é ignorado e vira violação (SEC-76).\n"
+        "# caminhos proibidos, remover comandos permitidos). Afrouxar o piso é ignorado e vira violação.\n"
         + read_text("policy.yaml")
     )
     return files
@@ -312,7 +312,7 @@ def baseline_files() -> dict[str, str]:
 
 def _codeowners(owners: Owners) -> str:
     lines = [
-        "# Donos por pasta (F9). Toda mudança passa por PR; a assinatura do manifesto é do time do Nexo.",
+        "# Donos por pasta. Toda mudança passa por PR; a assinatura do manifesto é do time do Nexo.",
         f"* {owners.nexo}",
         f"/org/security/ {owners.security} {owners.nexo}",
         f"/org/tools.yaml {owners.security} {owners.nexo}",

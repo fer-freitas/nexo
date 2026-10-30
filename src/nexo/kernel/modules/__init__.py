@@ -75,6 +75,7 @@ class Manifest(BaseModel):
     commands: list[CommandDecl] = Field(default_factory=list)
     cli: str = ""  # `pacote:função` que registra os comandos próprios
     subscribe: str = ""  # `pacote:função` que recebe os eventos
+    services: dict[str, str] = Field(default_factory=dict)  # nome → módulo Python que implementa
     events: dict[str, list[str]] = Field(default_factory=dict)
     gates: list[str] = Field(default_factory=list)
     resources: dict[str, str] = Field(default_factory=dict)

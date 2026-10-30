@@ -615,7 +615,7 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         """Separa o que foi dito por seção. Nada entra na spec e nada é aprovado."""
         data = meetings.close(ctx(), use_ai=ai)
         text = "\n".join(f"  {i['id']} [{i['section']}] {i['text']}" for i in data["items"])
-        show(data, f"{data['id']} encerrada\n{text}\n  próximo: nexo meeting review {data['id']} --accept I-1")
+        show
 
     @meeting.command("review")
     def meeting_review(

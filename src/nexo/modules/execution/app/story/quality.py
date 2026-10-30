@@ -159,7 +159,7 @@ def run_quality(
         result.decision = "human"
         result.human_areas = [*result.human_areas, "revisão independente indisponível"]
     from nexo.modules.execution.app import autonomy
-    from nexo.modules.execution.domain.autonomy import auto_gate
+    from nexo.kernel.workflow.autonomy import auto_gate
 
     st["autonomy"] = autonomy.level(r.ctx)  # autonomia conquistada do squad × área
     if result.decision == "auto" and not auto_gate(st["autonomy"]):

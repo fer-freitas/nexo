@@ -33,3 +33,5 @@ flags:
   - key: clarification_teams
     title: "Perguntas do agente pelo Teams com resposta pelo central"
     area: "Execução"
+services:
+  execution.agents: "nexo.modules.execution.app.agents"

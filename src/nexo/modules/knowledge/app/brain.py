@@ -168,6 +168,18 @@ def search_roots(ctx: AppContext) -> list[Path]:
     return roots
 
 
+def _visible(ctx: AppContext, root: Path, path: Path) -> bool:
+    """O agente lê o global e o próprio projeto: lição de um projeto não chega ao prompt de outro."""
+    from nexo.kernel.workspace.specs import project_settings
+    from nexo.modules.knowledge.domain.notes import visible_to
+
+    rel = path.relative_to(root).as_posix()
+    if not rel.startswith("projects/"):
+        return True
+    project = project_settings(ctx.project_root).project if ctx.project_root else ""
+    return visible_to(rel, project)
+
+
 def search(ctx: AppContext, query: str, limit: int = 5) -> list[dict[str, Any]]:
     """Busca por termos no conteúdo do cérebro, das extensões e das skills embutidas.
 
@@ -182,6 +194,8 @@ def search(ctx: AppContext, query: str, limit: int = 5) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
     for root in roots:
         for path in root.rglob("*.md"):
+            if not _visible(ctx, root, path):
+                continue
             if ".git" in path.parts:
                 continue
             text = path.read_text(encoding="utf-8", errors="replace")
@@ -269,9 +283,37 @@ def propose(ctx: AppContext, path: Path, title: str | None) -> str | None:
 
     content = path.read_text(encoding="utf-8", errors="replace")
     if {f.kind for f in find(content)} - {"email"}:
-        raise NexoError("o arquivo contém segredo ou dado pessoal; remova antes de propor (RF-54)")
+        raise NexoError("o arquivo contém segredo ou dado pessoal; remova antes de propor")
     body = f"Proposta enviada por `{ctx.actor}` via `nexo brain propose`.\n\n```\n{redact(content)[:6000]}\n```\n"
     return create_issue(ctx, title or f"Proposta: {path.name}", body, ["nexo", "proposta"])
+
+
+def propose_clone(ctx: AppContext, clone: Path, source: Path, target: str, title: str) -> dict[str, Any]:
+    """Proposta por PR: branch no clone de trabalho, push e PR. Sem permissão de escrita, cai para issue."""
+    from nexo.modules.knowledge.app import notes
+
+    result = notes.propose_pr(clone, source, target, title)
+    pushed = subprocess.run(
+        ["git", "push", "-q", "-u", "origin", result["branch"]],
+        cwd=clone,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=False,
+    )
+    result["pushed"] = pushed.returncode == 0
+    if not result["pushed"]:
+        result["issue"] = propose(ctx, source, title)
+        return result
+    repo = str(_cfg(ctx).get("github_repo") or "")
+    if repo:
+        from nexo.modules.delivery.adapters.scm.github import GitHubScm
+        from nexo.modules.demands.app.tracker import github_token
+
+        pr = GitHubScm(repo, github_token(ctx)).open_pr(result["branch"], title, f"Proposta de `{ctx.actor}`.")
+        result["pr"] = pr.get("html_url") or pr.get("number")
+    return result
 
 
 def init_repo(target: Path) -> list[str]:
@@ -314,6 +356,9 @@ def keygen(private_key: Path) -> str:
 
 
 def sign(ctx: AppContext, path: Path, key: str, version: str) -> Path:
+    from nexo.modules.knowledge.app import notes
+
+    notes.require_clean_and_valid(path)
     from nexo.kernel.secrets import keyvault
 
     if config.anchor() and not keyvault.is_ref(key):  # S-08: no build corporativo, só cofre

@@ -4,7 +4,7 @@ description: Padrões .NET da empresa — estrutura da solução, camadas, nomen
 ---
 # Padrões .NET
 
-> **A definir pela organização (F20):** o guia oficial de padrões substitui ou completa esta skill; as regras marcadas como **[portão]** são conferidas de forma determinística na esteira.
+> **A definir pela organização:** o guia oficial de padrões substitui ou completa esta skill; as regras marcadas como **[portão]** são conferidas de forma determinística na esteira.
 
 ## Plataforma
 - .NET LTS atual; `Nullable` e `ImplicitUsings` habilitados; `TreatWarningsAsErrors` no CI **[portão]**.

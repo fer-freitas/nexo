@@ -85,7 +85,9 @@ def fleet_info(ctx: AppContext) -> dict[str, Any]:
     import platform
 
     from nexo.kernel import brain as brain_adapter
-    from nexo.modules.execution.app import agents as agents_app
+    from nexo.kernel import services
+
+    agents_app = services.load("execution.agents")
 
     agents: dict[str, str] = {}
     with contextlib.suppress(Exception):
@@ -213,7 +215,9 @@ def enqueue_step(ctx: AppContext, step_id: str) -> None:
         return
     from nexo.kernel import brain as brain_adapter
     from nexo.kernel.finops.costs import usage_cost_brl
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
     from nexo.store.events import enqueue
 
     row = ctx.conn.execute(
@@ -271,7 +275,9 @@ def enqueue_story(ctx: AppContext, story_id: str) -> None:
     """Retrato da história a cada transição: o central guarda o mais recente por projeto × história."""
     if not ctx.events._outbox or ctx.project_root is None:
         return
-    from nexo.modules.finops.app import metrics
+    from nexo.kernel import services
+
+    metrics = services.load("finops.metrics")
     from nexo.store.events import enqueue
 
     facts = metrics.story_facts(ctx, only=story_id)
@@ -334,7 +340,9 @@ def flush(ctx: AppContext, max_rows: int = 5000) -> dict[str, Any]:
     """Envia a outbox pendente. Pelo menos uma vez; o coletor deduplica por `event_id`. Falha → espera crescente."""
     if not enabled(ctx):
         raise NexoError("telemetria desligada (telemetry.enabled na org)")
-    from nexo.modules.usage.app import external_usage
+    from nexo.kernel import services
+
+    external_usage = services.load("usage.external")
 
     with contextlib.suppress(NexoError, OSError, ValueError):  # falha na varredura nunca impede o envio
         external_usage.auto(ctx)
@@ -510,7 +518,9 @@ def trigger(ctx: AppContext) -> None:
     if stamp.is_file() and time.time() - float(stamp.read_text(encoding="utf-8") or 0) < 60:
         return
     stamp.write_text(str(time.time()), encoding="utf-8")
-    from nexo.modules.execution.app.agents import nexo_command
+    from nexo.kernel import services
+
+    nexo_command = services.get("execution.agents", "nexo_command")
 
     kwargs: dict[str, Any] = (
         {"start_new_session": True}
@@ -610,7 +620,9 @@ def _estimated_tools(ctx: AppContext) -> set[str]:
     """custo com preço de fábrica sai marcado como estimado no painel (calculado uma vez por comando)."""
     cached = ctx.__dict__.get("_estimated_tools")
     if cached is None:
-        from nexo.modules.finops.app import pricing as finops_pricing
+        from nexo.kernel import services
+
+        finops_pricing = services.load("finops.pricing")
 
         cached = ctx.__dict__["_estimated_tools"] = finops_pricing.estimated_tools(ctx)
     return set(cached)

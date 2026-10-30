@@ -197,7 +197,7 @@ def test_manual_signal_relay_respects_segregation(
     planned(scenario, STEPS)
     run_json(nexo, "run", "story", "US-1-1")
     code, _, err = nexo("approvals", "signal", "AP-1", "continue")
-    assert code == 4 and "SEC-52" in err
+    assert code == 5 and "segregação" in err
     monkeypatch.setenv("NX_ACTOR", "operacoes")
     code, out = run_json(nexo, "approvals", "signal", "AP-1", "continue")
     assert code == 0 and out["state"] == "Concluido"

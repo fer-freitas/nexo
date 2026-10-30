@@ -190,7 +190,7 @@ def monthly_finops(
     cost_insights = [
         i
         for i in insight_engine.list_for(d, principal)
-        if i["detector"] in ("I-05", "I-11", "I-14") and i["state"] in ("aberto", "reconhecido") and not i["individual"]
+        if i["detector"] in and i["state"] in ("aberto", "reconhecido") and not i["individual"]
     ]
     report = {
         "month": month,
@@ -236,7 +236,7 @@ def systemic_issues(d: CollectorDB) -> list[dict[str, Any]]:
         evidence = json.loads(row["evidence"] or "{}")
         body = {
             "title": f"[insight {row['detector']}] {row['title']}"[:250],
-            "body": "Aberto automaticamente pelo coletor do Nexo (F11). Nenhuma mudança é aplicada sem PR"
+            "body": "Aberto automaticamente pelo coletor do Nexo. Nenhuma mudança é aplicada sem PR"
             " aprovado.\n\n"
             f"- Detector: {row['detector']}\n- Severidade: {row['severity']}\n- Ação sugerida: {row['action']}\n"
             f"- Evidência:\n```json\n{json.dumps(evidence, ensure_ascii=False, indent=2)}\n```\n",

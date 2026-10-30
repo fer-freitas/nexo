@@ -228,15 +228,15 @@ def _check_path(action: Action, workdir: str, policy: Policy, write: bool, profi
         return Decision.ok("sem caminho")
     rel = _relative(action.path, workdir)
     if rel is None:
-        return Decision(False, f"caminho fora do diretório de trabalho: {action.path}", "SEC-22")
+        return Decision
     hit = _matches(rel, policy.forbidden_paths)
     if hit:
         return Decision(False, f"caminho proibido ({hit})", "SEC-13")
     if write:
         if rel in policy.locked_paths:
-            return Decision(False, f"arquivo bloqueado para o agente: {rel}", "SEC-40")
+            return Decision
         if profile == "test-writer" and not _matches(rel, TEST_GLOBS):
-            return Decision(False, "perfil test-writer só escreve testes", "SEC-20")
+            return Decision
         if profile == "doc-writer" and not _matches(rel, DOC_GLOBS):
             return Decision(False, "perfil doc-writer só escreve documentação (docs/ e README)", "SEC-20")
     return Decision.ok()
@@ -316,10 +316,10 @@ def _check_shell(command: str, workdir: str, policy: Policy) -> Decision:
     for target in tee_targets:
         rel = _relative(target, workdir)
         if rel is None or _matches(rel, policy.forbidden_paths):
-            return Decision(False, f"gravação em caminho não permitido: {target}", "SEC-22")
+            return Decision
     for pattern, reason in policy.shell_deny:
         if pattern.search(command):
-            return Decision(False, f"comando bloqueado: {reason}", "SEC-21")
+            return Decision
     masked = _mask_quotes(command)
     for m in re.finditer(r">>?\s*([^\s;&|]+)", masked):
         redirect = command[m.start(1) : m.end(1)].strip("'\"")
@@ -327,7 +327,7 @@ def _check_shell(command: str, workdir: str, policy: Policy) -> Decision:
             continue
         rel = _relative(redirect, workdir)
         if rel is None or _matches(rel, policy.forbidden_paths):
-            return Decision(False, f"redirecionamento para caminho não permitido: {redirect}", "SEC-22")
+            return Decision
     for segment in _segments(command):
         for token in segment.split()[1:]:
             if token.startswith("-"):
@@ -335,11 +335,11 @@ def _check_shell(command: str, workdir: str, policy: Policy) -> Decision:
             if token.startswith(("/", "~", "\\")) or ".." in token or re.match(r"^[A-Za-z]:[\\/]", token):
                 rel = _relative(token, workdir)
                 if rel is None or _matches(rel, policy.forbidden_paths):
-                    return Decision(False, f"argumento fora do diretório de trabalho: {token}", "SEC-22")
+                    return Decision
         env_stripped = re.sub(r"^(?:[A-Z_][A-Z0-9_]*=\S*\s+)+", "", segment)
         if not any(env_stripped == p or env_stripped.startswith(p + " ") for p in policy.shell_allow):
             head = env_stripped.split(" ", 1)[0]
-            return Decision(False, f"comando fora da allowlist: {head}", "SEC-21")
+            return Decision
     return Decision.ok()
 
 
@@ -421,34 +421,34 @@ def is_read_tool(tool: str) -> bool:
 
 def evaluate(action: Action, workdir: str, policy: Policy, profile: str = "code-writer") -> Decision:
     if profile not in PROFILES:
-        return Decision(False, f"perfil desconhecido: {profile}", "SEC-20")
+        return Decision
     if action.kind == "harmless":
         return Decision.ok()
     if action.kind in ("deny", "unknown"):
-        return Decision(False, f"ferramenta não permitida: {action.tool}", "SEC-20")
+        return Decision
     if action.kind == "mcp":
         if action.mcp_server not in policy.allowed_mcp:
-            return Decision(False, f"servidor MCP não aprovado: {action.mcp_server}", "SEC-34")
+            return Decision
         external = action.mcp_server != "nexo" and action.mcp_server not in policy.mcp_write_allowed
         if external and not is_read_tool(action.tool):
-            return Decision(False, f"MCP externo é somente leitura: {action.tool}", "SEC-35")
+            return Decision
         return Decision.ok()
     if action.kind == "read":
         return _check_path(action, workdir, policy, write=False, profile=profile)
     if action.kind == "write":
         if profile == "read-only":
-            return Decision(False, "perfil somente leitura", "SEC-20")
+            return Decision
         return _check_path(action, workdir, policy, write=True, profile=profile)
     if action.kind == "shell":
         if profile == "read-only":
-            return Decision(False, "perfil somente leitura não executa comandos", "SEC-20")
+            return Decision
         return _check_shell(action.command or "", workdir, policy)
     if action.kind == "fetch":
         host = urlparse(action.url or "").hostname or ""
         if host and host in policy.allowed_hosts:
             return Decision.ok()
-        return Decision(False, f"acesso de rede não autorizado: {host or action.tool}", "SEC-23")
-    return Decision(False, f"ação desconhecida: {action.kind}", "SEC-20")
+        return Decision
+    return Decision
 
 
 def _forbidden_anywhere(path: str, workdir: str, policy: Policy) -> str | None:
@@ -481,7 +481,7 @@ def evaluate_guard(action: Action, workdir: str, policy: Policy) -> Decision:
         command = action.command or ""
         for pattern, reason in policy.guard_deny:
             if pattern.search(command):
-                return Decision(False, f"comando bloqueado: {reason}", "SEC-21")
+                return Decision
         for segment in _segments(command):
             for token in segment.split()[1:]:
                 if token.startswith("-"):

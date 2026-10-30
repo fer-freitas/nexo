@@ -49,7 +49,7 @@ def test_verified_author_cannot_approve_even_with_nexo_actor(
     assert rep["state"] == "AguardandoHumano"
     monkeypatch.setenv("NX_ACTOR", "chefe")  # forjar o ator não muda a identidade verificada
     code, _, err = nexo("approve", "US-1-1")
-    assert code == 4 and "SEC-52" in err
+    assert code == 5 and "SEC-52" in err
     credentials.set_secret("github", "tok-lead")
     code, rep = run_json(nexo, "approve", "US-1-1")
     assert code == 0 and rep["state"] == "Concluido"
@@ -78,7 +78,7 @@ def test_dev_cannot_downgrade_identity_or_allow_self_approval(
     nexo("config", "set", "gates.allow_self_approval", "true")
     run_json(nexo, "run", "story", "US-1-1")
     code, _, err = nexo("approve", "US-1-1")
-    assert code == 4 and "SEC-52" in err
+    assert code == 5 and "SEC-52" in err
     logs = json.loads(nexo("--json", "logs", "-n", "400")[1])
     assert any(e["type"] == "policy.violation" and "identity.mode" in str(e["payload"].get("reason")) for e in logs)
 

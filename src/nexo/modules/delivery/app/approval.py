@@ -34,7 +34,7 @@ def mode(ctx: AppContext, kind: str) -> str:
     if value not in MODES:
         raise NexoError(f"{key}: use nexo ou external")
     if value != "nexo" and origin not in identity.TRUSTED_ORIGINS:
-        ctx.audit("policy.violation", {"rule": "SEC-52", "reason": f"{key}={value} só vale na org ou no squad"})
+        ctx.audit
         return "nexo"
     return value
 
@@ -217,8 +217,8 @@ def signal(ctx: AppContext, request_id: str, decision: str) -> dict[str, Any]:
     row = _row(ctx, request_id)
     who = identity.current(ctx)
     if json.loads(row["detail"]).get("requested_by") == who.id:
-        ctx.audit("policy.violation", {"rule": "SEC-52", "reason": "repasse do próprio pedido", "actor": who.id})
-        raise PolicyViolation("segregação de funções (SEC-52): quem pediu não repassa o sinal da própria aprovação")
+        ctx.audit
+        raise PolicyViolation("segregação de funções: quem pediu não repassa o sinal da própria aprovação")
     return resolve(ctx, request_id, decision, who.id)
 
 

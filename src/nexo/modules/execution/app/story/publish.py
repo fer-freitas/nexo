@@ -90,7 +90,7 @@ def publish(r: StoryRunner, story_id: str) -> None:
         return
     st = _state(r, run.id)
     from nexo.kernel.platform import flags
-    from nexo.modules.execution.domain.autonomy import opens_pr
+    from nexo.kernel.workflow.autonomy import opens_pr
 
     if not flags.enabled(r.ctx, "pr_publish"):  # F17
         r.ctx.audit("scm.pr_skipped", {"story": story_id, "flag": "pr_publish"}, ref=story_id)

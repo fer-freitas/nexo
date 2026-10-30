@@ -1,4 +1,4 @@
-# Python com pip (F51: o pip substitui o uv). {venv_python} = Python do ambiente virtual do projeto (.venv, ou
+# Python com pip. {venv_python} = Python do ambiente virtual do projeto (.venv, ou
 # venv/env se já existir); {pip_install} = o que o projeto declara (requirements-dev.txt › requirements.txt ›
 # pyproject com extra/grupo dev); {pip_project} = o próprio projeto, editável, quando há requirements e pyproject.
 stack: python
@@ -38,9 +38,9 @@ stages:
     parser: sarif
     report: "{out}/ruff.sarif"
     default_severity: medium
-    fail_on: any  # qualquer achado de lint reprova; com baseline (F13), só os novos
+    fail_on: any  # qualquer achado de lint reprova; com baseline, só os novos
     fix: ["{venv_python}", "-m", "ruff", "check", "--fix", "--exit-zero", "--quiet"]  # correção determinística
-    changed_only: [".py"]  # código existente (F13): só os arquivos alterados
+    changed_only: [".py"]  # código existente: só os arquivos alterados
     required: true
   - id: unit
     kind: unit
