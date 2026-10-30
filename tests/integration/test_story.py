@@ -203,6 +203,8 @@ def test_human_gate_for_risk_area_and_segregation(
     planned(scenario, [QA, pay, impl("T-1-2", path="README.md"), *OK_REVIEWS], b)
     code, rep = run_json(nexo, "run", "story", "US-1-1")
     assert rep["state"] == "AguardandoHumano" and "payments" in rep["reason"]
+    code, out, _ = nexo("tl", "gate", "US-1-1")
+    assert code == 0 and "aguarda decisão humana" in out and "payments" in out and "nexo approve US-1-1" in out, out + _
     code, _, err = nexo("approve", "US-1-1")
     assert code == 5 and "SEC-52" in err
     monkeypatch.setenv("NX_ACTOR", "tech-lead")

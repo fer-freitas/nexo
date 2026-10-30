@@ -66,7 +66,7 @@ commands:
   - {path: "tl reassign", summary: "Troca o responsável, com motivo", roles: [tl], kind: write}
   - {path: "tl ready", summary: "Definition of Ready", roles: [tl], target: "ready"}
   - {path: "tl impact", summary: "Quem depende do que mudou", roles: [tl], target: "graph impact"}
-  - {path: "tl gate", summary: "Mostra o porquê do portão", roles: [tl], target: "status"}
+  - {path: "tl gate", summary: "Mostra o porquê do portão", roles: [tl], target: "gates explain {0}"}
   - {path: "tl pass", summary: "Aprova o portão humano", roles: [tl], kind: gate}
   - {path: "tl fail", summary: "Reprova o portão: gera bug e volta ao dev", roles: [tl], kind: gate, target: "reject"}
   - {path: "tl review", summary: "Mesmo pipeline para um PR humano", roles: [tl], kind: agent, target: "review pr"}

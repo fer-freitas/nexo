@@ -343,6 +343,27 @@ gates_app = typer.Typer(help="Portões", no_args_is_help=True)
 app.add_typer(gates_app, name="gates", hidden=True)
 
 
+@gates_app.command("explain")
+def gates_explain_cmd(story: str) -> None:
+    """O porquê do portão: o que reprovou, o que pede humano e o que fazer agora."""
+    from nexo.modules.execution.app import status as execution_status
+
+    data = execution_status.gate_report(ctx(), story.upper())
+    if ctx().options.json:
+        emit(data)
+        return
+    console.print(f"{data['story']}: {data['meaning']}", style="nexo.title", markup=False)
+    console.print(f"  confiança {data['score']} (mínimo {data['threshold']})", markup=False, highlight=False)
+    for item in data["failures"]:
+        console.print(f"  reprovou: {item}", markup=False, highlight=False)
+    for item in data["human_areas"]:
+        console.print(f"  pede humano: {item}", markup=False, highlight=False)
+    if data["weakest"]:
+        weakest = ", ".join(f"{name} {value:.2f}" for name, value in data["weakest"])
+        console.print(f"  pontos mais fracos: {weakest}", markup=False, highlight=False)
+    console.print(f"  agora: {data['next']}", markup=False, highlight=False)
+
+
 @gates_app.command("calibrate")
 def gates_calibrate_cmd() -> None:
     from nexo.modules.finops.app import metrics as finops_metrics

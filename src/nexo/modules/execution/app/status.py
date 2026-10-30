@@ -90,6 +90,45 @@ def overview(ctx: AppContext) -> list[dict[str, Any]]:
     return out
 
 
+GATE_WORDS = {
+    "auto": "aprovado sozinho",
+    "human": "aguarda decisão humana",
+    "fail": "reprovado",
+}
+
+
+def gate_report(ctx: AppContext, story: str) -> dict[str, Any]:
+    """O porquê do portão em linguagem direta: o que reprovou, o que pede humano e o ponto mais fraco."""
+    root = ctx.project_root
+    if root is None:
+        raise NexoError("rode dentro de um projeto")
+    gate: dict[str, Any] = {}
+    for run in reversed(RunStore(ctx.conn, project_key(root)).runs(story)):  # as revisões também geram execuções
+        gate = dict(_story_state(root, run.id).get("gate") or {})
+        if gate:
+            break
+    if not gate:
+        raise NexoError(f"{story} ainda não passou pelo portão")
+    breakdown = dict(gate.get("breakdown") or {})
+    next_step = {
+        "auto": "nada a fazer no portão",
+        "human": f"`nexo approve {story}` ou `nexo reject {story} --reason`",
+        "fail": f"corrija o que reprovou e rode `nexo dev resume {story}`",
+    }
+    decision = str(gate.get("decision"))
+    return {
+        "story": story,
+        "decision": decision,
+        "meaning": GATE_WORDS.get(decision, decision),
+        "score": gate.get("score"),
+        "threshold": gate.get("threshold"),
+        "failures": list(gate.get("hard_failures") or []),
+        "human_areas": list(gate.get("human_areas") or []),
+        "weakest": sorted(breakdown.items(), key=lambda kv: kv[1])[:3],
+        "next": next_step.get(decision, ""),
+    }
+
+
 def detail(ctx: AppContext, target: str) -> dict[str, Any]:
     root = ctx.project_root
     store = RunStore(ctx.conn, project_key(root) if root else "")
