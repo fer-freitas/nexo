@@ -1,4 +1,4 @@
-"""Portal do produto (F56): o desenho da solução e o que precisa de atenção, a partir do produto e do código.
+"""Portal do projeto: o desenho da solução e o que precisa de atenção, a partir do produto e do código.
 
 O `produto.yaml` diz o que **deveria** existir (partes, quem usa quem, squads). O código de cada repositório diz o
 que **existe**: as rotas que ele expõe e as outras partes que ele cita em código e configuração (URLs, nomes de

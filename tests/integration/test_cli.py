@@ -260,3 +260,10 @@ def test_doctor_reports_approval_and_unguarded_tools(nexo: Runner, nexo_home: Pa
 def test_notify_test_says_when_no_channel_is_on(nexo: Runner) -> None:
     code, out, _ = nexo("--json", "notify", "test")
     assert code == 0 and json.loads(out)["channels"] == {}
+
+
+def test_docs_site_generates_the_site_and_never_a_workflow(project: Path, nexo: Runner) -> None:
+    code, out, err = nexo("--json", "docs", "site")
+    assert code == 0, err + out
+    assert (project / "docs-site" / "package.json").is_file() and (project / "docs-site" / "docs").is_dir()
+    assert not (project / ".github" / "workflows").exists(), "nada do Nexo cria workflow do GitHub Actions"

@@ -8,3 +8,7 @@ flags:
     stage: beta
     commands: ["docs site", "docs target", "docs portal"]
 cli: "nexo.modules.docsite.cli:register"
+commands:
+  - {path: "docs site", summary: "Gera o site de documentação a partir do projeto e do cérebro", kind: write}
+  - {path: "docs portal", summary: "Gera o portal do projeto", kind: write}
+  - {path: "docs target", summary: "Escolhe onde fica a documentação", kind: write}

@@ -1,4 +1,4 @@
-"""Feature em vários repositórios (F28): planejamento único, execução por repositório e PRs ligados entre si.
+"""Feature em vários repositórios: planejamento único, execução por repositório e PRs ligados entre si.
 
 Fluxo: `nexo program repo add <nome> <caminho> [--after outro] --workspace W` declara os repositórios da área de
 trabalho; o planejamento (`nexo plan … --workspace W`, `plan approve`) gera histórias com o campo `repo`;

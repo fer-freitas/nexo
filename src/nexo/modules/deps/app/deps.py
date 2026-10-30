@@ -1,4 +1,4 @@
-"""Dependências e vulnerabilidades em escala (F25): varredura, plano e execução sem IA quando não há quebra.
+"""Dependências e vulnerabilidades em escala: varredura, plano e execução sem IA quando não há quebra.
 
 `nexo deps scan` lê as ferramentas da stack e grava `.nexo/deps/scan.json`. `nexo deps plan` transforma os achados
 numa feature (F-n) com uma história por atualização e tarefas `dependency`: o Nexo aplica a atualização com o

@@ -1,11 +1,11 @@
-"""Leitura de dependências vulneráveis e desatualizadas pelas ferramentas de cada stack (F25), em JSON.
+"""Leitura de dependências vulneráveis e desatualizadas pelas ferramentas de cada stack, em JSON.
 
-- pip (F51, no lugar do uv): `pip-audit -f json` sobre o `pip freeze` do ambiente do projeto (vulnerabilidades) e
+- pip: `pip-audit -f json` sobre o `pip freeze` do ambiente do projeto (vulnerabilidades) e
   `pip list --outdated --format json` (versões); sem ambiente ainda, o pip-audit resolve o requirements.txt;
 - npm: `npm audit --json` e `npm outdated --json`;
 - dotnet: `dotnet list package --vulnerable|--outdated --format json`;
-- pub (Flutter/Dart): `osv-scanner` no `pubspec.lock` e `dart pub outdated --json` (F49);
-- maven: `osv-scanner` no `pom.xml` (F49). Gradle fica na etapa `sca-gradle` da qualidade: sem comando padrão que
+- pub (Flutter/Dart): `osv-scanner` no `pubspec.lock` e `dart pub outdated --json`;
+- maven: `osv-scanner` no `pom.xml`. Gradle fica na etapa `sca-gradle` da qualidade: sem comando padrão que
   troque a versão no build.gradle, a atualização segue pela história normal.
 Os parsers são puros (texto → achados) para testar com saídas reais gravadas.
 """
@@ -265,7 +265,7 @@ def pin_version(root: Path, package: str, version: str) -> tuple[list[str], bool
 
 
 def pip_bump(root: Path, package: str, version: str) -> tuple[bool, str]:
-    """Atualização pelo Nexo (F51): troca a versão de `package` nos requirements*.txt/.in e no pyproject e instala.
+    """Atualização pelo Nexo: troca a versão de `package` nos requirements*.txt/.in e no pyproject e instala.
     Arquivo com hashes (pip-compile) é regerado pelo pip-tools do ambiente, se houver; senão a tarefa avisa."""
     import subprocess
 

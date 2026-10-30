@@ -1,11 +1,11 @@
-"""Base de conhecimento do projeto em Docusaurus 3, publicada no GitHub Pages da organização.
+"""Base de conhecimento do projeto em Docusaurus 3. O Nexo gera o site; publicá-lo fica com quem hospeda.
 
 O site é uma **vista** gerada, não uma fonte: as fontes são o `.nexo/` do projeto (specs, requisito técnico, ADRs,
 histórias, execuções) e o cérebro da org (projeto e glossário). Nada é editado no site; mudar uma informação é mudar
 a fonte e gerar de novo (`nexo docs site`). Os agentes leem as fontes, nunca o site.
 
-- `scaffold`: cria o projeto Docusaurus (package.json, configuração, CSS com as cores da marca) e o workflow que
-  constrói e publica no GitHub Pages a cada push na main. Não sobrescreve o que já existe.
+- `scaffold`: cria o projeto Docusaurus (package.json, configuração e CSS com as cores da marca). Não sobrescreve o
+  que já existe e não cria workflow do GitHub Actions.
 - `sync`: regenera `docs/` com início, projeto, features (requisitos, análise técnica, requisito técnico, decisões,
   histórias), entregas, decisões e mapa do código.
 """
@@ -112,7 +112,7 @@ def _brand_css(ctx: AppContext) -> str:
 
 
 def scaffold(ctx: AppContext, root: Path) -> list[str]:
-    """Cria o projeto Docusaurus e o workflow do GitHub Pages (só o que ainda não existe)."""
+    """Cria o projeto Docusaurus (só o que ainda não existe)."""
     site = site_dir(ctx, root)
     name = str(config.resolved(ctx).values.get("project") or root.name)
     url, base = _site_url(ctx)
@@ -186,63 +186,17 @@ module.exports = config;
             "Gerada pelo Nexo (`nexo docs site`). **Não edite `docs/`**: o conteúdo vem do `.nexo/` do projeto e do "
             "cérebro da org e é regenerado a cada aprovação de plano e entrega. Para mudar uma informação, mude a "
             "fonte.\n\nVer localmente:\n\n```bash\nnpm install\nnpm start\n```\n\n"
-            "Publicação: o workflow `.github/workflows/nexo-docs.yml` constrói e publica no GitHub Pages a cada push "
-            "na main (em *Settings → Pages*, escolha *GitHub Actions* como fonte).\n"
+            "Publicação: `npm run build` gera `build/`, para hospedar onde a empresa definir. O Nexo não cria "
+            "workflow do GitHub Actions.\n"
         ),
         ".gitignore": "node_modules/\nbuild/\n.docusaurus/\n",
     }
-    workflow = root / ".github" / "workflows" / "nexo-docs.yml"
     created: list[str] = []
     for rel_path, text in files.items():
         path = site / rel_path
         if not path.exists():
             _write(path, text)
             created.append(f"{rel}/{rel_path}")
-    if not workflow.exists():
-        _write(
-            workflow,
-            f"""# Base de conhecimento do projeto (Docusaurus) no GitHub Pages — gerado pelo Nexo.
-name: base-de-conhecimento
-on:
-  push:
-    branches: [main]
-    paths: ["{rel}/**"]
-  workflow_dispatch:
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-concurrency:
-  group: pages
-  cancel-in-progress: true
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: {rel}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm install --no-audit --no-fund
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: {rel}/build
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{{{ steps.deployment.outputs.page_url }}}}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-""",
-        )
-        created.append(".github/workflows/nexo-docs.yml")
     if created:
         ctx.audit("docs.site_scaffold", {"files": created})
     return created

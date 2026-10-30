@@ -1,4 +1,4 @@
-"""Portal do projeto (F56): um site Docusaurus que junta a documentação de todos os repositórios do projeto.
+"""Portal do projeto: um site Docusaurus que junta a documentação de todos os repositórios do projeto.
 
 Cada parte do projeto (visão ou componente) vive num repositório próprio. O portal é montado no CI, sem IA, a partir
 de duas fontes que já existem:

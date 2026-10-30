@@ -21,6 +21,8 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 
 | Item | Situação | Quem destrava |
 |---|---|---|
+| **Módulos antecipados do pós-MVP** | `deps`, `legacy`, `program`, `change` e `docsite` vieram da base. Os quatro primeiros têm testes com simulador, e `docsite` tem só um teste de geração. Nenhum rodou em projeto real | Uso real |
+| **Comandos dentro das CLIs** | `nexo pack expose` gera os arquivos, mas não foi conferido se Claude e Copilot os reconhecem | Abrir a ferramenta |
 | **Identidade visual** | Só a paleta aproximada, porque o manual de marca não é público. Sem logo nem fonte da empresa | Time de marca |
 | **`nexo setup` instalando de verdade** | Só simulado. Os identificadores de pacote do `winget` não foram conferidos, e a TI pode bloquear | Prova na máquina da empresa |
 | **Aparência no Windows** | Cores do terminal e páginas conferidas só em macOS | Prova MF |

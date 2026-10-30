@@ -1,4 +1,4 @@
-"""Modernização de legado em ondas (F27): `nexo modernize playbooks|plan|status`.
+"""Modernização de legado em ondas: `nexo modernize playbooks|plan|status`.
 
 O plano é determinístico (arquivos afetados → módulos → ordem pelos imports → histórias e tarefas de até 8
 arquivos); cada história tem o critério "não resta ocorrência do padrão antigo no módulo", que o QA transforma em

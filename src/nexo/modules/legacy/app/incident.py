@@ -1,4 +1,4 @@
-"""Do incidente à correção (F26): um alerta do APM ou um incidente do ITSM vira uma história de correção pronta.
+"""Do incidente à correção: um alerta do APM ou um incidente do ITSM vira uma história de correção pronta.
 
 `nexo incident open <arquivo|->` lê o incidente (genérico, ServiceNow, Sentry ou Azure Monitor), acha na pilha de
 erro os arquivos do repositório, aponta o commit suspeito (última mudança nesses arquivos antes da abertura) e cria

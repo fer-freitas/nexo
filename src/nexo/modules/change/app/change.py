@@ -1,4 +1,4 @@
-"""Gestão de mudança (F42): a requisição de mudança da entrega sai do pacote de evidências.
+"""Gestão de mudança: a requisição de mudança da entrega sai do pacote de evidências.
 
 `nexo change open F-n` monta o pacote, decide o tipo (padrão quando todas as histórias são candidatas e as
 evidências sustentam; normal nos demais casos) e abre a requisição no ServiceNow ou no Jira Service Management

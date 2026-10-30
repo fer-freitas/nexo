@@ -33,8 +33,8 @@ def docs_site() -> None:
     console.print(f"[nexo.good]✔[/] base de conhecimento em {escape(result['site'])}")
     console.print(f"  {result['features']} feature(s) · {result['delivered']} entrega(s)")
     console.print(
-        "  [nexo.muted]ver localmente: cd docs-site && npm install && npm start · publica no GitHub Pages pelo "
-        "workflow nexo-docs a cada push na main (Settings → Pages → GitHub Actions)[/]"
+        "  [nexo.muted]ver localmente: cd docs-site && npm install && npm start · "
+        "`npm run build` gera o site para hospedar[/]"
     )
 
 

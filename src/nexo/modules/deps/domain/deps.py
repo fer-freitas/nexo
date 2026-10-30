@@ -1,4 +1,4 @@
-"""Dependências e vulnerabilidades em escala (F25): achados das ferramentas de cada stack e o plano de atualização.
+"""Dependências e vulnerabilidades em escala: achados das ferramentas de cada stack e o plano de atualização.
 
 Regras (determinísticas):
 - vulnerabilidade com versão de correção vira uma história por pacote, sempre;

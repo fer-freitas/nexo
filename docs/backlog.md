@@ -22,4 +22,11 @@ O que depende de prova real, e não de código, está em [provas-reais.md](prova
 
 ## Depois do MVP
 
-Conexão com o SSO da empresa, `eval` e harness, `brain.graph`, `deps`, `legacy`, `program`, `notify`, `autonomy`, `isolation`, `docsite`, insights e skills do Nexo expostas dentro das próprias CLIs de IA. Detalhes no §19 da [spec](../SPEC.md).
+Já antecipados, sem prova real: `deps`, `legacy`, `program`, `change`, `docsite`, `notify`, `autonomy`, `isolation`, `insights`, `eval`, a travessia do `brain.graph` e os comandos dentro das CLIs de IA.
+
+| Ainda falta | Situação |
+|---|---|
+| Conexão com o SSO da empresa | Fica para depois, por decisão. A porta `AuthProvider` está pronta |
+| Casos de harness do toolkit no `eval` | Handoff desatualizado, parada e retomada, bloqueio parcial e revisão somente leitura |
+| Teste automático de `nexo docs portal` | Veio da base sem teste |
+| `brain.graph`: seleção de contexto por vizinhança e grafo único de código e cérebro | Hoje só há a travessia |

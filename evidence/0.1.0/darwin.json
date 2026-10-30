@@ -26,7 +26,7 @@
     {
       "step": "arquitetura",
       "ok": true,
-      "seconds": 8.7
+      "seconds": 13.3
     },
     {
       "step": "tipos",
@@ -36,7 +36,7 @@
     {
       "step": "testes",
       "ok": true,
-      "seconds": 67.2
+      "seconds": 69.5
     },
     {
       "step": "gitleaks",

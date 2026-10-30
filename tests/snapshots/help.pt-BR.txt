@@ -79,6 +79,9 @@ TODOS
   role                 Mostra seus papéis no time
   demo                 Experimenta a CLI e o site com dados fictícios, sem gastar tokens
   deps                 Varre vulnerabilidades e planeja a correção em ondas
+  docs site            Gera o site de documentação a partir do projeto e do cérebro
+  docs portal          Gera o portal do projeto
+  docs target          Escolhe onde fica a documentação
   modernize            Modernização de legado em ondas
   incident             Do incidente à correção
   lineage              De onde vem e para onde vai cada componente

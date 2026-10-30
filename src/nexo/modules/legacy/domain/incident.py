@@ -1,4 +1,4 @@
-"""Do incidente à correção (F26): normalização de alertas e incidentes e extração da pilha de erro.
+"""Do incidente à correção: normalização de alertas e incidentes e extração da pilha de erro.
 
 Fontes aceitas (JSON): genérica, ServiceNow (`incident`), Sentry (evento) e Azure Monitor (esquema comum de alerta).
 Tudo determinístico: nenhum LLM participa da leitura; o texto vindo de fora é tratado como dado pelo chamador.

@@ -1,4 +1,4 @@
-"""Modernização de legado em ondas (F27): roteiro, módulos afetados, ordem por dependência e progresso.
+"""Modernização de legado em ondas: roteiro, módulos afetados, ordem por dependência e progresso.
 
 Um roteiro (`playbooks/<nome>.yaml`, embutido ou do cérebro) diz o que procurar (`detect`, regex), em que arquivos
 (`include`, globs), o que fazer (`instructions`, para o agente) e como provar que terminou (nenhuma ocorrência do
