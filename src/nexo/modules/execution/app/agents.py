@@ -62,7 +62,7 @@ def api_config(ctx: AppContext) -> dict[str, Any]:
 
 
 def api_mode(ctx: AppContext) -> str:
-    """F37 · `agents.api.mode`: off (só CLIs) | fallback (API quando as CLIs não estão disponíveis) | on | only."""
+    """`agents.api.mode`: off (só CLIs) | fallback (API quando as CLIs não estão disponíveis) | on | only."""
     from nexo.kernel.models.llm_api import MODES
 
     mode = str(api_config(ctx).get("mode") or "off")

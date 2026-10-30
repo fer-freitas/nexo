@@ -1,4 +1,4 @@
-# Máquina de status de HISTÓRIA/FEATURE (spec 02 §5). Usada a partir da F2/F3.
+# Máquina de status de HISTÓRIA/FEATURE .
 name: story
 initial: Ideia
 terminal: [Concluido, Cancelado]

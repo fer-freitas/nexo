@@ -1,4 +1,4 @@
-# F46: servidores MCP oficiais dos produtos que o Nexo integra (levantamento de 2026-10-01).
+# Servidores MCP oficiais dos produtos que o Nexo integra (levantamento de 2026-10-01).
 # Entram nos agentes como ferramentas extras, por padrão somente leitura; o fluxo automático (estado da história,
 # PR, aprovação, auditoria) continua nas integrações nativas do Nexo.
 #
@@ -131,7 +131,7 @@ servers:
     vendor: aws
     status: ga
     transport: stdio
-    command: awslabs.aws-api-mcp-server  # F51: instale com `python -m pip install awslabs.aws-api-mcp-server`
+    command: awslabs.aws-api-mcp-server  # Instale com `python -m pip install awslabs.aws-api-mcp-server`
     args: []
     env: { READ_OPERATIONS_ONLY: "true" }
     auth: env

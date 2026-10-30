@@ -118,10 +118,8 @@ def help_all(console: Console, role: str = "") -> None:
 
 def help_for(console: Console, specs: list[CommandSpec]) -> None:
     lang = get_lang()
-    phase_word = "phase" if lang == "en" else "fase"
     for spec in specs:
-        status = "" if spec.available else f"  [{phase_word} {spec.phase}]"
-        console.print(f"[nexo.title]{escape(f'nexo {_label(spec)}{status}')}[/]", highlight=False)
+        console.print(f"[nexo.title]{escape(f'nexo {_label(spec)}')}[/]", highlight=False)
         console.print(escape(f"  {spec.summary(lang)}"), highlight=False)
         if spec.alias_of:
             now = "now" if lang == "en" else "agora"

@@ -64,7 +64,7 @@ class GitHubScm:
         )
 
     def commit_file(self, branch: str, path: str, content: str, message: str, base: str | None = None) -> None:
-        """Cria a branch a partir da base e grava um arquivo nela pela API (sem clone local) — F35."""
+        """Cria a branch a partir da base e grava um arquivo nela pela API (sem clone local)."""
         import base64
 
         base = base or self.default_branch()

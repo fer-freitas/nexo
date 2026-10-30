@@ -34,11 +34,11 @@ PAGES: dict[str, tuple[str, frozenset[str]]] = {
     "quality": ("Qualidade e segurança", frozenset({"lead", "manager", "director", "security", "nexo", "admin"})),
     "routing": ("Ferramentas e modelos", frozenset({"nexo", "admin"})),
     "brain": ("Conhecimento", frozenset({"nexo", "admin"})),
-    "fleet": ("Frota de agentes", frozenset({"nexo", "security", "admin"})),  # F15
-    "dora": ("DORA e ROI", frozenset({"director", "manager", "lead", "finops", "nexo", "admin"})),  # F15
+    "fleet": ("Frota de agentes", frozenset({"nexo", "security", "admin"})),
+    "dora": ("DORA e ROI", frozenset({"director", "manager", "lead", "finops", "nexo", "admin"})),
     "board": ("Demandas", frozenset(ROLES) - {"ci"}),
     "insights": ("Insights", frozenset(ROLES) - {"ci"}),
-    "flags": ("Feature flags", frozenset({"nexo", "admin"})),  # F17
+    "flags": ("Feature flags", frozenset({"nexo", "admin"})),
     "me": ("Meu painel", frozenset(ROLES) - {"ci"}),
 }
 # telas de operação do portal, sem página de dados

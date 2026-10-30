@@ -132,7 +132,6 @@ def test_login_new_providers(nexo: Runner, monkeypatch: pytest.MonkeyPatch, memo
     providers = (
         "tracker",
         "github",
-        "jira",
         "teams",
         "slack",
         "smtp",
@@ -142,7 +141,6 @@ def test_login_new_providers(nexo: Runner, monkeypatch: pytest.MonkeyPatch, memo
         "llm_gateway",
         "bedrock",
         "gemini_api",
-        "linear",
         "gitlab",
         "bitbucket",
     )

@@ -1,4 +1,4 @@
-# F49: regras de fábrica para Angular/TypeScript (skills angular-standards, solid-e-clean-code e ddd-tatico).
+# Regras de fábrica para Angular/TypeScript (skills angular-standards, solid-e-clean-code e ddd-tatico).
 rules:
   - id: DDD-DOMAIN-INFRA
     title: Domínio dependendo de framework ou infraestrutura

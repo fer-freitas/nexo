@@ -22,7 +22,7 @@ TEST_GLOBS = (
     "**/*.test.tsx",
     "**/*.spec.ts",
     "**/test_*.py",
-    # F49 (achado no e2e Java): Maven/Gradle em src/test, pacotes Dart em test/ e integration_test/
+    # Maven/Gradle em src/test, pacotes Dart em test/ e integration_test/
     "**/test/**",
     "integration_test/**",
     "**/*_test.dart",

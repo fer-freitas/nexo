@@ -209,35 +209,3 @@ def fast_recipe(nexo_home: Path) -> Path:
     dump_yaml(nexo_home / "brain" / "recipes" / "python.yaml", FAST_PYTHON_RECIPE)
     dump_yaml(nexo_home / "brain" / "recipes" / "common.yaml", {"stages": []})
     return nexo_home / "brain"
-
-
-def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    """CI: `NX_TEST_SHARD=i/n` roda só a parte i de n. A divisão é por arquivo (as fixtures do módulo ficam
-    juntas) e pelo tempo medido de cada arquivo (`tests/shard_weights.json`, `scripts/test_weights.py`): o arquivo
-    mais pesado vai sempre para a parte mais leve. Arquivo sem medida entra com o menor peso."""
-    import json
-    import os
-
-    shard = os.environ.get("NX_TEST_SHARD", "")
-    if not shard or shard == "1/1":
-        return
-    index, total = (int(x) for x in shard.split("/"))
-    import sys
-
-    path = Path(__file__).parent / "shard_weights.json"
-    data = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
-    by_os = data if all(isinstance(v, dict) for v in data.values()) else {"local": data}
-    weights: dict[str, float] = dict(by_os.get(sys.platform) or by_os.get("local") or next(iter(by_os.values()), {}))
-    first_extra = float(weights.pop("__parte_1_binario__", 0.0))  # a parte 1 também gera o binário
-    modules = sorted({i.nodeid.split("::", 1)[0] for i in items})
-    known = sorted(w for m, w in weights.items() if m in modules) or [1.0]
-    default = known[0]  # fora do log do CI = testes rápidos (abaixo de 0,3 s cada)
-    loads = [first_extra] + [0.0] * (total - 1)
-    owner: dict[str, int] = {}
-    for module in sorted(modules, key=lambda m: (-max(weights.get(m, default), 0.1), m)):
-        lightest = loads.index(min(loads))
-        owner[module] = lightest
-        loads[lightest] += max(weights.get(module, default), 0.1)
-    keep = [i for i in items if owner[i.nodeid.split("::", 1)[0]] == index - 1]
-    config.hook.pytest_deselected(items=[i for i in items if owner[i.nodeid.split("::", 1)[0]] != index - 1])
-    items[:] = keep

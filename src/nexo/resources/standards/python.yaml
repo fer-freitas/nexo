@@ -1,4 +1,4 @@
-# F48: regras de fábrica para Python (skills ddd-tatico, solid-e-clean-code e padroes-de-projeto).
+# Regras de fábrica para Python (skills ddd-tatico, solid-e-clean-code e padroes-de-projeto).
 rules:
   - id: DDD-DOMAIN-INFRA
     title: Domínio dependendo de infraestrutura

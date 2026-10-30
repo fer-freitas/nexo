@@ -83,7 +83,7 @@ shell_allow:
   - "npx tsc"
   - "npx prettier"
   - "npx playwright test"
-  # F49: Java (Maven/Gradle, com ou sem wrapper), Angular e Flutter/Dart
+  # Java (Maven/Gradle, com ou sem wrapper), Angular e Flutter/Dart
   - "mvn"
   - "./mvnw"
   - "gradle"
@@ -109,7 +109,7 @@ shell_allow:
   - "dart pub get"
   - "pytest"
   - "python -m pytest"
-  # F51: projetos Python com pip — o agente roda os testes pelo Python do .venv do worktree (o Nexo prepara)
+  # Projetos Python com pip — o agente roda os testes pelo Python do .venv do worktree (o Nexo prepara)
   - ".venv/bin/python"
   - ".venv\\Scripts\\python"
   - ".venv\\Scripts\\python.exe"
@@ -135,7 +135,7 @@ shell_deny:
   - { pattern: "(^|\\s)(/etc|/usr|/bin|/System|C:\\\\Windows)", reason: "caminho do sistema" }
   - { pattern: "~/|\\$HOME|%USERPROFILE%", reason: "diretório do usuário" }
 
-# F24: guarda nas sessões de IA abertas fora do Nexo (`nexo guard install`). Só bloqueios duros; a org só acrescenta.
+# Guarda nas sessões de IA abertas fora do Nexo (`nexo guard install`). Só bloqueios duros; a org só acrescenta.
 guard_deny:
   - { pattern: "\\bsudo\\b|\\bsu\\s", reason: "elevação de privilégio" }
   - { pattern: "\\brm\\s+-[a-zA-Z]*[rf][a-zA-Z]*\\s+(/|~|\\$HOME)(\\s|/?$)", reason: "remoção da raiz ou da pasta do usuário" }

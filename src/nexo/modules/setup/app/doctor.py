@@ -29,11 +29,11 @@ class Check:
 # (executável, categoria, obrigatório, observação quando ausente)
 TOOLS: tuple[tuple[str, str, bool, str], ...] = (
     ("git", "base", True, "necessário para checkpoints e worktrees"),
-    ("claude", "agente", False, "Claude Code CLI — usado a partir da fase 1"),
-    ("copilot", "agente", False, "GitHub Copilot CLI — usado a partir da fase 1"),
-    ("devin", "agente", False, "Devin CLI — usado a partir da fase 1"),
-    ("ffmpeg", "planejamento", False, "necessário para vídeo/áudio na fase 2"),
-    ("gitleaks", "segurança", False, "varredura de segredos (fase 3; recomendado já)"),
+    ("claude", "agente", False, "Claude Code CLI"),
+    ("copilot", "agente", False, "GitHub Copilot CLI"),
+    ("devin", "agente", False, "Devin CLI"),
+    ("ffmpeg", "planejamento", False, "necessário para vídeo e áudio"),
+    ("gitleaks", "segurança", False, "varredura de segredos"),
     ("dotnet", "stack", False, "receita .NET"),
     ("node", "stack", False, "receitas React e Angular"),
     ("java", "stack", False, "receita Java (JDK 21)"),
@@ -42,8 +42,13 @@ TOOLS: tuple[tuple[str, str, bool, str], ...] = (
     ("flutter", "stack", False, "receita Flutter"),
     ("osv-scanner", "segurança", False, "dependências vulneráveis de Flutter e Java"),
     ("python", "stack", False, "receita Python (cria o .venv do projeto com pip)"),
-    ("pip-audit", "segurança", False, "instalado sob demanda em ~/.nexo-home/tools (vulnerabilidades Python)"),
-    ("semgrep", "segurança", False, "instalado sob demanda em ~/.nexo-home/tools (SAST)"),
+    (
+        "pip-audit",
+        "segurança",
+        False,
+        "sob demanda na pasta de ferramentas do Nexo (vulnerabilidades Python)",
+    ),
+    ("semgrep", "segurança", False, "instalado sob demanda na pasta de ferramentas do Nexo (SAST)"),
 )
 
 EXE_TOOL: dict[str, str] = {}  # executável → nome da ferramenta no registro de agentes

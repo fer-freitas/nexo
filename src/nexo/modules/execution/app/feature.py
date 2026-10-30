@@ -109,7 +109,7 @@ def run_feature(ctx: AppContext, fid: str, parallel: int = 1) -> dict[str, Any]:
     from nexo.modules.finops.app import costs
     from nexo.store.runs import RunStore, project_key
 
-    flags.require(ctx, "run_feature")  # F17
+    flags.require(ctx, "run_feature")
     root = ctx.project_root
     if root is None:
         raise NexoError("nenhum projeto Nexo encontrado")
@@ -181,7 +181,7 @@ def serve(ctx: AppContext, queue: Path, once: bool = False, interval: float = 30
 
     from nexo.kernel.platform import flags
 
-    flags.require(ctx, "runner")  # F17
+    flags.require(ctx, "runner")
     processed: list[dict[str, Any]] = []
     for sub in ("done", "failed", "running"):
         (queue / sub).mkdir(parents=True, exist_ok=True)

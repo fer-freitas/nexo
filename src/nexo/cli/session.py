@@ -328,7 +328,7 @@ class Session:
         """Grupo digitado sozinho (`cost`, `admin`...): só as opções do grupo, numeradas e com descrição."""
         from nexo.cli.registry import COMMANDS
 
-        specs = [c for c in COMMANDS if c.top == top and " " in c.path and not c.hidden and c.available]
+        specs = [c for c in COMMANDS if c.top == top and " " in c.path and not c.hidden]
         if not specs:
             return False
         self.menu = [

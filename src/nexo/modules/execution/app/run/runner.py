@@ -70,7 +70,7 @@ class Orchestrator:
             self.max_handoffs = 0
         from nexo.kernel.platform import flags
 
-        if not flags.enabled(ctx, "handoff"):  # F17
+        if not flags.enabled(ctx, "handoff"):
             self.max_handoffs = 0
         self._simulated: set[str] = set()
 

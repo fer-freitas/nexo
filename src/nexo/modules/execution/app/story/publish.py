@@ -117,10 +117,10 @@ def publish(r: StoryRunner, story_id: str) -> None:
     from nexo.kernel.platform import flags
     from nexo.kernel.workflow.autonomy import opens_pr
 
-    if not flags.enabled(r.ctx, "pr_publish"):  # F17
+    if not flags.enabled(r.ctx, "pr_publish"):
         r.ctx.audit("scm.pr_skipped", {"story": story_id, "flag": "pr_publish"}, ref=story_id)
         return
-    if not opens_pr(str(st.get("autonomy") or "L2")):  # F14 · L0: nada sai da máquina
+    if not opens_pr(str(st.get("autonomy") or "L2")):  # L0: nada sai da máquina
         r.ctx.audit("scm.pr_skipped", {"story": story_id, "autonomy": st.get("autonomy")}, ref=story_id)
         return
     try:
@@ -159,7 +159,7 @@ def publish(r: StoryRunner, story_id: str) -> None:
 def docs(
     r: StoryRunner, story_id: str, run_id: str, st: dict[str, Any], spec: Spec, worktree: Path
 ) -> StoryReport | None:
-    """F35 (docs.writer: auto): o agente writer atualiza a documentação antes das revisões.
+    """Com `docs.writer: auto`, o agente writer atualiza a documentação antes das revisões.
 
     Falha do writer não bloqueia a entrega: fica registrada e a documentação pode ser feita depois."""
     from nexo.kernel.platform import flags

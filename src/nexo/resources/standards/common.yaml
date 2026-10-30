@@ -1,4 +1,4 @@
-# F48: padrão de código garantido — regras de fábrica comuns a todas as stacks.
+# Padrão de código garantido — regras de fábrica comuns a todas as stacks.
 # O cérebro da org (standards/*.yaml) e o projeto (.nexo/standards.yaml) sobrescrevem por `id`
 # (`severity`, `params`, `paths`...) ou removem com `disabled: true`. Severidade: error (reprova) | warning.
 rules:

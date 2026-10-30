@@ -14,7 +14,7 @@ import typer
 from rich.table import Table
 
 from nexo import __version__
-from nexo.cli import render
+from nexo.cli import render, surface
 from nexo.cli.app import app, console, ctx, emit, err_console
 from nexo.cli.registry import COMMANDS
 from nexo.kernel.errors import ExitCode, NexoError
@@ -32,7 +32,7 @@ def help_cmd(context: typer.Context) -> None:
         items = COMMANDS if not words else [s for s in COMMANDS if s.path.startswith(" ".join(words))]
         emit(
             [
-                {"command": s.path, "args": s.args, "available": s.available, "alias_of": s.alias_of or None}
+                {"command": s.path, "args": s.args, "alias_of": s.alias_of or None}
                 for s in items
                 if not s.hidden or words
             ]
@@ -41,7 +41,16 @@ def help_cmd(context: typer.Context) -> None:
     if not words or words[0] == "--role":
         render.help_all(console, words[1] if len(words) > 1 else "")
         return
-    specs = [s for s in COMMANDS if s.path == " ".join(words) or s.path.startswith(" ".join(words) + " ")]
+    asked = " ".join(words)
+    declared = [c for c in surface.commands_for() if c.path == asked or c.path.startswith(asked + " ")]
+    if declared:
+        for c in declared:
+            console.print(f"nexo {c.path}", style="nexo.title", markup=False, highlight=False)
+            console.print(f"  {c.summary}", markup=False, highlight=False)
+            if c.target:
+                console.print(f"  equivale a: nexo {c.target}", style="nexo.muted", markup=False, highlight=False)
+        return
+    specs = [s for s in COMMANDS if s.path == asked or s.path.startswith(asked + " ")]
     if not specs:
         err_console.print(t("help.unknown", name=" ".join(words)))
         raise typer.Exit(ExitCode.USAGE)
@@ -374,7 +383,6 @@ def login_cmd(provider: str) -> None:
         "figma",
         "tracker",
         "github",
-        "jira",
         "teams",
         "slack",
         "smtp",
@@ -387,9 +395,8 @@ def login_cmd(provider: str) -> None:
         "llm_gateway",  # chaves das APIs das LLMs
         "bedrock",  # ACCESS_KEY:SECRET[:SESSION_TOKEN] ou chave de API do Bedrock
         "gemini_api",
-        "linear",  # F40
-        "gitlab",  # F40/tracker e repositório
-        "bitbucket",  # F41
+        "gitlab",  # repositório
+        "bitbucket",
         "jsm",  # Jira Service Management (sem ela, vale a credencial do Jira)
         "google_chat",  # webhook do espaço
     )

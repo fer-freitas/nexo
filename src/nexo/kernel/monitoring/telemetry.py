@@ -47,7 +47,7 @@ EVENT_TYPES = frozenset(
         "killswitch.local",
         "security.injection_suspect",
         "monitor.synthetic",
-        "nexo.crash",  # F15
+        "nexo.crash",
         "demand.created",
         "demand.transitioned",
         "demand.linked",

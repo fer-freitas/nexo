@@ -83,7 +83,7 @@ def publish(ctx: AppContext, root: Path | None = None, manifest: dict[str, Any] 
     data = manifest or scan(ctx, target)
     team, team_dir = _team_dir(target)
     problems = m.validate_manifest(data, team)
-    if {f.kind for f in find(json.dumps(data))} - {"email"}:
+    if {f.kind for f in find(json.dumps(m.without_commit(data)))} - {"email"}:
         problems.append("o manifesto contém dado sensível")
     if problems:
         raise NexoError("manifesto inválido: " + "; ".join(problems))

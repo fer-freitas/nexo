@@ -1,6 +1,6 @@
 """Redação determinística de segredos e dados pessoais.
 
-Aplicada a tudo que é persistido em logs/auditoria e, a partir da F1, a tudo que é enviado a uma rota.
+Aplicada a tudo que é persistido em logs/auditoria e a tudo que é enviado a uma rota.
 """
 
 from __future__ import annotations

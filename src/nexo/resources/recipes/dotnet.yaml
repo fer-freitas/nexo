@@ -34,7 +34,7 @@ stages:
   - id: mutation
     kind: mutation
     tool: dotnet
-    when_exists: stryker-config.json  # F15 (Q-01)
+    when_exists: stryker-config.json
     run: ["dotnet", "stryker", "--reporter", "json", "--output", "{out}/stryker"]
     parser: mutation
     report: "{out}/stryker/reports/mutation-report.json"

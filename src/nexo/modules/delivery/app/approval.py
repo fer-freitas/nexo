@@ -52,7 +52,7 @@ def itsm_channel(ctx: AppContext, name: str, cfg: dict[str, Any]) -> Any:
             raise NexoError("credencial 'servicenow' ausente: rode `nexo login servicenow`")
         return channels.ServiceNowChannel(str(sn.get("instance_url") or ""), token, sn.get("user"))
     jsm = dict(cfg.get("jsm") or {})
-    token = credentials.get_secret("jsm") or credentials.get_secret("jira")
+    token = credentials.get_secret("jsm")
     if not token:
         raise NexoError("credencial 'jsm' ausente: rode `nexo login jsm` (ou use a do Jira)")
     missing = [k for k in ("base_url", "email", "service_desk_id", "request_type_id") if not jsm.get(k)]

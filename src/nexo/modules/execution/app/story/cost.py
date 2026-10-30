@@ -71,7 +71,7 @@ def projection(
 def check(
     r: StoryRunner, story_id: str, run_id: str, st: dict[str, Any], tasks: list[BacklogTask]
 ) -> StoryReport | None:
-    if "cap_brl" not in st:  # histórias iniciadas antes da F8
+    if "cap_brl" not in st:  # Histórias iniciadas antes da
         st.update(plan(r, story_id))
     cost, costs = story_cost(r, story_id)
     cap = float(st["cap_brl"])

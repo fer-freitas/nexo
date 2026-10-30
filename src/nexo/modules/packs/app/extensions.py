@@ -162,7 +162,7 @@ def _issue_body(ctx: AppContext, ext: Extension, scope: str, similar: list[tuple
         "- [ ] **Manter local**",
         "- [ ] **Descartar**",
         "",
-        "Avaliação sugerida: `nexo eval skill` (F7).",
+        "Avaliação sugerida: `nexo eval skill`.",
     ]
     return "\n".join(lines)
 

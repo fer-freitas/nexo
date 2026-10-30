@@ -116,7 +116,7 @@ class AppContext:
 
     @cached_property
     def actor(self) -> str:
-        """Identidade local (usuário do SO). A partir da F4 a identidade forte vem do tracker/GitHub.
+        """Identidade local (usuário do SO). A identidade forte vem do tracker/GitHub.
         `NX_ACTOR` existe para automação e testes; a origem fica registrada na auditoria."""
         override = os.environ.get("NX_ACTOR")
         if override:

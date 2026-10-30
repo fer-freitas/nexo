@@ -1,7 +1,6 @@
 # Repositórios-exemplo
 
-Sandboxes usados pelos testes e pelas demonstrações de cada fase (`scripts/validate_phase.py`).
-Evoluem a cada fase: na F0 servem para detecção de stack; a partir da F1/F3 recebem tarefas e defeitos plantados.
+Sandboxes usados pelos testes: detecção de stack, tarefas e defeitos plantados.
 
 | Pasta | Stack |
 |---|---|

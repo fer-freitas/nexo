@@ -1,4 +1,4 @@
-# F49: Flutter/Dart. Testes pelo protocolo `--machine` (JSON por linha) e cobertura LCOV do próprio `flutter test`.
+# Flutter/Dart. Testes pelo protocolo `--machine` (JSON por linha) e cobertura LCOV do próprio `flutter test`.
 stack: flutter
 semgrep_config: p/default
 stages:

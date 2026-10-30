@@ -77,7 +77,7 @@ def ask_remote(ctx: AppContext, root: Path, feature_dir: str, qid: str, question
     from nexo.kernel.runtime import http
     from nexo.modules.notify.app import notify
 
-    if not telemetry.enabled(ctx) or not flags.enabled(ctx, "clarification_teams"):  # F17
+    if not telemetry.enabled(ctx) or not flags.enabled(ctx, "clarification_teams"):
         return None
     fid = "-".join(feature_dir.split("-")[:2])
     gid = f"{telemetry.device_id(ctx)[:8]}-{fid}-{qid}"

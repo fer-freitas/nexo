@@ -38,7 +38,7 @@ class BacklogTask(BaseModel):
     depends_on: list[str] = Field(default_factory=list)
     size: str = "M"
     human_gate: bool = False
-    script: dict[str, str] | None = None  # F25
+    script: dict[str, str] | None = None
 
     def to_task(self, stack: str | None, data_class: str | None) -> Task:
         return Task(
@@ -162,7 +162,7 @@ def validate(backlog: Backlog, ac_ids: list[str]) -> BacklogCheck:
     for s in backlog.stories:
         if not [t for t in backlog.tasks if t.story == s.id]:
             check.errors.append(f"{s.id}: história sem tarefas")
-        # F49 (achado no e2e Angular): história sem critério passava na aprovação e só parava na DoR
+        # História sem critério passava na aprovação e só parava na DoR
         if not s.ac_refs:
             check.errors.append(f"{s.id}: história sem critérios de aceite (ac_refs)")
         unknown = [ac for ac in s.ac_refs if ac_ids and ac not in ac_ids]

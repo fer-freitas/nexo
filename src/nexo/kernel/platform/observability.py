@@ -104,7 +104,7 @@ def spool(ctx: AppContext) -> int:
         return 0
     from nexo.kernel.platform import flags
 
-    if not flags.enabled(ctx, "traces"):  # F17
+    if not flags.enabled(ctx, "traces"):
         t.done = []
         return 0
     try:
@@ -170,7 +170,7 @@ def record(ctx: AppContext, run_id: str | None, step_id: str | None, kind: str, 
     if cached is None:
         from nexo.kernel.platform import flags
 
-        cached = flags.enabled(ctx, "transcripts")  # F17
+        cached = flags.enabled(ctx, "transcripts")
         ctx.__dict__["_transcripts_on"] = cached
     if not cached:
         return

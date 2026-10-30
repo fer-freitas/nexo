@@ -268,7 +268,7 @@ def flags_template() -> str:
     from nexo.kernel.config.flags import CATALOG
 
     lines = [
-        "# Feature flags da empresa (F17). Por squad: squads/<squad>/flags.yaml com o mesmo formato.",
+        "# Feature flags da empresa. Por squad: squads/<squad>/flags.yaml com o mesmo formato.",
         "# Para efeito imediato use o central (nexo admin flags set / dashboard › Feature flags), que tem precedência.",
         "# O piso de segurança não tem flag. Descomente para desligar/ligar:",
         "flags: {}",
@@ -312,7 +312,7 @@ def baseline_files() -> dict[str, str]:
 
 def _codeowners(owners: Owners) -> str:
     lines = [
-        "# Donos por pasta (F9). Toda mudança passa por PR; a assinatura do manifesto é do time do Nexo.",
+        "# Donos por pasta. Toda mudança passa por PR; a assinatura do manifesto é do time do Nexo.",
         f"* {owners.nexo}",
         f"/org/security/ {owners.security} {owners.nexo}",
         f"/org/tools.yaml {owners.security} {owners.nexo}",

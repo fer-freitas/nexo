@@ -24,6 +24,7 @@ ALLOWED_COMPONENT = {"id", "runtime", "publishes", "consumes", "calls", "exposes
 ALLOWED_LINK = {"channel", "message", "evidence", "status"}
 ALLOWED_EVIDENCE = {"source", "file", "line", "confidence"}
 ACCOUNT_ID = re.compile(r"(?<!\d)\d{12}(?!\d)")
+COMMIT = re.compile(r"[0-9a-f]{7,64}")
 DEFAULT_ENV = ("dev", "hom", "homolog", "qa", "uat", "stg", "stage", "staging", "prd", "prod", "production")
 RETRY = re.compile(r"[.\-_](retry)([.\-_]\d+)?$")
 DLT = re.compile(r"[.\-_](dlt|dlq|dead[.\-_]?letter)$")
@@ -97,10 +98,16 @@ def validate_manifest(data: dict[str, Any], expected_team: str = "") -> list[str
                     problems.append(f"{comp.get('id')}: evidência com campos proibidos: {', '.join(sorted(bad_ev))}")
                 if "/" in str(link.get("channel", "")) and not str(link.get("channel", "")).startswith("http:"):
                     problems.append(f"canal com caminho: {link.get('channel')}")
-    # o hash do commit pode ter 12 dígitos seguidos por acaso; o que importa é o resto
-    if ACCOUNT_ID.search(str({k: v for k, v in data.items() if k != "commit"})):
+    if ACCOUNT_ID.search(str(without_commit(data))):
         problems.append("contém ID de conta da AWS")
+    if not COMMIT.fullmatch(str(data.get("commit", ""))):
+        problems.append("commit não é um hash do Git")
     return problems
+
+
+def without_commit(data: dict[str, Any]) -> dict[str, Any]:
+    """Um hash pode parecer um ID ou um segredo por acaso. Por isso ele é conferido à parte e sai das varreduras."""
+    return {k: v for k, v in data.items() if k != "commit"}
 
 
 def add_manifest(graph: Graph, data: dict[str, Any], stale: bool = False) -> None:

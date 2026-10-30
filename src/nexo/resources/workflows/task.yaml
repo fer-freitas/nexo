@@ -1,4 +1,4 @@
-# Máquina de status de TAREFA (unidade executada por um agente). QA/review ocorrem no nível da história (F3).
+# Máquina de status de TAREFA (unidade executada por um agente). QA/review ocorrem no nível da história.
 name: task
 initial: Pronto
 terminal: [Concluido, Cancelado]

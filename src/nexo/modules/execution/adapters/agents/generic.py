@@ -34,7 +34,7 @@ from nexo.modules.usage.adapters import devin as devin_usage
 REAL_UNITS = ("acu", "premium_request", "ai_credits", "tokens_in", "tokens_out", "cache_read", "cache_write")
 
 
-# F50 (decisão do usuário): ferramenta que, no modo não interativo, só grava arquivos (ex.: Devin sem `dangerous`).
+# Ferramenta que, no modo não interativo, só grava arquivos (ex.: Devin sem `dangerous`).
 NO_COMMANDS = (
     "\n\n## Como trabalhar nesta ferramenta\n"
     "Aqui você **não executa comandos** (testes, scripts, cálculos, git): só lê e grava arquivos do projeto. "

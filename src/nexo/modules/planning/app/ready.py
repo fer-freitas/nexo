@@ -78,7 +78,7 @@ def init(ctx: AppContext, story_id: str) -> Path:
 
 
 def init_all(ctx: AppContext, story_ids: list[str]) -> list[str]:
-    """F51 (automação): a DoR de cada história nasce na aprovação do plano, pré-preenchida pela spec — o tech
+    """A DoR de cada história nasce na aprovação do plano, pré-preenchida pela spec — o tech
     lead só completa; ninguém precisa digitar `ready --init`. Devolve as histórias com refinamento novo."""
     if mode(ctx) == "off":
         return []

@@ -122,7 +122,7 @@ class StoryRunner:
         from nexo.kernel.platform import flags, killswitch
 
         killswitch.check(self.ctx)
-        flags.require(self.ctx, "run_story")  # F17
+        flags.require(self.ctx, "run_story")
         self.sync.reconcile()
         folder, spec, _, tasks = self._load(story_id)
         story = next(s for s in specs.load_backlog(folder).stories if s.id == story_id)  # type: ignore[union-attr]
@@ -150,7 +150,7 @@ class StoryRunner:
             worktree = git.add_worktree(self.root, self.root / ".nexo" / "worktrees" / story_id, branch, base)
         prepare_worktree(self.ctx, self.cfg, worktree, self.ctx.brain_dir)
         self.store.update_run(run_id, branch=branch, worktree=str(worktree), base_sha=base, state="EmDev")
-        dependency_only = bool(tasks) and all(t.kind == "dependency" for t in tasks)  # F25
+        dependency_only = bool(tasks) and all(t.kind == "dependency" for t in tasks)
         st = {
             "phase": "tasks" if dependency_only else "qa",
             "dependency_only": dependency_only,

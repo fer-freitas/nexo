@@ -24,15 +24,6 @@ class NexoError(Exception):
         self.message = message
 
 
-class NotAvailableInPhase(NexoError):
-    exit_code = ExitCode.NOT_AVAILABLE
-
-    def __init__(self, command: str, phase: int) -> None:
-        super().__init__(f"'{command}' disponível na fase {phase}")
-        self.command = command
-        self.phase = phase
-
-
 class PolicyViolation(NexoError):
     exit_code = ExitCode.POLICY_VIOLATION
 

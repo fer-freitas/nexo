@@ -81,7 +81,7 @@ def expand(args: list[Any], subs: dict[str, str]) -> list[str]:
 
 
 def python_env(workdir: Path, base_python: str = "", *, ci: bool = False) -> dict[str, str]:
-    """F51 (pip no lugar do uv): ambiente virtual do projeto e o que instalar nele.
+    """Ambiente virtual do projeto e o que instalar nele.
 
     - `.venv` do projeto (ou `venv`/`env` se já existir); criado com o Python do Nexo (ou `quality.python`).
     - Instala pelo que o projeto tiver: requirements-dev.txt › requirements.txt › pyproject (extra `dev` ou
@@ -277,7 +277,7 @@ def _interpret(
         blocking = _blocking(stage, result.findings)
         result.status = FAILED if blocking else PASSED
         result.summary = f"{len(result.findings)} achado(s), {len(blocking)} alto/crítico"
-    elif parser == "mutation":  # F15 (Q-01): mutmut (cicd stats) ou Stryker (mutation report)
+    elif parser == "mutation":  # Mutmut (cicd stats) ou Stryker (mutation report)
         data = json.loads(report.read_text(encoding="utf-8")) if report is not None and report.is_file() else None
         if data is None:
             result.status, result.summary = ERROR, f"relatório de mutação não gerado (saída {proc.returncode})"

@@ -63,7 +63,7 @@ def bug(
         return r._escalate(story_id, run_id, st, f"{r.max_attempts} tentativas esgotadas: {'; '.join(failures)}")
     disputed = locked_failures(report, dict(st.get("locked") or {}))
     if disputed and st["attempts"] >= 1 and disputed == st.get("last_locked_failures"):
-        # F50 (achado no autoteste com o Devin): a correção não mudou nada nos testes de aceite travados — o valor
+        # A correção não mudou nada nos testes de aceite travados — o valor
         # esperado do teste pode estar errado (o dev não pode alterá-lo). Mais tentativas só gastariam.
         st["locked_dispute"] = True
         return r._escalate(

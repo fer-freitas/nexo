@@ -77,7 +77,7 @@ def _require_role(ctx: AppContext, role: str, who: identity.Identity, action: st
     if not people:
         raise NexoError(f"nenhuma pessoa com o papel {r.ROLE_LABEL[role]} em roles.{role} (config da org ou do squad)")
     if who.id not in people:
-        ctx.audit("policy.violation", {"rule": "F18", "reason": f"{action} exige papel {role}", "who": who.id})
+        ctx.audit("policy.violation", {"rule": "role_gate", "reason": f"{action} exige papel {role}", "who": who.id})
         raise PolicyViolation(f"{action} é do {r.ROLE_LABEL[role]} ({', '.join(people)}); você é {who.id}")
 
 

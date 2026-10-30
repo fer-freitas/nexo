@@ -42,7 +42,7 @@ class StageResult:
     log: str = ""
     preexisting: int = 0  # achados/testes da baseline ignorados no portão
     diff_coverage: float | None = None  # cobertura das linhas alteradas
-    mutation_score: float | None = None  # F15 (Q-01): mortos / avaliados
+    mutation_score: float | None = None  # Mortos / avaliados
     checked: int | None = None  # arquivos verificados pela etapa de padrão de código
 
     @property

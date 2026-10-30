@@ -57,7 +57,7 @@ stages:
   - id: mutation
     kind: mutation
     tool: npx
-    when_exists: stryker.conf.json  # F15 (Q-01)
+    when_exists: stryker.conf.json
     run: ["npx", "--no-install", "stryker", "run"]
     parser: mutation
     report: "reports/mutation/mutation.json"

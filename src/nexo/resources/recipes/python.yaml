@@ -1,4 +1,4 @@
-# Python com pip (F51: o pip substitui o uv). {venv_python} = Python do ambiente virtual do projeto (.venv, ou
+# Python com pip. {venv_python} = Python do ambiente virtual do projeto (.venv, ou
 # venv/env se já existir); {pip_install} = o que o projeto declara (requirements-dev.txt › requirements.txt ›
 # pyproject com extra/grupo dev); {pip_project} = o próprio projeto, editável, quando há requirements e pyproject.
 stack: python
@@ -60,7 +60,7 @@ stages:
     required: true
   - id: sca
     kind: security
-    provision: pip-audit  # ambiente próprio em ~/.nexo-home/tools (instalado com pip na primeira vez)
+    provision: pip-audit  # ambiente próprio na pasta de ferramentas do Nexo (instalado com pip na primeira vez)
     tool: "{pip_audit}"  # audita o que está instalado no ambiente do projeto
     pre: [{run: ["{venv_python}", "-m", "pip", "freeze", "--exclude-editable", "--disable-pip-version-check"],
            stdout: "{out}/requirements-freeze.txt"}]
@@ -79,7 +79,7 @@ stages:
   - id: mutation
     kind: mutation
     tool: "{venv_python}"
-    when_contains: {file: pyproject.toml, text: "tool.mutmut"}  # F15 (Q-01): força dos testes na área alterada
+    when_contains: {file: pyproject.toml, text: "tool.mutmut"}  # Força dos testes na área alterada
     pre: [["{venv_scripts}/mutmut", "run"]]
     run: ["{venv_scripts}/mutmut", "export-cicd-stats"]
     parser: mutation

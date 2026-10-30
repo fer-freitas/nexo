@@ -1,4 +1,4 @@
-# Detector de insight (F32). Ajuste limiares por PR em nexo-brain/insights/.
+# Detector de insight. Ajuste limiares por PR em nexo-brain/insights/.
 id: I-16
 title: Maior consumo de tokens
 algorithm: token_hogs

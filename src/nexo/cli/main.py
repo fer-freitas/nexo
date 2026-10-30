@@ -28,7 +28,7 @@ from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
     roles,
 )
 from nexo.kernel.context import AppContext
-from nexo.kernel.errors import ExitCode, NexoError, NotAvailableInPhase
+from nexo.kernel.errors import ExitCode, NexoError
 from nexo.kernel.i18n import set_lang, t
 from nexo.kernel.platform import config
 
@@ -71,7 +71,7 @@ LEAF_HELP = {
 def _leaf_help(path: str) -> str:
     words = path.split()
     if words[0] in ("extensions", "admin") and len(words) > 2:
-        words = words[1:]  # F51: nome fundido usa a descrição do caminho de origem
+        words = words[1:]  # Nome fundido usa a descrição do caminho de origem
     canonical = " ".join(words)
     if canonical in LEAF_HELP:
         return LEAF_HELP[canonical]
@@ -163,8 +163,8 @@ def main(argv: list[str] | None = None) -> int:
     except UsageError as exc:
         err_console.print(f"{t('error.prefix')}: {exc.message}")
         return ExitCode.USAGE
-    if args[:1] in (["--help"], ["-h"]):
-        args = ["help", *args[1:]]
+    if "--help" in args or "-h" in args:  # a ajuda tem uma só fonte: `nexo help <comando>`
+        args = ["help", *[a for a in args if not a.startswith("-")]]
     args = surface.translate(args)
     context = AppContext(options=opts)
     _state["ctx"] = context
@@ -172,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
     from nexo.cli.shared import _ui
     from nexo.kernel.feedback import set_feedback
 
-    set_feedback(_ui)  # F52: toda chamada de IA mostra que está trabalhando
+    set_feedback(_ui)  # Toda chamada de IA mostra que está trabalhando
     lang = opts.lang
     if lang is None:
         try:
@@ -196,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
         from nexo.kernel.platform import flags, observability
 
         if name not in UNAUDITED:
-            flags.check_command(context, args)  # F17: funcionalidade desligada por feature flag
+            flags.check_command(context, args)  # Funcionalidade desligada por feature flag
         with observability.span(context, f"nexo {name}", command=name) as command_span:
             try:
                 result = app(args=args, prog_name="nexo", standalone_mode=False)
@@ -219,10 +219,7 @@ def main(argv: list[str] | None = None) -> int:
             code = int(result) if isinstance(result, int) else ExitCode.OK
             command_span.set(exit_code=code)
     except NexoError as exc:
-        if isinstance(exc, NotAvailableInPhase):
-            err_console.print(f"[nexo.warn]{t('phase.not_available', command=exc.command, phase=exc.phase)}[/]")
-        else:
-            err_console.print(f"[nexo.bad]{t('error.prefix')}:[/] {exc.message}")
+        err_console.print(f"[nexo.bad]{t('error.prefix')}:[/] {exc.message}")
         code = exc.exit_code
     except typer.Exit as exc:
         code = exc.exit_code

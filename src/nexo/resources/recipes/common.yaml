@@ -11,7 +11,7 @@ stages:
     required: true
   - id: sast
     kind: security
-    provision: semgrep  # F51: ambiente próprio em ~/.nexo-home/tools, instalado com pip na primeira vez (antes `uvx`)
+    provision: semgrep  # Ambiente próprio na pasta de ferramentas do Nexo, instalado com pip na primeira vez (antes `uvx`)
     tool: "{semgrep}"
     run: ["{semgrep}", "scan", "--config", "{semgrep_config}", "--sarif", "--output", "{out}/semgrep.sarif",
           "--quiet", "--metrics", "off", "--exclude", ".nexo", "."]
@@ -19,7 +19,7 @@ stages:
     report: "{out}/semgrep.sarif"
     required: true
     timeout: 900
-  # F15: infraestrutura como código, contêiner, licenças, SBOM por entrega e DAST — opcionais: só rodam
+  # Infraestrutura como código, contêiner, licenças, SBOM por entrega e DAST — opcionais: só rodam
   # quando o artefato existe (e a ferramenta está instalada). Achado alto/crítico reprova quando a etapa roda.
   - id: iac
     kind: security
@@ -64,7 +64,7 @@ stages:
     parser: exitcode
     default_severity: high
     required: false
-  # F48: padrão de código garantido — regras determinísticas das skills (resources/standards + cérebro + projeto);
+  # Padrão de código garantido — regras determinísticas das skills (resources/standards + cérebro + projeto);
   # regra `error` reprova, `warning` só registra. No código existente, só violação nova bloqueia.
   - id: standards
     kind: standards

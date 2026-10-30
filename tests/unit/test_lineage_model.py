@@ -45,7 +45,7 @@ GESTAO = {
 
 
 def manifest(team: str, repo: str, tree: dict[str, str]) -> dict:
-    return build_manifest(team, f"github:org/{repo}", "abc", "", tree, repo)
+    return build_manifest(team, f"github:org/{repo}", "abc1234", "", tree, repo)
 
 
 def test_scan_finds_direction_channel_and_evidence_without_secrets() -> None:
@@ -184,3 +184,8 @@ def test_hook_preserves_existing_and_is_removed(tmp_path) -> None:  # type: igno
 def test_commit_hash_with_many_digits_is_not_an_account_id() -> None:
     data = {**manifest("t", "tradutor", TRADUTOR), "commit": "a123456789012b"}
     assert m.validate_manifest(data, "t") == []
+
+
+def test_commit_field_cannot_hide_anything() -> None:
+    data = {**manifest("t", "tradutor", TRADUTOR), "commit": "AKIAIOSFODNN7EXAMPLE"}
+    assert "commit não é um hash do Git" in m.validate_manifest(data, "t")

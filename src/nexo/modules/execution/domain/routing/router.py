@@ -27,7 +27,7 @@ class RoutingRequest:
     author_vendor: str | None = None  # para revisores: fornecedor do modelo ≠ autor
     author_vendors: tuple[str, ...] = ()
     exclude: frozenset[str] = frozenset()
-    observed: dict[str, tuple[int, int]] = field(default_factory=dict)  # rota → (sucessos, falhas) — F7
+    observed: dict[str, tuple[int, int]] = field(default_factory=dict)  # Rota → (sucessos, falhas)
     forced_tool: str | None = None
     forced_model: str | None = None
     now: float = 0.0

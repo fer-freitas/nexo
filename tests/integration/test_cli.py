@@ -53,12 +53,6 @@ def test_all_phases_available(nexo: Runner, argv: list[str]) -> None:
     assert code != 3, err
 
 
-def test_no_command_left_for_future_phases() -> None:
-    from nexo.cli.registry import COMMANDS
-
-    assert all(spec.available for spec in COMMANDS)
-
-
 def test_version(nexo: Runner) -> None:
     code, out, _ = nexo("version")
     assert code == 0 and f"nexo {__version__}" in out
@@ -245,3 +239,10 @@ def test_merged_and_old_names_both_work(nexo: Runner, workdir: Path, new: list[s
     nexo("init")
     assert nexo(*new)[0] == 0, new
     assert nexo(*old)[0] == 0, old
+
+
+def test_help_option_works_on_any_command(nexo: Runner) -> None:
+    code, out, _ = nexo("doctor", "--help")
+    assert code == 0 and "doctor" in out
+    code, out, _ = nexo("pm", "idea", "--help")
+    assert code == 0 and "idea" in out

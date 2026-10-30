@@ -34,7 +34,7 @@ def translate(args: list[str]) -> list[str]:
     for word in words:
         if word == "{0}":
             if not rest:
-                return [*args[:2], "--help"]
+                return ["help", *args[:2]]
             out.append(rest.pop(0))
         else:
             out.append(word)
