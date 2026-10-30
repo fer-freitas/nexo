@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 
 from fastapi import HTTPException
 
-ROLES = ("dev", "lead", "manager", "director", "finops", "nexo", "security", "admin", "ci")  # ci: só integrações
+ROLES = ("pm", "qa", "dev", "lead", "manager", "director", "finops", "nexo", "security", "admin", "ci")  # ci: só integrações
 ALL_SQUADS_ROLES = frozenset({"director", "finops", "nexo", "security", "admin"})
 
 PAGES: dict[str, tuple[str, frozenset[str]]] = {
@@ -24,10 +24,17 @@ PAGES: dict[str, tuple[str, frozenset[str]]] = {
     "brain": ("Conhecimento", frozenset({"nexo", "admin"})),
     "fleet": ("Frota de agentes", frozenset({"nexo", "security", "admin"})),  # F15
     "dora": ("DORA e ROI", frozenset({"director", "manager", "lead", "finops", "nexo", "admin"})),  # F15
+    "board": ("Demandas", frozenset(ROLES) - {"ci"}),
     "insights": ("Insights", frozenset(ROLES) - {"ci"}),
     "flags": ("Feature flags", frozenset({"nexo", "admin"})),  # F17
     "me": ("Meu painel", frozenset(ROLES) - {"ci"}),
 }
+# telas de operação do portal, sem página de dados
+PORTAL_PAGES: dict[str, tuple[str, frozenset[str]]] = {
+    "people": ("Pessoas e acessos", frozenset({"admin"})),
+    "killswitch": ("Kill switch", frozenset({"security", "admin"})),
+}
+ALL_PAGES = {**PAGES, **PORTAL_PAGES}
 EXPORT_ROLES = frozenset({"lead", "manager", "director", "finops", "nexo", "security", "admin"})
 
 # propósito individual → papéis e relação exigida com o squad da pessoa exibida
@@ -65,7 +72,7 @@ class Principal:
         return allowed is None or (squad or "") in allowed
 
     def can_page(self, page: str) -> bool:
-        return page in PAGES and self.role in PAGES[page][1]
+        return page in ALL_PAGES and self.role in ALL_PAGES[page][1]
 
     def individual(self, purpose: str, squad: str | None = None, dev: str | None = None) -> bool:
         """Pode ver dado individual para `purpose` de uma pessoa do `squad`? O próprio dev sempre se vê."""

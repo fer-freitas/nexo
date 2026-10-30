@@ -98,6 +98,7 @@ def test_run_receives_servers_without_secret_in_the_command(  # type: ignore[no-
     for server in ("github", "atlassian", "sonarqube"):
         nexo("config", "set", f"mcp.servers.{server}.enabled", "true", "--project")
     nexo("config", "set", "mcp.servers.sonarqube.vars.url", "https://sonar.exemplo.com", "--project")
+    nexo("config", "set", "mcp.servers.sonarqube.vars.digest", "sha256:" + "a" * 64, "--project")
     scenario([{"tool": "claude", "events": [edit(), DONE]}])
     code, out, err = nexo("--json", "run", "task", "T-1")  # classe confidential: atlassian/sonarsource fora
     assert code == 0 and json.loads(out)["state"] == "Concluido", err or out

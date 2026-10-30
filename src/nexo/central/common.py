@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import json
 import os
+import urllib.parse
 import time
 import uuid
 from typing import Any
@@ -15,15 +16,29 @@ from nexo.central.db import CollectorDB
 _dbs: dict[str, CollectorDB] = {}
 
 
+def database_url() -> str:
+    """Em produção, o RDS entrega host, usuário e senha separados; a senha vem do Secrets Manager."""
+    host = os.environ.get("NX_COLLECTOR_DB_HOST")
+    if host:
+        user = urllib.parse.quote(os.environ.get("NX_COLLECTOR_DB_USER", ""))
+        password = urllib.parse.quote(os.environ.get("NX_COLLECTOR_DB_PASSWORD", ""))
+        name = os.environ.get("NX_COLLECTOR_DB_NAME", "nexo")
+        return f"postgresql://{user}:{password}@{host}/{name}?sslmode=require"
+    return os.environ.get("NX_COLLECTOR_DB", "nexo-collector.db")
+
+
 def db() -> CollectorDB:
-    url = os.environ.get("NX_COLLECTOR_DB", "nexo-collector.db")
+    url = database_url()
     if url not in _dbs:
         _dbs[url] = CollectorDB(url)
     return _dbs[url]
 
 
 def pid_of(dev: str) -> str:
-    key = os.environ.get("NX_COLLECTOR_PSEUDO_KEY", "chave-de-desenvolvimento").encode()
+    key_text = os.environ.get("NX_COLLECTOR_PSEUDO_KEY", "")
+    if not key_text and database_url().startswith(("postgresql://", "postgres://")):
+        raise RuntimeError("NX_COLLECTOR_PSEUDO_KEY é obrigatória em produção")
+    key = (key_text or "chave-de-desenvolvimento").encode()
     return hmac.new(key, dev.encode(), hashlib.sha256).hexdigest()[:16]
 
 

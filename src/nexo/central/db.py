@@ -192,6 +192,19 @@ MIGRATIONS: tuple[str, ...] = (
     """
     CREATE TABLE dim_project (project TEXT PRIMARY KEY, name TEXT NOT NULL, squad TEXT, updated_at DOUBLE PRECISION);
     """,
+    """
+    CREATE TABLE fact_demand (
+        project TEXT NOT NULL, demand TEXT NOT NULL, squad TEXT NOT NULL DEFAULT '', demand_type TEXT, stage TEXT,
+        origin TEXT, title TEXT, parent TEXT, holders TEXT, blocked INTEGER DEFAULT 0, updated_at TEXT,
+        PRIMARY KEY (project, demand)
+    );
+    CREATE TABLE portal_invites (
+        token_hash TEXT PRIMARY KEY, dev TEXT NOT NULL, role TEXT NOT NULL, expires_at REAL NOT NULL,
+        used_at REAL, created_by TEXT NOT NULL, created_at REAL NOT NULL
+    );
+    CREATE TABLE portal_login_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, until REAL NOT NULL);
+    CREATE TABLE insight_settings (detector TEXT PRIMARY KEY, enabled INTEGER NOT NULL, updated_by TEXT, updated_at REAL);
+    """,
 )
 
 BI_VIEWS = ("bi_fact_step", "bi_fact_story", "bi_fact_gate", "bi_fact_quality", "bi_fact_standards", "bi_dim_squad")

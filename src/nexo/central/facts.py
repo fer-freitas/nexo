@@ -151,6 +151,32 @@ def _story_of(payload: dict[str, Any]) -> str | None:
     return None
 
 
+def _demand(d: CollectorDB, raw: dict[str, Any], payload: dict[str, Any], base: tuple[str, str, str]) -> None:
+    """Estado atual de cada demanda, para o board: o evento mais novo vence, em qualquer ordem de chegada."""
+    current = d.one("SELECT updated_at, demand_type, title, parent, origin FROM fact_demand WHERE project = ? AND demand = ?", (base[0], payload.get("demand")))
+    if current is not None and str(current["updated_at"]) > str(raw["at"]):
+        return
+    d.execute("DELETE FROM fact_demand WHERE project = ? AND demand = ?", (base[0], payload.get("demand")))
+    keep = current or {}
+    d.execute(
+        "INSERT INTO fact_demand (project, demand, squad, demand_type, stage, origin, title, parent, holders, blocked, updated_at) "
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        (
+            base[0],
+            payload.get("demand"),
+            base[1],
+            payload.get("demand_type") or keep.get("demand_type"),
+            payload.get("stage"),
+            payload.get("origin") or keep.get("origin"),
+            payload.get("title") or keep.get("title"),
+            payload.get("parent") or keep.get("parent"),
+            payload.get("holders"),
+            int(payload.get("blocked") or 0),
+            raw["at"],
+        ),
+    )
+
+
 def apply(d: CollectorDB, raw: dict[str, Any]) -> None:
     """Consolida um registro de `raw_events` (chamado dentro da transação da ingestão ou do reprocessamento)."""
     payload = raw["payload"] if isinstance(raw["payload"], dict) else json.loads(raw["payload"] or "{}")
@@ -161,6 +187,8 @@ def apply(d: CollectorDB, raw: dict[str, Any]) -> None:
         values[STEP_COLUMNS.index("estimated")] = int(bool(payload.get("estimated")))
         month = _month(payload.get("started_at") or raw["at"])
         d.execute(STEP_INSERT, (raw["event_id"], raw["dev_pid"], base[0], month, base[1], base[2], *values))
+    elif type_ in ("demand.created", "demand.transitioned"):
+        _demand(d, raw, payload, base)
     elif kind == "usage":
         values = [payload.get(c) for c in USAGE_COLUMNS]
         day = str(payload.get("day") or "")

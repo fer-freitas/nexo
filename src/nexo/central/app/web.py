@@ -88,7 +88,12 @@ async def dash_flags_submit(request: Request) -> Response:
     value = {"on": True, "off": False, "inherit": None}.get(form.get("value", ""))
     put_flag(
         form.get("key", ""),
-        FlagIn(value=value, squad=form.get("squad") or None, reason=form.get("reason", "")),
+        FlagIn(
+            value=value,
+            squad=form.get("squad") or None,
+            project=form.get("project") or None,
+            reason=form.get("reason", ""),
+        ),
         request,
     )
     return RedirectResponse("/dash/flags", status_code=303)
@@ -122,9 +127,15 @@ async def login_submit(request: Request) -> Response:
     if not auth.token_login_enabled():
         raise HTTPException(404, "login por token desligado: use o SSO")
     form = await _form(request)
-    ident = auth.from_bearer(form.get("token", "").strip())
+    key = request.client.host if request.client else "local"
+    if auth.login_blocked(key):
+        return _html(dashboard.render_login("muitas tentativas: aguarde", next_url=form.get("next", "/dash")), 429)
+    token = form.get("token", "").strip()
+    ident = auth.from_invite(token) or auth.from_bearer(token)
     if ident is None or ident["device_id"]:
+        auth.login_failed(key)
         return _html(dashboard.render_login("token inválido", next_url=form.get("next", "/dash")), 401)
+    auth.login_ok(key)
     return _start_session(ident["dev"], ident["role"] or None, "token", form.get("next", "/dash"))
 
 

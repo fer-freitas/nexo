@@ -72,8 +72,35 @@ def get(ctx: AppContext, demand_id: str, sync: bool = True) -> tuple[m.Demand, d
 def record(ctx: AppContext, type_: str, demand: str, data: dict[str, Any] | None = None, push: bool = True) -> None:
     s = store(ctx)
     s.append(type_, demand, _actor(ctx), data)
+    _publish(ctx, type_, demand)
     if push:
         s.push(f"nexo: {type_} {demand}")
+
+
+def _publish(ctx: AppContext, type_: str, demand: str) -> None:
+    """Só o que o painel precisa, pela lista de permissão. O título é opcional e passa pela redação."""
+    from nexo.kernel.platform import config, telemetry
+
+    if not telemetry.enabled(ctx):
+        return
+    demands = m.project(store(ctx).events())
+    d = demands.get(demand)
+    if d is None:
+        return
+    payload: dict[str, Any] = {
+        "demand": d.id,
+        "demand_type": d.type,
+        "stage": m.stage_of(d, demands),
+        "origin": str(d.origin.get("kind", "")),
+        "parent": d.parent,
+        "holders": ",".join(sorted({h["role"] for h in m.holders_of(d, demands)})),
+        "blocked": len(d.holding_proposals),
+    }
+    cfg = dict(config.resolved(ctx).values.get("telemetry") or {})
+    sensitive = str(config.resolved(ctx).values.get("data_class", "internal")) in ("confidential", "restricted")
+    if cfg.get("demand_titles", not sensitive) and d.title:
+        payload["title"] = clean(d.title).replace("/", " ").replace("\\", " ")[:120]
+    ctx.audit("demand.created" if type_ == "demand.created" else "demand.transitioned", payload, ref=d.id)
 
 
 def _actor(ctx: AppContext) -> str:

@@ -72,7 +72,14 @@ TODOS
   meeting              Reunião de refinamento: notas, gravação e revisão
   join                 Entra no time sem precisar saber Git
   role                 Mostra seus papéis no time
+  mcp                  Busca, liga e prova a conexão com MCPs
   pack                 Conteúdo de terceiros com commit fixado, hash e licença
+  central              Liga esta máquina ao coletor central da empresa
+  flags                Funcionalidades ligadas e de onde vem cada valor
+  module               Módulos do Nexo
+  init                 Prepara o repositório
+  doctor               O que falta nesta máquina
+  login                Credenciais no cofre do sistema
 
 OPÇÕES GLOBAIS
   --profile economico|balanceado|maxima-qualidade    Routing profile

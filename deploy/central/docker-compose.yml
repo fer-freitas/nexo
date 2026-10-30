@@ -1,0 +1,14 @@
+# Só para teste local. Produção é ECS Fargate com RDS (terraform/).
+services:
+  central:
+    build:
+      context: ../..
+      dockerfile: deploy/central/Dockerfile
+    ports: ["127.0.0.1:8080:8080"]
+    environment:
+      NX_COLLECTOR_DB: /data/nexo.db
+      NX_COLLECTOR_PSEUDO_KEY: "${NX_COLLECTOR_PSEUDO_KEY:?defina uma chave}"
+      NX_COLLECTOR_TOKENS: "${NX_COLLECTOR_TOKENS:-}"
+    volumes: ["central-data:/data"]
+volumes:
+  central-data:

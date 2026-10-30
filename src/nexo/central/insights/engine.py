@@ -82,7 +82,7 @@ def run(d: CollectorDB, now: datetime | None = None, detectors: list[Detector] |
     ctx = EvalCtx(d, now)
     summary: dict[str, Any] = {"evaluated": 0, "opened": 0, "updated": 0, "silenced": 0, "errors": {}}
     for det in detectors if detectors is not None else load_detectors():
-        if not det.enabled:
+        if not _enabled(d, det):
             continue
         summary["evaluated"] += 1
         try:
@@ -98,6 +98,12 @@ def run(d: CollectorDB, now: datetime | None = None, detectors: list[Detector] |
         (now.timestamp(), json.dumps({k: v for k, v in summary.items() if k != "errors"})),
     )
     return summary
+
+
+def _enabled(d: CollectorDB, det: Detector) -> bool:
+    """O portal pode ligar ou desligar cada detector, um a um."""
+    row = d.one("SELECT enabled FROM insight_settings WHERE detector = ?", (det.id,))
+    return bool(row["enabled"]) if row else det.enabled
 
 
 def _upsert(d: CollectorDB, det: Detector, f: Finding, now: datetime) -> str:

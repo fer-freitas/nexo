@@ -64,6 +64,10 @@ def build(d: CollectorDB, name: str, scope: Scope, actor: str) -> dict[str, Any]
         return me(d, scope)
     if name == "fleet":
         return fleet(d, scope)
+    if name == "board":
+        from nexo.central.metrics.pages.board import board
+
+        return board(d, scope)
     if name == "flags":
         from nexo.central.flags import snapshot
         from nexo.kernel.config.flags import CATALOG

@@ -14,12 +14,20 @@ from nexo.central.db import CollectorDB
 from nexo.kernel.config.flags import BY_KEY, FlagSource, resolve
 
 
+PROJECT_PREFIX = "project:"
+
+
 def snapshot(d: CollectorDB) -> dict[str, Any]:
     global_ = {str(r["key"]): bool(r["value"]) for r in d.query("SELECT key, value FROM flags WHERE squad = ''")}
     squads: dict[str, dict[str, bool]] = {}
+    projects: dict[str, dict[str, bool]] = {}
     for r in d.query("SELECT key, squad, value FROM flags WHERE squad <> ''"):
-        squads.setdefault(str(r["squad"]), {})[str(r["key"])] = bool(r["value"])
-    return {"global": global_, "squads": squads}
+        scope = str(r["squad"])
+        if scope.startswith(PROJECT_PREFIX):
+            projects.setdefault(scope.removeprefix(PROJECT_PREFIX), {})[str(r["key"])] = bool(r["value"])
+        else:
+            squads.setdefault(scope, {})[str(r["key"])] = bool(r["value"])
+    return {"global": global_, "squads": squads, "projects": projects}
 
 
 def enabled(d: CollectorDB, key: str, squad: str = "") -> bool:
@@ -28,6 +36,10 @@ def enabled(d: CollectorDB, key: str, squad: str = "") -> bool:
 
 
 def set_flag(d: CollectorDB, key: str, value: bool | None, squad: str, actor: str, reason: str) -> dict[str, Any]:
+    from nexo.kernel.modules import FLOOR
+
+    if key in FLOOR or key.split(".")[-1] in FLOOR:
+        raise PermissionError(key)
     if key not in BY_KEY:
         raise KeyError(key)
     old = d.one("SELECT value FROM flags WHERE key = ? AND squad = ?", (key, squad))

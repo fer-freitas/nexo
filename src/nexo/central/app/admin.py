@@ -197,6 +197,7 @@ def _monitor_autokill(d: Any, route: str, actor: str) -> None:
 class FlagIn(BaseModel):
     value: bool | None
     squad: str | None = None
+    project: str | None = None
     reason: str
 
 
@@ -206,16 +207,27 @@ def get_flags(ident: dict[str, str] = Depends(identity)) -> dict[str, Any]:  # n
     return flags.snapshot(db())
 
 
+def _lead_may_change(principal: Any, key: str, body: FlagIn) -> bool:
+    """O tech lead decide só para o próprio time, e só nas flags marcadas para isso."""
+    from nexo.kernel.config.flags import BY_KEY
+
+    flag = BY_KEY.get(key)
+    return bool(flag and flag.squad_managed and body.squad and body.squad in principal.leads and not body.project)
+
+
 @app.put("/v2/admin/flags/{key}")
 def put_flag(key: str, body: FlagIn, request: Request) -> dict[str, Any]:
     """Liga/desliga uma funcionalidade para a empresa ou um squad (admin e time do Nexo), com motivo auditado."""
     principal = auth.principal(request)
-    if principal.role not in ("admin", "nexo"):
+    scope = f"{flags.PROJECT_PREFIX}{body.project}" if body.project else (body.squad or "")
+    if principal.role not in ("admin", "nexo") and not _lead_may_change(principal, key, body):
         raise HTTPException(403, "feature flags são alteradas pelo time do Nexo ou admin")
     if len(body.reason.strip()) < 10:
         raise HTTPException(400, "mudança de flag exige motivo")
     try:
-        change = flags.set_flag(db(), key, body.value, body.squad or "", principal.dev, body.reason)
+        change = flags.set_flag(db(), key, body.value, scope, principal.dev, body.reason)
+    except PermissionError as exc:
+        raise HTTPException(403, f"{key} faz parte do piso e não pode ser desligada") from exc
     except KeyError as exc:
         raise HTTPException(404, f"flag desconhecida: {key}") from exc
     audit(principal.dev, "flag.set", change | {"reason": body.reason})

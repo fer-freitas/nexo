@@ -17,7 +17,7 @@ from typing import Any
 
 from nexo.central import brand as collector_brand
 from nexo.central.dashboard_css import CSS
-from nexo.central.visibility import PAGES, Principal
+from nexo.central.visibility import ALL_PAGES, PAGES, Principal
 from nexo.kernel.brand import css as brand_css
 from nexo.kernel.finops.money import brl
 
@@ -25,7 +25,7 @@ NAV: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Resultado", ("executive", "quality", "dora")),
     ("Custo", ("finops", "routing")),
     ("Times", ("squad", "me")),
-    ("Plataforma", ("insights", "brain", "fleet", "flags")),
+    ("Plataforma", ("board", "insights", "brain", "fleet", "flags", "killswitch", "people")),
 )
 MONTHS = ("jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez")
 
@@ -73,9 +73,9 @@ def layout(title: str, principal: Principal | None, active: str, body: str) -> s
     groups = []
     for group, keys in NAV:
         links = [
-            f'<a class="{"on" if key == active else ""}" href="/dash/{key}">{e(PAGES[key][0])}</a>'
+            f'<a class="{"on" if key == active else ""}" href="/dash/{key}">{e(ALL_PAGES[key][0])}</a>'
             for key in keys
-            if key in PAGES and principal.can_page(key)
+            if key in ALL_PAGES and principal.can_page(key)
         ]
         if links:
             groups.append(f"<div class=group><span>{e(group)}</span>{''.join(links)}</div>")
@@ -547,6 +547,9 @@ FLAG_COLUMNS = (
     ("area", "área"),
     ("state", "empresa"),
     ("squads", "squads"),
+    ("stage", "estágio"),
+    ("module", "módulo"),
+    ("depends", "desliga junto"),
 )
 
 
@@ -560,6 +563,7 @@ def render_flags(
     desc: bool = False,
 ) -> str:
     """Feature flags com filtro por área e ordenação por coluna (links do servidor, sem JavaScript)."""
+    from nexo.kernel import modules
     from nexo.kernel.config.flags import CATALOG
 
     areas = sorted({f.area for f in CATALOG})
@@ -574,11 +578,28 @@ def render_flags(
             ", ".join(f"{s}: {'on' if v[f.key] else 'off'}" for s, v in sorted(snap["squads"].items()) if f.key in v)
             or "—"
         )
-        items.append({"key": f.key, "title": f.title, "area": f.area, "state": state, "squads": squads})
+        projects = ", ".join(
+            f"{s}: {'on' if v[f.key] else 'off'}" for s, v in sorted((snap.get("projects") or {}).items()) if f.key in v
+        )
+        if projects:
+            squads = f"{squads} · projeto {projects}" if squads != "—" else f"projeto {projects}"
+        items.append(
+            {
+                "key": f.key,
+                "title": f.title,
+                "area": f.area,
+                "state": state,
+                "squads": squads,
+                "stage": f.stage,
+                "module": f.module,
+                "depends": ", ".join(modules.dependents(f.module)) or "—",
+            }
+        )
     items.sort(key=lambda i: (str(i[sort][0] if sort == "state" else i[sort]).lower(), i["key"]), reverse=desc)
     rows = [
         f"<tr><td><code class=id>{e(i['key'])}</code></td><td>{e(i['title'])}</td><td>{e(i['area'])}</td>"
-        f"<td><span class='pill {i['state'][1]}'>{e(i['state'][0])}</span></td><td>{e(i['squads'])}</td></tr>"
+        f"<td><span class='pill {i['state'][1]}'>{e(i['state'][0])}</span></td><td>{e(i['squads'])}</td>"
+        f"<td>{e(i['stage'])}</td><td>{e(i['module'])}</td><td>{e(i['depends'])}</td></tr>"
         for i in items
     ]
 
@@ -603,7 +624,8 @@ def render_flags(
             f'<input type=hidden name=csrf value="{e(csrf)}"><label>flag<select name=key>{options}</select></label>'
             "<label>valor<select name=value><option>off</option><option>on</option><option>inherit</option>"
             "</select></label><label>squad (vazio = empresa)<input name=squad size=14></label>"
-            "<label>motivo<input name=reason size=40></label><button class='btn primary'>Aplicar</button>"
+            "<label>projeto<input name=project size=14></label>"
+            "<label>motivo (obrigatório)<input name=reason size=40 required></label><button class='btn primary'>Aplicar</button>"
             "</form></section>"
         )
     history = "".join(
@@ -623,6 +645,8 @@ def render_flags(
         "tem flag.</p></div></div>" + form + "<section class=card><div class=card-head><h2>Funcionalidades</h2>"
         f"<small>{len(rows)} de {len(CATALOG)}</small></div><div class=chips role=group aria-label=Área>{chips}</div>"
         f"<div class=wrap><table><thead><tr>{head}</tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>"
+        f"<section class=card><div class=card-head><h2>Sempre ligado</h2><small>piso</small></div>"
+        f"<p>{e(', '.join(sorted(modules.FLOOR)))}: fazem parte do piso de segurança, sem botão e com recusa no servidor.</p></section>"
         f"<section class=card><div class=card-head><h2>Histórico</h2></div>{history_body}</section>"
     )
     return layout("Feature flags", principal, "flags", body)

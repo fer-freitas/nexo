@@ -140,7 +140,7 @@ def test_central_flags_remote_toggle_per_squad(  # type: ignore[no-untyped-def]
     code, out, _ = nexo("--json", "flags", "set", "insights", "off", "--reason", "sem dono no piloto")
     assert code != 0, out  # a CLI do dev não tem papel para mudar flags
     snap = central.get("/v2/flags", headers={"Authorization": "Bearer tok-sso-bia"}).json()
-    assert snap == {"global": {}, "squads": {}}
+    assert snap == {"global": {}, "squads": {}, "projects": {}}
     from nexo.central.common import db
 
     hist = db().query("SELECT key, squad, to_value, actor FROM flag_history ORDER BY at")

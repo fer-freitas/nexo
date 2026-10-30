@@ -1,3 +1,8 @@
 id: mcp
 version: 1.0.0
 title: "Conexão com MCPs"
+cli: "nexo.modules.mcp.cli:register"
+services:
+  mcp.catalog: "nexo.modules.mcp.app.catalog"
+commands:
+  - {path: "mcp", summary: "Busca, liga e prova a conexão com MCPs", kind: write}

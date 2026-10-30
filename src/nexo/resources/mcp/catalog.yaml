@@ -12,6 +12,26 @@
 version: 1
 as_of: "2026-10-01"
 servers:
+  context7:
+    product: Documentação atual de bibliotecas
+    vendor: upstash
+    status: ga
+    transport: http
+    url: https://mcp.context7.com/mcp
+    auth: none
+    docs: https://github.com/upstash/context7
+    verified: false
+  chrome-devtools:
+    product: Console, rede e desempenho no navegador, útil para o QA
+    vendor: google
+    status: ga
+    transport: stdio
+    command: npx
+    args: ["-y", "chrome-devtools-mcp@{version}"]
+    vars: [version]
+    auth: none
+    docs: https://github.com/ChromeDevTools/chrome-devtools-mcp
+    verified: false
   atlassian:
     product: Jira, Confluence, Jira Service Management, Bitbucket, Compass
     vendor: atlassian
@@ -39,8 +59,8 @@ servers:
     status: ga
     transport: stdio
     command: npx
-    args: ["-y", "@azure-devops/mcp", "{organization}"]
-    vars: [organization]
+    args: ["-y", "@azure-devops/mcp@{version}", "{organization}"]
+    vars: [organization, version]
     auth: oauth
     docs: https://github.com/microsoft/azure-devops-mcp
     verified: false
@@ -100,7 +120,8 @@ servers:
     status: ga
     transport: stdio
     command: npx
-    args: ["-y", "@azure/mcp@latest", "server", "start"]
+    args: ["-y", "@azure/mcp@{version}", "server", "start"]
+    vars: [version]
     auth: env
     notes: usa o login do Azure CLI da máquina (az login)
     docs: https://github.com/microsoft/mcp
@@ -123,9 +144,9 @@ servers:
     status: ga
     transport: stdio
     command: docker
-    args: ["run", "-i", "--rm", "-e", "VAULT_ADDR", "-e", "VAULT_TOKEN", "hashicorp/vault-mcp-server"]
+    args: ["run", "-i", "--rm", "-e", "VAULT_ADDR", "-e", "VAULT_TOKEN", "hashicorp/vault-mcp-server@{digest}"]
     env: { VAULT_ADDR: "{vault_addr}", VAULT_TOKEN: "${VAULT_MCP_TOKEN}" }
-    vars: [vault_addr]
+    vars: [vault_addr, digest]
     auth: bearer
     token_env: VAULT_MCP_TOKEN
     notes: leitura de segredos pelo agente só com aprovação explícita da Segurança (o padrão é negado pela política)
@@ -147,9 +168,9 @@ servers:
     status: ga
     transport: stdio
     command: npx
-    args: ["-y", "@dynatrace-oss/dynatrace-mcp-server@latest"]
+    args: ["-y", "@dynatrace-oss/dynatrace-mcp-server@{version}"]
     env: { DT_ENVIRONMENT: "{environment_url}", DT_PLATFORM_TOKEN: "${DYNATRACE_MCP_TOKEN}" }
-    vars: [environment_url]
+    vars: [environment_url, version]
     auth: bearer
     token_env: DYNATRACE_MCP_TOKEN
     docs: https://github.com/dynatrace-oss/dynatrace-mcp
@@ -182,9 +203,9 @@ servers:
     status: ga
     transport: stdio
     command: docker
-    args: ["run", "-i", "--rm", "-e", "SONARQUBE_TOKEN", "-e", "SONARQUBE_URL", "mcp/sonarqube"]
+    args: ["run", "-i", "--rm", "-e", "SONARQUBE_TOKEN", "-e", "SONARQUBE_URL", "mcp/sonarqube@{digest}"]
     env: { SONARQUBE_URL: "{url}", SONARQUBE_TOKEN: "${SONARQUBE_MCP_TOKEN}" }
-    vars: [url]
+    vars: [url, digest]
     defaults: { url: "https://sonarcloud.io" }
     auth: bearer
     token_env: SONARQUBE_MCP_TOKEN

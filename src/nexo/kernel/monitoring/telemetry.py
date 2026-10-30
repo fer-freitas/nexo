@@ -48,6 +48,10 @@ EVENT_TYPES = frozenset(
         "security.injection_suspect",
         "monitor.synthetic",
         "nexo.crash",  # F15
+        "demand.created",
+        "demand.transitioned",
+        "demand.linked",
+        "demand.triaged",
         "review.pr",  # revisão de PR humano (veredito e contagens, sem conteúdo)
     }
 )
@@ -113,6 +117,14 @@ EVENT_KEYS = frozenset(
         "verdict",
         "quality_failed",
         "posted",
+        "demand",
+        "demand_type",
+        "stage",
+        "origin",
+        "title",
+        "parent",
+        "holders",
+        "blocked",
         "standards",  # aderência ao padrão de código (números e ids de regra)
     }
 )
@@ -229,6 +241,8 @@ def validate(kind: str, event_type: str, payload: dict[str, Any]) -> str | None:
     extra = sorted(set(payload) - allowed)
     if extra:
         return f"campos fora da lista: {', '.join(extra)}"
+    if "title" in payload and not event_type.startswith("demand."):
+        return "título só é aceito em eventos de demanda"
     if not _clean(payload):
         return "valor fora do contrato (texto longo, caminho ou tipo não permitido)"
     return None

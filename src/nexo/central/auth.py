@@ -199,6 +199,64 @@ def oidc_start(next_url: str) -> str:
     return f"{_discovery()['authorization_endpoint']}?{urllib.parse.urlencode(params)}"
 
 
+def _apply_groups(dev: str, claims: dict[str, Any]) -> None:
+    """Se o provedor envia grupos, eles definem o perfil: `NX_COLLECTOR_OIDC_GROUP_ROLES` = {"grupo": "perfil"}."""
+    mapping = json.loads(os.environ.get("NX_COLLECTOR_OIDC_GROUP_ROLES") or "{}")
+    groups = claims.get(os.environ.get("NX_COLLECTOR_OIDC_GROUPS_CLAIM", "groups")) or []
+    role = next((mapping[g] for g in groups if g in mapping), None)
+    if role:
+        db().execute("DELETE FROM org_people WHERE dev = ?", (dev,))
+        db().execute("INSERT INTO org_people (dev, role) VALUES (?, ?)", (dev, role))
+
+
+def create_invite(dev: str, role: str, created_by: str, days: int = 30) -> str:
+    """Login antes do SSO: token por pessoa, guardado só como hash e com validade. A senha nunca fica no banco."""
+    token = "nxi_" + secrets.token_urlsafe(32)
+    now = time.time()
+    db().execute(
+        "INSERT INTO portal_invites (token_hash, dev, role, expires_at, used_at, created_by, created_at) VALUES (?,?,?,?,?,?,?)",
+        (_hash(token), dev, role, now + days * 86400, None, created_by, now),
+    )
+    audit(created_by, "portal.invite", {"dev": dev, "role": role, "days": days})
+    return token
+
+
+def revoke_invites(dev: str, actor: str) -> None:
+    db().execute("DELETE FROM portal_invites WHERE dev = ?", (dev,))
+    audit(actor, "portal.invite_revoked", {"dev": dev})
+
+
+MAX_ATTEMPTS = 8
+LOCK_SECONDS = 900
+
+
+def login_blocked(key: str) -> bool:
+    row = db().one("SELECT attempts, until FROM portal_login_attempts WHERE key = ?", (key,))
+    return bool(row and int(row["attempts"]) >= MAX_ATTEMPTS and float(row["until"]) > time.time())
+
+
+def login_failed(key: str) -> None:
+    row = db().one("SELECT attempts, until FROM portal_login_attempts WHERE key = ?", (key,))
+    expired = row is None or float(row["until"]) <= time.time()
+    attempts = 1 if expired else int(row["attempts"]) + 1
+    db().execute("DELETE FROM portal_login_attempts WHERE key = ?", (key,))
+    db().execute("INSERT INTO portal_login_attempts (key, attempts, until) VALUES (?,?,?)", (key, attempts, time.time() + LOCK_SECONDS))
+
+
+def login_ok(key: str) -> None:
+    db().execute("DELETE FROM portal_login_attempts WHERE key = ?", (key,))
+
+
+def from_invite(token: str) -> dict[str, str] | None:
+    row = db().one("SELECT dev, role, expires_at FROM portal_invites WHERE token_hash = ?", (_hash(token),))
+    if row is None or float(row["expires_at"]) < time.time():
+        return None
+    db().execute("UPDATE portal_invites SET used_at = ? WHERE token_hash = ?", (time.time(), _hash(token)))
+    db().execute("DELETE FROM org_people WHERE dev = ?", (row["dev"],))
+    db().execute("INSERT INTO org_people (dev, role) VALUES (?, ?)", (row["dev"], row["role"]))
+    return {"dev": str(row["dev"]), "role": str(row["role"]), "device_id": ""}
+
+
 def oidc_finish(code: str, state: str) -> tuple[str, str]:
     """Troca o código, lê a identidade no userinfo e devolve (dev, próxima página)."""
     row = db().one("SELECT * FROM oidc_states WHERE state = ?", (state,))
@@ -226,5 +284,6 @@ def oidc_finish(code: str, state: str) -> tuple[str, str]:
         dev = dev.split("@")[0]
     if not dev:
         raise HTTPException(401, f"identidade sem o atributo {claim}")
+    _apply_groups(dev, claims)
     nxt = str(row["next"] or "/dash")
     return dev, nxt if nxt.startswith("/") and not nxt.startswith("//") else "/dash"

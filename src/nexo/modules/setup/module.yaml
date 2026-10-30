@@ -16,3 +16,11 @@ flags:
   - key: transcripts
     title: "Replay redigido das sessões do agente"
     area: "Observabilidade"
+cli: "nexo.modules.setup.cli:register"
+commands:
+  - {path: "central", summary: "Liga esta máquina ao coletor central da empresa", kind: write}
+  - {path: "flags", summary: "Funcionalidades ligadas e de onde vem cada valor"}
+  - {path: "module", summary: "Módulos do Nexo"}
+  - {path: "init", summary: "Prepara o repositório", kind: write}
+  - {path: "doctor", summary: "O que falta nesta máquina"}
+  - {path: "login", summary: "Credenciais no cofre do sistema", kind: write}
