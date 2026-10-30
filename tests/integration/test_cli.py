@@ -255,3 +255,8 @@ def test_doctor_reports_approval_and_unguarded_tools(nexo: Runner, nexo_home: Pa
     dump_yaml(nexo_home / "brain" / "org" / "approval.yaml", {"by": "resp", "date": "2026-10-30", "scope": "empresa"})
     checks = {c["name"]: c for c in json.loads(nexo("--json", "doctor")[1])["checks"]}
     assert checks["approval"]["detail"].startswith("resp, 2026-10-30")
+
+
+def test_notify_test_says_when_no_channel_is_on(nexo: Runner) -> None:
+    code, out, _ = nexo("--json", "notify", "test")
+    assert code == 0 and json.loads(out)["channels"] == {}

@@ -1,0 +1,12 @@
+id: program
+version: 1.0.0
+title: "Programas"
+flags:
+  - key: program
+    title: "Feature em vários repositórios"
+    area: "Execução"
+    stage: beta
+    commands: ["program"]
+cli: "nexo.modules.program.cli:register"
+commands:
+  - {path: "program", summary: "Feature em vários repositórios", kind: write}

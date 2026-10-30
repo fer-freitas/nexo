@@ -1,0 +1,11 @@
+# Roteiro de modernização: .NET Framework → .NET 8. O cérebro pode sobrescrever ou acrescentar roteiros.
+title: Migrar APIs do .NET Framework para .NET 8
+detect: '\bSystem\.Web\b|<TargetFrameworkVersion>v4|\bConfigurationManager\.AppSettings\b|\bHttpContext\.Current\b'
+include: ["**/*.cs", "**/*.csproj", "**/*.config"]
+points: 5
+instructions: |
+  Migre o código do módulo para .NET 8 sem mudar o comportamento:
+  - troque System.Web por ASP.NET Core (Microsoft.AspNetCore.*) e HttpContext.Current por IHttpContextAccessor injetado;
+  - troque ConfigurationManager.AppSettings por IConfiguration/IOptions injetados;
+  - projetos: formato SDK (<Project Sdk="Microsoft.NET.Sdk">) com <TargetFramework>net8.0</TargetFramework>;
+  - mantenha os nomes públicos e os contratos; os testes de caracterização precisam continuar passando.

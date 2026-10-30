@@ -1,0 +1,18 @@
+id: legacy
+version: 1.0.0
+title: "Modernização e incidentes"
+flags:
+  - key: modernize
+    title: "Modernização de legado em ondas"
+    area: "Execução"
+    stage: beta
+    commands: ["modernize"]
+  - key: incident
+    title: "Do incidente à correção"
+    area: "Execução"
+    stage: beta
+    commands: ["incident"]
+cli: "nexo.modules.legacy.cli:register"
+commands:
+  - {path: "modernize", summary: "Modernização de legado em ondas", kind: write}
+  - {path: "incident", summary: "Do incidente à correção", kind: write}

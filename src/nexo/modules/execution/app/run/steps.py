@@ -47,6 +47,8 @@ if TYPE_CHECKING:
 def execute(
     o: Orchestrator, task: Task, run_id: str, worktree: Path, c: Classification, packet: HandoffPacket | None
 ) -> RunReport:
+    if task.kind == "dependency" and task.script:  # o Nexo aplica a atualização, sem gastar tokens
+        return run_script(o, task, run_id, worktree)
     exclude: set[str] = {r for r, x in o.catalog.routes.items() if x.tool in o.opts.exclude_tools}
     failures: dict[str, int] = {}
     routes: list[str] = []
@@ -434,6 +436,20 @@ def _spec_changes(o: Orchestrator, task: Task) -> str:
     except NexoError:
         return ""
     return f"\n\n## Mudanças na spec\n{text}" if text else ""
+
+
+def run_script(o: Orchestrator, task: Task, run_id: str, worktree: Path) -> RunReport:
+    """Atualização de dependência pelo gerenciador da stack, sem agente e sem tokens."""
+    from nexo.kernel import services
+
+    base = o.store.get_run(run_id).base_sha or ""  # type: ignore[union-attr]
+    ok, detail = services.load("deps.deps").apply_script(worktree, dict(task.script or {}))
+    o.ctx.audit(
+        "deps.applied", {"task": task.id, "ok": ok, **dict(task.script or {}), "detail": detail[-300:]}, ref=run_id
+    )
+    if not ok:
+        return o._escalate(task, run_id, f"atualização falhou: {detail[-300:]}", ["script"])
+    return o._complete(task, run_id, worktree, base, ["script"], 0)
 
 
 def usage(o: Orchestrator, run_id: str) -> list[dict[str, Any]]:

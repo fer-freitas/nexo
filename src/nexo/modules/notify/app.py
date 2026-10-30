@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config
@@ -42,6 +44,20 @@ def notify(
         ref=ref,
     )
     return sent
+
+
+def test(ctx: AppContext) -> dict[str, Any]:
+    """Tenta cada canal ligado, com uma mensagem de verdade, e diz o resultado de cada um."""
+    cfg = dict(config.resolved(ctx).values.get("notify") or {})
+    results: dict[str, str] = {}
+    for channel in sorted(k for k, v in (cfg.get("channels") or {}).items() if v):
+        try:
+            _send(channel, cfg, "Nexo: teste de aviso", "Se você recebeu isto, o canal está certo.", None)
+            results[channel] = "enviado"
+        except (NexoError, OSError) as exc:
+            results[channel] = exc.message if isinstance(exc, NexoError) else str(exc)
+    ctx.audit("notify.test", {"results": results})
+    return {"channels": results} if results else {"channels": {}, "note": "nenhum canal ligado em notify.channels"}
 
 
 def _send(channel: str, cfg: dict[str, object], title: str, message: str, link: str | None) -> None:

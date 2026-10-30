@@ -1,0 +1,12 @@
+id: change
+version: 1.0.0
+title: "Gestão de mudança"
+flags:
+  - key: change
+    title: "Requisição de mudança no ServiceNow ou no Jira Service Management"
+    area: "Execução"
+    stage: beta
+    commands: ["change"]
+cli: "nexo.modules.change.cli:register"
+commands:
+  - {path: "change", summary: "Requisição de mudança no ITSM", kind: write}

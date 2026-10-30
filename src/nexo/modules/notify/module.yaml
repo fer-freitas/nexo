@@ -1,5 +1,14 @@
 id: notify
 version: 1.0.0
 title: "Avisos"
+flags:
+  - key: notify.use
+    title: "Avisos por Slack, Teams ou e-mail"
+    area: "Integrações"
+    stage: beta
+    commands: ["notify"]
+cli: "nexo.modules.notify.cli:register"
 services:
   notify.main: "nexo.modules.notify.app"
+commands:
+  - {path: "notify", summary: "Confere o canal de avisos", kind: write}

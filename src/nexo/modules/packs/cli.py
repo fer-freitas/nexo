@@ -44,6 +44,15 @@ def register(root: typer.Typer, tools: Any) -> None:
         """Se o que está em uso bate com o lock."""
         emit(packs.diff(pack_id))
 
+    @pack.command("expose")
+    def pack_expose(
+        tool: Annotated[str, typer.Option("--for", help="claude ou copilot")] = "claude",
+    ) -> None:
+        """Cria comandos como /nexo-pm-refine dentro da ferramenta de IA, neste repositório."""
+        from nexo.modules.packs.app import expose
+
+        emit(expose.write(ctx(), tool))
+
     @pack.command("lint")
     def pack_lint() -> None:
         """Confere o formato Agent Skills de todas as skills."""

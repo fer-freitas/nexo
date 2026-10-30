@@ -1,0 +1,10 @@
+# Roteiro de modernização: moment.js (em manutenção) → date-fns.
+title: Trocar moment por date-fns
+detect: "\\b(import\\s+moment\\b|require\\(['\\\"]moment['\\\"]\\)|from\\s+['\\\"]moment['\\\"])"
+include: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+points: 3
+instructions: |
+  Troque moment por date-fns no módulo, sem mudar o comportamento:
+  - moment().format(...) → format(new Date(), ...) com os tokens do date-fns (yyyy, dd, HH);
+  - add/subtract → addDays/subDays etc.; diff → differenceInDays etc.; objetos imutáveis;
+  - fuso horário: use date-fns-tz onde havia moment-timezone.

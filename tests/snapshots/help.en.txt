@@ -66,6 +66,7 @@ DEV  nexo dev mostra o que está com você
   dev logs             Linha do tempo auditável
 
 TODOS
+  change               Requisição de mudança no ITSM
   board                Demandas de todos os projetos e com quem estão
   brief                O que mudou e o que esperam de você nesta demanda
   demand               Detalhes, árvore, por que está com quem e triagem
@@ -77,9 +78,14 @@ TODOS
   join                 Entra no time sem precisar saber Git
   role                 Mostra seus papéis no time
   demo                 Experimenta a CLI e o site com dados fictícios, sem gastar tokens
+  deps                 Varre vulnerabilidades e planeja a correção em ondas
+  modernize            Modernização de legado em ondas
+  incident             Do incidente à correção
   lineage              De onde vem e para onde vai cada componente
   mcp                  Busca, liga e prova a conexão com MCPs
+  notify               Confere o canal de avisos
   pack                 Conteúdo de terceiros com commit fixado, hash e licença
+  program              Feature em vários repositórios
   setup                Confere e instala o que é preciso para rodar
   squad                De qual squad você participa
   central              Liga esta máquina ao coletor central da empresa

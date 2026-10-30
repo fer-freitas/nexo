@@ -34,6 +34,8 @@ flags:
     stage: experimental
     default: false
 services:
+  delivery.evidence: "nexo.modules.delivery.app.evidence"
+  delivery.review: "nexo.modules.delivery.app.review"
   delivery.approval: "nexo.modules.delivery.app.approval"
   delivery.approvals: "nexo.modules.delivery.adapters.approvals"
   delivery.pr: "nexo.modules.delivery.app.pr"

@@ -1,0 +1,14 @@
+id: deps
+version: 1.0.0
+title: "Dependências em escala"
+flags:
+  - key: deps
+    title: "Dependências e vulnerabilidades em escala"
+    area: "Qualidade"
+    stage: beta
+    commands: ["deps"]
+cli: "nexo.modules.deps.cli:register"
+commands:
+  - {path: "deps", summary: "Varre vulnerabilidades e planeja a correção em ondas", kind: write}
+services:
+  deps.deps: "nexo.modules.deps.app.deps"

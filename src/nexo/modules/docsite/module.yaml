@@ -1,0 +1,10 @@
+id: docsite
+version: 1.0.0
+title: "Site de documentação"
+flags:
+  - key: docsite
+    title: "Site de documentação e portal do projeto"
+    area: "Conhecimento"
+    stage: beta
+    commands: ["docs site", "docs target", "docs portal"]
+cli: "nexo.modules.docsite.cli:register"

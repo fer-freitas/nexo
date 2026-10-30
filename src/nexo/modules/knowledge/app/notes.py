@@ -210,3 +210,23 @@ def migrate(root: Path, today: date | None = None) -> dict[str, Any]:
     data = dict(yamlfile.load(root / "brain.yaml"))
     yamlfile.dump(root / "brain.yaml", {**data, "schema_version": 2})
     return {"changed": changed}
+
+
+def _edges(ctx: AppContext, project: str | None = None) -> list[dict[str, Any]]:
+    from nexo.kernel.platform import flags
+
+    flags.require(ctx, "brain.graph")
+    if not ctx.brain_dir.is_dir():
+        raise NexoError("cérebro não encontrado: rode `nexo brain pull`")
+    _nodes, edges = model.nodes_and_edges(load_notes(ctx.brain_dir, project))
+    return edges
+
+
+def neighbors(ctx: AppContext, note: str, depth: int = 2) -> dict[str, Any]:
+    """O grafo é sempre derivado do Git: não há nada para ficar desatualizado."""
+    found = model.neighbors(_edges(ctx), note, depth)
+    return {"note": note, "depth": depth, "neighbors": [{"id": k, "distance": v} for k, v in found.items()]}
+
+
+def path(ctx: AppContext, start: str, end: str) -> dict[str, Any]:
+    return {"from": start, "to": end, "path": model.path(_edges(ctx), start, end)}

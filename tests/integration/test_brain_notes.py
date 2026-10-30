@@ -107,3 +107,24 @@ def test_review_applies_the_same_lint_to_a_pull_request(tmp_path: Path, nexo: Ru
     assert code != 0 and json.loads(out)["errors"]
     assert not (brain / "lessons" / "ruim.md").exists(), "a revisão não mexe na pasta de trabalho"
     assert "nexo-review" not in git(brain, "worktree", "list")
+
+
+def test_graph_traversal_finds_neighbors_and_path(tmp_path: Path, nexo: Runner, nexo_home: Path) -> None:
+    from nexo.modules.knowledge.domain.notes import neighbors, path
+
+    edges = [
+        {"from": "a", "to": "b", "rel": "x"},
+        {"from": "b", "to": "c", "rel": "x"},
+        {"from": "z", "to": "y", "rel": "x"},
+    ]
+    assert neighbors(edges, "a", 1) == {"b": 1}
+    assert neighbors(edges, "a", 2) == {"b": 1, "c": 2}
+    assert path(edges, "a", "c") == ["a", "b", "c"] and path(edges, "a", "y") == []
+    brain = nexo_home / "brain" / "lessons"
+    brain.mkdir(parents=True)
+    (brain / "um.md").write_text("---\nid: um\ntype: lesson\nscope: global\n---\n\nVer [[dois]].\n", encoding="utf-8")
+    (brain / "dois.md").write_text("---\nid: dois\ntype: lesson\nscope: global\n---\n\nTexto.\n", encoding="utf-8")
+    code, out, err = nexo("--json", "brain", "neighbors", "um")
+    assert code == 0, err + out
+    assert [n["id"] for n in json.loads(out)["neighbors"]] == ["dois"]
+    assert json.loads(nexo("--json", "brain", "path", "um", "dois")[1])["path"] == ["um", "dois"]

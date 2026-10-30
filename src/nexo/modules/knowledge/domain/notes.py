@@ -243,3 +243,45 @@ _FOLDER_TYPE = (
     ("templates/", "template"),
     ("recipes/", "recipe"),
 )
+
+
+def _adjacent(edges: list[dict[str, Any]]) -> dict[str, set[str]]:
+    near: dict[str, set[str]] = {}
+    for edge in edges:
+        a, b = str(edge["from"]), str(edge["to"])
+        near.setdefault(a, set()).add(b)
+        near.setdefault(b, set()).add(a)
+    return near
+
+
+def neighbors(edges: list[dict[str, Any]], start: str, depth: int = 2) -> dict[str, int]:
+    """O que se liga à nota em até `depth` saltos, com a distância. A ordem é sempre a mesma."""
+    near = _adjacent(edges)
+    found: dict[str, int] = {start: 0}
+    frontier = [start]
+    for distance in range(1, depth + 1):
+        frontier = sorted({n for f in frontier for n in near.get(f, ()) if n not in found})
+        found.update(dict.fromkeys(frontier, distance))
+    found.pop(start)
+    return found
+
+
+def path(edges: list[dict[str, Any]], start: str, end: str) -> list[str]:
+    """O caminho mais curto entre duas notas, ou vazio se não houver."""
+    near = _adjacent(edges)
+    came: dict[str, str] = {start: start}
+    frontier = [start]
+    while frontier and end not in came:
+        nexts = []
+        for node in frontier:
+            for other in sorted(near.get(node, ())):
+                if other not in came:
+                    came[other] = node
+                    nexts.append(other)
+        frontier = nexts
+    if end not in came:
+        return []
+    out = [end]
+    while out[-1] != start:
+        out.append(came[out[-1]])
+    return out[::-1]

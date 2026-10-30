@@ -1,0 +1,11 @@
+# Roteiro de modernização: requests → httpx (cliente HTTP com timeout explícito e suporte assíncrono).
+title: Trocar requests por httpx
+detect: '^\s*(import requests\b|from requests\b)'
+include: ["**/*.py"]
+points: 3
+instructions: |
+  Troque o uso de requests por httpx no módulo, sem mudar o comportamento:
+  - import requests → import httpx; requests.get/post → httpx.get/post (ou um httpx.Client reutilizado);
+  - sempre com timeout explícito (httpx não aceita timeout infinito por padrão);
+  - trate httpx.HTTPStatusError onde antes havia requests.HTTPError;
+  - acrescente httpx às dependências pelo gerenciador do projeto e remova requests se não houver mais uso.

@@ -2,6 +2,11 @@ id: knowledge
 version: 1.0.0
 title: "Conhecimento e cérebro"
 flags:
+  - key: brain.graph
+    title: "Cérebro: travessia do grafo de notas"
+    area: "Conhecimento"
+    stage: beta
+    commands: ["brain neighbors", "brain path"]
   - key: ask
     title: "Perguntas sobre o código e o cérebro"
     area: "Conhecimento"
@@ -23,6 +28,7 @@ flags:
     area: "Conhecimento"
     commands: ["learn"]
 services:
+  knowledge.notes: "nexo.modules.knowledge.app.notes"
   knowledge.brain: "nexo.modules.knowledge.app.brain"
   knowledge.content: "nexo.modules.knowledge.app.content"
   knowledge.docs: "nexo.modules.knowledge.app.docs"

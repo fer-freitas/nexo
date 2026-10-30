@@ -119,3 +119,15 @@ def test_cli(workdir: Path, nexo: Runner) -> None:
     code, out, _ = nexo("--json", "pack", "lock")
     assert code == 0 and json.loads(out)["ok"]
     assert json.loads(nexo("--json", "pack", "list")[1])[0]["license"] == "MIT"
+
+
+def test_expose_creates_commands_inside_the_tool(project: Path, nexo: Runner) -> None:
+    code, out, err = nexo("--json", "pack", "expose")
+    assert code == 0, err + out
+    data = json.loads(out)
+    assert "nexo-pm-refine" in data["commands"]
+    text = (project / ".claude" / "commands" / "nexo-pm-refine.md").read_text(encoding="utf-8")
+    assert "nexo pm refine $ARGUMENTS" in text and "Não contorne o Nexo" in text
+    assert nexo("--json", "pack", "expose", "--for", "copilot")[0] == 0
+    assert (project / ".github" / "prompts" / "nexo-dev-run.prompt.md").is_file()
+    assert nexo("pack", "expose", "--for", "devin")[0] != 0

@@ -27,5 +27,6 @@ commands:
   - {path: "doctor", summary: "O que falta nesta máquina"}
   - {path: "login", summary: "Credenciais no cofre do sistema", kind: write}
 services:
+  setup.brand: "nexo.modules.setup.app.brand"
   setup.banner: "nexo.modules.setup.app.banner"
   setup.project: "nexo.modules.setup.app.project"

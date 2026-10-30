@@ -262,6 +262,22 @@ def brain_review_cmd(
         raise typer.Exit(ExitCode.GATE)
 
 
+@brain_app.command("neighbors")
+def brain_neighbors_cmd(note: str, depth: Annotated[int, typer.Option("--depth", help="Saltos, de 1 a 5")] = 2) -> None:
+    """O que se liga a esta nota, em até N saltos."""
+    from nexo.modules.knowledge.app import notes
+
+    emit(notes.neighbors(ctx(), note, max(1, min(depth, 5))))
+
+
+@brain_app.command("path")
+def brain_path_cmd(start: str, end: str) -> None:
+    """O caminho mais curto entre duas notas."""
+    from nexo.modules.knowledge.app import notes
+
+    emit(notes.path(ctx(), start, end))
+
+
 @brain_app.command("index")
 def brain_index_cmd(
     path: Annotated[Path | None, typer.Argument(help="Clone do cérebro (padrão: a cópia verificada)")] = None,
