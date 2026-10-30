@@ -6,6 +6,7 @@ do passo.
 
 from __future__ import annotations
 
+import json
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -251,6 +252,12 @@ def run_step(
     container = isolation.spec(o.ctx, data_class)  # S-04: exigido pela org e desligado → erro
     native = adapter.capabilities().native_hooks and container is None  # hooks do host não entram no contêiner
     extra_mcp, mcp_env = external_mcp(o, task, adapter) if container is None else ({}, {})
+    hooks_file = adapter.capabilities().hooks_file
+    if hooks_file and container is None:
+        target = worktree / hooks_file
+        target.parent.mkdir(parents=True, exist_ok=True)
+        git.exclude_locally(worktree, [hooks_file])
+        target.write_text(json.dumps(agents_app.tool_hooks(run_id), indent=1), encoding="utf-8", newline="\n")
     req = AgentRequest(
         role=o.role,
         prompt=prompt,

@@ -9,7 +9,6 @@ from pathlib import Path
 
 import pytest
 
-from nexo.modules.execution.app.quality import workflow
 from nexo.modules.quality.adapters.runner import java_tools, load_recipe, run_stage
 
 PY = sys.executable
@@ -105,25 +104,6 @@ def test_recipes_load_for_new_stacks() -> None:
         recipe = load_recipe(name)
         ids = [s["id"] for s in recipe["stages"]]
         assert "unit" in ids and "standards" in ids and "secrets" in ids, name
-
-
-def test_ci_workflow_for_java_and_flutter(tmp_path: Path) -> None:
-    (tmp_path / "pom.xml").write_text("<project/>", encoding="utf-8")
-    (tmp_path / "mvnw").write_text("", encoding="utf-8")
-    wf = workflow("java", load_recipe("java"), tmp_path)
-    steps = wf["jobs"]["quality"]["steps"]
-    assert steps[1]["uses"].startswith("actions/setup-java")
-    unit = next(s for s in steps if s.get("name") == "unit (unit)")
-    assert unit["run"].startswith("./mvnw -B org.jacoco")
-    gradle = next(s for s in steps if s.get("name") == "lint-gradle (lint)")
-    assert "grep -qF spotless build.gradle* " in gradle["run"]  # curinga sem aspas: o shell expande
-    fl = workflow("flutter", load_recipe("flutter"), tmp_path)["jobs"]["quality"]["steps"]
-    assert fl[1]["uses"].startswith("subosito/flutter-action")
-    install = next(s for s in fl if s.get("name") == "install (build)")
-    assert install["run"] == "flutter pub get"  # sem pubspec.lock: sem --enforce-lockfile
-    (tmp_path / "pubspec.lock").write_text("", encoding="utf-8")
-    fl = workflow("flutter", load_recipe("flutter"), tmp_path)["jobs"]["quality"]["steps"]
-    assert next(s for s in fl if s.get("name") == "install (build)")["run"] == "flutter pub get --enforce-lockfile"
 
 
 def test_new_tests_skip_type_analyzer_but_keep_format(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

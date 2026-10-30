@@ -94,9 +94,9 @@ def check_action(
 
 
 def run_pre_tool_policy(
-    ctx: AppContext, run_id: str, stdin: IO[str] | None = None, stdout: IO[str] | None = None
+    ctx: AppContext, run_id: str, stdin: IO[str] | None = None, stdout: IO[str] | None = None, exit_code: bool = False
 ) -> int:
-    """Protocolo de hook PreToolUse do Claude Code: lê JSON do stdin, responde negação em JSON."""
+    """Hook PreToolUse: lê JSON do stdin. O Claude Code recebe a negação em JSON; `exit_code` nega saindo com 2."""
     src = stdin or sys.stdin
     dst = stdout or sys.stdout
     try:
@@ -115,6 +115,9 @@ def run_pre_tool_policy(
         decision = check_action(ctx, policy, run_id, run.worktree, tool, dict(tool_input), profile)
     if decision.allow:
         return 0
+    if exit_code:
+        print(f"Nexo ({decision.rule}): {decision.reason}", file=sys.stderr)
+        return 2
     response = {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",

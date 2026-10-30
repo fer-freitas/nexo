@@ -127,6 +127,8 @@ class GenericTextAdapter:
         return Capabilities(
             verified=bool(self.spec.get("verified", False)),
             native_hooks=bool(self.spec.get("native_hooks", False)),
+            guard_proven=bool(self.spec.get("guard_proven", False)),
+            hooks_file=str(self.spec.get("hooks_file", "")),
             mcp=bool(self.spec.get("mcp", False)),
             remote_execution=bool(self.spec.get("remote_execution", False)),
             usage_unit=str((self.spec.get("usage") or {}).get("unit", "requests")),

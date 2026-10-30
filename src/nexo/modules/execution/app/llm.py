@@ -129,6 +129,7 @@ def _call_structured(
                         profile or str(cfg.get("profile", "balanceado")),
                         data_class,
                         vendors,
+                        unguarded=agents_app.unguarded(ctx),
                         author_vendors=author_vendors,
                         exclude=frozenset(skip),
                         forced_tool=forced_tool,

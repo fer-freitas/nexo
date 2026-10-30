@@ -344,7 +344,7 @@ def test_structured_roles_prefer_tools_with_structured_output(  # type: ignore[n
     from nexo.modules.execution.adapters.agents.fake import FakeAdapter
 
     def caps(self: FakeAdapter) -> Capabilities:
-        return Capabilities(verified=True, structured_output=self.name != "copilot")
+        return Capabilities(verified=True, guard_proven=True, structured_output=self.name != "copilot")
 
     monkeypatch.setattr(FakeAdapter, "capabilities", caps)
     scenario([{"tool": "copilot", "events": [ROUND1]}, {"tool": "claude", "events": [ROUND1]}])

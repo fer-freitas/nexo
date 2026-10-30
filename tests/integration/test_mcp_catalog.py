@@ -89,7 +89,9 @@ def test_run_receives_servers_without_secret_in_the_command(  # type: ignore[no-
         seen.append(req)
         return original(self, req, profile)
 
-    monkeypatch.setattr(FakeAdapter, "capabilities", lambda self: Capabilities(verified=True, mcp=True))
+    monkeypatch.setattr(
+        FakeAdapter, "capabilities", lambda self: Capabilities(verified=True, guard_proven=True, mcp=True)
+    )
     monkeypatch.setattr(FakeAdapter, "start", start)
     approve(nexo_home, "github", "atlassian", "sonarqube")
     memory_keyring.store[("nexo-cli", "mcp_github")] = "ghp_segredo"

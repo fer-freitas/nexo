@@ -278,13 +278,6 @@ COMMANDS: tuple[CommandSpec, ...] = (
         "Show the dependency graph and what can run in parallel",
     ),
     C(
-        "quality ci",
-        "[--stack]",
-        "code",
-        "Gera o workflow do GitHub Actions com a mesma receita",
-        "Generate the GitHub Actions workflow from the same recipe",
-    ),
-    C(
         "discover",
         "[--as-is] [--no-baseline]",
         "code",

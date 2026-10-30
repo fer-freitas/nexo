@@ -360,10 +360,11 @@ def sign(ctx: AppContext, path: Path, key: str, version: str) -> Path:
     from nexo.modules.knowledge.app import notes
 
     notes.require_clean_and_valid(path)
-    from nexo.kernel.secrets import keyvault
+    from nexo.kernel.secrets import awskms, keyvault
 
-    if config.anchor() and not keyvault.is_ref(key):  # S-08: no build corporativo, só cofre
-        raise NexoError("build corporativo: o cérebro só é assinado com chave no Key Vault/HSM (--key azkv://…)")
-    manifest = brain_adapter.sign(path, key if keyvault.is_ref(key) else Path(key).expanduser(), version)
-    ctx.audit("brain.signed", {"path": str(path), "version": version, "vault": keyvault.is_ref(key)})
+    in_vault = keyvault.is_ref(key) or awskms.is_ref(key)
+    if config.anchor() and not in_vault:  # S-08: no build corporativo, só cofre
+        raise NexoError("build corporativo: o cérebro só é assinado com chave em cofre (--key awskms://… ou azkv://…)")
+    manifest = brain_adapter.sign(path, key if in_vault else Path(key).expanduser(), version)
+    ctx.audit("brain.signed", {"path": str(path), "version": version, "vault": in_vault})
     return manifest

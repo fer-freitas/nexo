@@ -180,6 +180,10 @@ def availability(states: dict[str, ToolState], budget: Any = None) -> dict[str, 
     }
 
 
+def unguarded(ctx: AppContext) -> frozenset[str]:
+    return frozenset(name for name, adapter in adapters(ctx).items() if not adapter.capabilities().guard_proven)
+
+
 def nexo_command() -> list[str]:
     """Como reinvocar este mesmo Nexo (hooks nativos e servidor MCP)."""
     if getattr(sys, "frozen", False):
@@ -213,6 +217,12 @@ def hook_settings(ctx: AppContext, run_id: str) -> dict[str, Any]:
         },
         "env": {"NX_HOME": str(ctx.home)},
     }
+
+
+def tool_hooks(run_id: str) -> dict[str, Any]:
+    """Hook de ferramenta que lê o arquivo da pasta de trabalho. Sai com 2 para bloquear, com o motivo no stderr."""
+    command = shell_join([*nexo_command(), "hook", "run", "pre-tool-policy", "--run", run_id, "--exit-code"])
+    return {"PreToolUse": [{"matcher": ".*", "hooks": [{"type": "command", "command": command}]}]}
 
 
 CLAUDE_LOGIN = ["claude", "auth", "login"]

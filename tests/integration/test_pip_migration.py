@@ -10,8 +10,7 @@ from pathlib import Path
 import pytest
 
 from nexo.kernel.runtime import toolenv
-from nexo.modules.execution.app.quality import workflow
-from nexo.modules.quality.adapters.runner import ARGS_SEP, expand, load_recipe, python_env, run_pipeline, run_stage
+from nexo.modules.quality.adapters.runner import ARGS_SEP, expand, python_env, run_pipeline, run_stage
 
 PY = sys.executable
 
@@ -59,27 +58,6 @@ def test_expand_unless_exists_and_pre_stdout(tmp_path: Path) -> None:
     (tmp_path / ".venv").mkdir()
     skipped = run_stage(stage, tmp_path, out, subs)
     assert skipped.status == "skipped" and ".venv já existe" in skipped.summary
-
-
-def test_ci_workflow_for_python_uses_pip(tmp_path: Path) -> None:
-    (tmp_path / "pyproject.toml").write_text('[project]\nname = "x"\n', encoding="utf-8")
-    (tmp_path / "requirements-dev.txt").write_text("pytest\n", encoding="utf-8")
-    steps = workflow("python", load_recipe("python"), tmp_path)["jobs"]["quality"]["steps"]
-    text = "\n".join(str(s.get("run", "")) + str(s.get("uses", "")) for s in steps)
-    assert "actions/setup-python" in text and "setup-uv" not in text and "uv " not in text
-    by = {str(s.get("name", "")).split(" ")[0]: s for s in steps}
-    assert by["venv"]["run"].startswith("if [ ! -e .venv ]; then\n  python -m venv .venv")
-    assert (
-        by["install"]["run"]
-        == ".venv/bin/python -m pip install --quiet --disable-pip-version-check -r requirements-dev.txt"
-    )
-    assert "--no-deps -e ." in by["install-project"]["run"]
-    assert (
-        '.venv/bin/python -m pip freeze --exclude-editable --disable-pip-version-check > "$RUNNER_TEMP/nexo/requirements-freeze.txt"'
-        in by["sca"]["run"]
-    )
-    assert by["sca"]["run"].splitlines()[-1].startswith("pip-audit --strict")
-    assert any("pip install --quiet pip-audit semgrep" in str(s.get("run", "")) for s in steps)
 
 
 def test_tool_in_own_environment_is_reused_and_reports_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

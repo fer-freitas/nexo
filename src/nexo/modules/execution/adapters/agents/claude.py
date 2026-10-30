@@ -194,7 +194,13 @@ class ClaudeAdapter:
 
     def capabilities(self) -> Capabilities:
         return Capabilities(
-            verified=True, structured_output=True, native_hooks=True, mcp=True, skills=True, images=True
+            verified=True,
+            structured_output=True,
+            native_hooks=True,
+            guard_proven=True,
+            mcp=True,
+            skills=True,
+            images=True,
         )
 
     def command(self, req: AgentRequest, profile: str) -> list[str]:

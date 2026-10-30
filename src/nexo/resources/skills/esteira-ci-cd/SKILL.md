@@ -4,7 +4,7 @@ description: A esteira de CI/CD do fluxo — etapas de build, qualidade, testes 
 ---
 # Esteira de CI/CD
 
-O Nexo gera a esteira a partir da receita da stack (`nexo quality ci`) e roda as mesmas etapas localmente antes do PR.
+O Nexo não cria nem altera a esteira. Ele lê os comandos do pipeline existente (`nexo tl setup`) e roda as mesmas etapas localmente antes do PR.
 
 > **A definir pela organização:** plataforma de CI/CD oficial, contas/ambientes e aprovadores por ambiente.
 

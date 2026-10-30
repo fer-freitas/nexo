@@ -26,4 +26,6 @@ usage:
   model_multiplier: { auto: 1, gpt-5-mini: 0, claude-sonnet-4.5: 1, gpt-5: 1 }
   source: copilot_session_store   # consumo real: ~/.copilot/session-store.db (premium requests, AI Credits e tokens)
 native_hooks: false
+# Sem hook: roda com --deny-tool. Sem prova de bloqueio, a rota não recebe dados `confidential` ou `restricted`.
+guard_proven: false
 mcp: true

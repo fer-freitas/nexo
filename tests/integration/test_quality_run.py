@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import json
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 
-import pytest
 
 from nexo.modules.quality.adapters.runner import run_pipeline, run_stage
 from tests.conftest import EXAMPLES, Runner, dump_yaml
@@ -65,32 +63,13 @@ def test_python_example_real_tools(tmp_path: Path, fast_recipe: Path) -> None:
     assert report.coverage == 100.0 and report.tests[0].name == "test_health_ok"
 
 
-def test_quality_cli_and_ci(project: Path, nexo: Runner, fast_recipe: Path) -> None:
+def test_quality_cli(project: Path, nexo: Runner, fast_recipe: Path) -> None:
     code, out, _ = nexo("quality", "run")
     assert code == 0 and "unit" in out and "cobertura" in out
     data = json.loads(nexo("--json", "quality", "run", "--stage", "lint")[1])
     assert [s["id"] for s in data["stages"]] == ["lint"]
     (project / "src/svc/bad.py").write_text("import os\n", encoding="utf-8")
     assert nexo("quality", "run")[0] == 1
-    code, out, _ = nexo("quality", "ci")
-    wf = project / ".github/workflows/nexo-quality.yml"
-    assert code == 0 and wf.is_file() and "pytest" in wf.read_text(encoding="utf-8")
-    if shutil.which("actionlint"):
-        proc = subprocess.run(
-            ["actionlint", str(wf)], capture_output=True, text=True, check=False, encoding="utf-8", errors="replace"
-        )
-        assert proc.returncode == 0, proc.stdout
-
-
-def test_ci_for_all_stacks_is_valid(project: Path, nexo: Runner) -> None:
-    for stack in ("python", "dotnet", "react"):
-        assert nexo("quality", "ci", "--stack", stack)[0] == 0
-        wf = project / ".github/workflows/nexo-quality.yml"
-        if shutil.which("actionlint"):
-            proc = subprocess.run(
-                ["actionlint", str(wf)], capture_output=True, text=True, check=False, encoding="utf-8", errors="replace"
-            )
-            assert proc.returncode == 0, (stack, proc.stdout)
 
 
 def test_quality_requires_stack(workdir: Path, nexo: Runner) -> None:
@@ -98,27 +77,3 @@ def test_quality_requires_stack(workdir: Path, nexo: Runner) -> None:
     code, _, err = nexo("quality", "run")
     assert code == 1 and "stack" in err
     dump_yaml(workdir / "x.yaml", {})
-
-
-@pytest.mark.skipif(sys.platform == "win32", reason="o passo roda no runner Ubuntu do Actions; o Windows não tem bash")
-def test_ci_step_with_file_condition_only_runs_when_it_applies(project: Path, nexo: Runner, tmp_path: Path) -> None:
-    """Achado no CI real: a etapa `architecture` (import-linter) rodava sempre e reprovava projeto sem a ferramenta."""
-    from ruamel.yaml import YAML
-
-    assert nexo("quality", "ci", "--stack", "python")[0] == 0
-    wf = YAML(typ="safe").load((project / ".github/workflows/nexo-quality.yml").read_text(encoding="utf-8"))
-    step = next(s for s in wf["jobs"]["quality"]["steps"] if str(s.get("name", "")).startswith("architecture"))
-    assert step["shell"] == "bash"
-    work = tmp_path / "w"
-    work.mkdir()
-    (work / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
-    script = step["run"].replace(".venv/bin/lint-imports", "echo RODOU")
-    out = subprocess.run(
-        ["bash", "-c", script], cwd=work, capture_output=True, text=True, check=True, encoding="utf-8", errors="replace"
-    ).stdout
-    assert "não se aplica" in out and "RODOU" not in out
-    (work / "pyproject.toml").write_text("[tool.importlinter]\nroot_package = 'x'\n", encoding="utf-8")
-    out = subprocess.run(
-        ["bash", "-c", script], cwd=work, capture_output=True, text=True, check=True, encoding="utf-8", errors="replace"
-    ).stdout
-    assert "RODOU" in out

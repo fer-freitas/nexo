@@ -8,6 +8,8 @@ from typing import Any
 from nexo.modules.execution.domain.routing.catalog import Catalog, Route
 from nexo.modules.knowledge.domain.learning.model import RouteStats, posterior
 
+NEEDS_GUARD = frozenset({"confidential", "restricted"})
+
 
 @dataclass(frozen=True)
 class RouteAvailability:
@@ -24,6 +26,7 @@ class RoutingRequest:
     profile: str = "balanceado"
     data_class: str = "confidential"
     allowed_vendors: tuple[str, ...] | None = None  # None = sem restrição
+    unguarded: frozenset[str] = frozenset()  # ferramentas sem prova de que a guarda bloqueia
     author_vendor: str | None = None  # para revisores: fornecedor do modelo ≠ autor
     author_vendors: tuple[str, ...] = ()
     exclude: frozenset[str] = frozenset()
@@ -103,6 +106,8 @@ def choose(catalog: Catalog, req: RoutingRequest, availability: dict[str, RouteA
             resets.append(avail.limited_until)
         elif not avail.budget_ok:
             reason = "orçamento esgotado"
+        elif route.tool in req.unguarded and req.data_class in NEEDS_GUARD:
+            reason = f"guarda não comprovada: {route.tool} não recebe dados '{req.data_class}'"
         elif vendors is not None and not route.vendors <= set(vendors):
             reason = f"classe de dados '{req.data_class}' não permite {sorted(route.vendors - set(vendors))}"
         elif (req.author_vendor or req.author_vendors) and not route.model_fixed:

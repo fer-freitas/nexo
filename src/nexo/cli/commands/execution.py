@@ -288,14 +288,6 @@ def quality_run_cmd(
         raise typer.Exit(ExitCode.ERROR)
 
 
-@quality_app.command("ci")
-def quality_ci_cmd(stack: Annotated[str | None, typer.Option("--stack")] = None) -> None:
-    from nexo.modules.execution.app import quality as execution_quality
-
-    path = execution_quality.generate_ci(ctx(), stack)
-    console.print(f"Workflow gerado: {path}")
-
-
 standards_app = typer.Typer(help="Padrão de código garantido (regras das skills)", no_args_is_help=True)
 
 
@@ -543,7 +535,11 @@ def hook_exec_cmd(key: str, claude: Annotated[bool, typer.Option("--claude")] = 
 
 
 @hook_app.command("run")
-def hook_run_cmd(name: str, run: Annotated[str, typer.Option("--run")] = "") -> None:
+def hook_run_cmd(
+    name: str,
+    run: Annotated[str, typer.Option("--run")] = "",
+    exit_code: Annotated[bool, typer.Option("--exit-code", help="Nega saindo com 2, sem JSON")] = False,
+) -> None:
     from nexo.modules.execution.app import hooks as hooks_app
 
     if name == "guard":  # sessão do Claude Code aberta fora do Nexo
@@ -552,4 +548,4 @@ def hook_run_cmd(name: str, run: Annotated[str, typer.Option("--run")] = "") -> 
         raise typer.Exit(guard.run_hook(ctx()))
     if name != "pre-tool-policy" or not run:
         raise NexoError(f"hook desconhecido: {name}")
-    raise typer.Exit(hooks_app.run_pre_tool_policy(ctx(), run))
+    raise typer.Exit(hooks_app.run_pre_tool_policy(ctx(), run, exit_code=exit_code))

@@ -27,5 +27,9 @@ usage:
   model_multiplier: {}
   source: devin_sessions_db   # consumo real: sessions.db do Devin (ACU e tokens por mensagem)
 native_hooks: false
+# O formato `.devin/hooks.v1.json` é escrito na pasta de trabalho, mas o bloqueio ainda não foi provado nesta versão.
+# Sem a prova, a rota não recebe dados `confidential` ou `restricted`. Só passe para true com comando, versão e data.
+hooks_file: .devin/hooks.v1.json
+guard_proven: false
 mcp: false
 remote_execution: false

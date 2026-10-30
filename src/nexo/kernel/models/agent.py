@@ -97,6 +97,8 @@ class Capabilities:
     verified: bool
     structured_output: bool = False
     native_hooks: bool = False
+    guard_proven: bool = False  # bloqueio de ferramenta comprovado com evidência, nesta versão da ferramenta
+    hooks_file: str = ""  # onde a ferramenta lê hooks na pasta de trabalho, se não recebe por argumento
     mcp: bool = False
     skills: bool = False
     images: bool = False

@@ -226,7 +226,9 @@ class ApiAdapter:
 
     def capabilities(self) -> Capabilities:
         # native_hooks: a política é aplicada aqui dentro, antes de cada ferramenta
-        return Capabilities(verified=True, structured_output=True, native_hooks=True, usage_unit="tokens")
+        return Capabilities(
+            verified=True, structured_output=True, native_hooks=True, guard_proven=True, usage_unit="tokens"
+        )
 
     def start(self, req: AgentRequest, profile: str = "code-writer") -> ApiSession:
         from dataclasses import replace

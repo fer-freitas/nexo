@@ -235,7 +235,7 @@ def test_keyvault_signing_revocation_and_corporate_rule(
     assert knowledge_brain.revoked_keys(ctx) == {"aaaa", "bbbb"}
     # build corporativo: chave em arquivo é recusada
     monkeypatch.setattr(config, "anchor", lambda: {"brain_repo": "x"})
-    with pytest.raises(Exception, match="Key Vault"):
+    with pytest.raises(Exception, match="cofre"):
         knowledge_brain.sign(ctx, root, str(ed_key), "2026.09.25-10")
     http.set_transport(None)
 

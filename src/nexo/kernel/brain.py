@@ -97,9 +97,12 @@ def sign(root: Path, key_ref: Path | str, version: str, meta_dir: str = ".brain"
     Serve para o cérebro e para qualquer pasta verificável (ex.: pacote de evidências, `meta_dir=".evidencia"`)."""
     files = _files(root, meta_dir)
     payload = _canonical(version, files)
-    from nexo.kernel.secrets import keyvault
+    from nexo.kernel.secrets import awskms, keyvault
 
-    if isinstance(key_ref, str) and keyvault.is_ref(key_ref):
+    if isinstance(key_ref, str) and awskms.is_ref(key_ref):
+        signature = awskms.sign_digest(key_ref, hashlib.sha256(payload).digest())
+        alg, public = "es256", awskms.public_key(key_ref)
+    elif isinstance(key_ref, str) and keyvault.is_ref(key_ref):
         ref = keyvault.parse_ref(key_ref)
         signature = keyvault.sign_digest(ref, hashlib.sha256(payload).digest())
         alg, public = "es256", keyvault.public_key(ref)

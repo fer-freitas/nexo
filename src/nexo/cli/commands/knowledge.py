@@ -307,7 +307,7 @@ def brain_keygen_cmd(private_key: Path) -> None:
 @brain_app.command("sign")
 def brain_sign_cmd(
     path: Path,
-    key: Annotated[str, typer.Option("--key", help="Arquivo PEM ou azkv://<cofre>/<chave>[/<versão>]")],
+    key: Annotated[str, typer.Option("--key", help="Arquivo PEM, awskms://<chave> ou azkv://<cofre>/<chave>")],
     version: Annotated[str, typer.Option("--version")],
 ) -> None:
     from nexo.modules.knowledge.app import brain as knowledge_brain

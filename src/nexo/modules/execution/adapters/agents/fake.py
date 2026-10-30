@@ -179,7 +179,7 @@ class FakeAdapter:
         return AuthStatus(bool(self.spec.get("authenticated", True)), "fake")
 
     def capabilities(self) -> Capabilities:
-        return Capabilities(verified=True, structured_output=True, native_hooks=False, mcp=False)
+        return Capabilities(verified=True, structured_output=True, native_hooks=False, guard_proven=True, mcp=False)
 
     def start(self, req: AgentRequest, profile: str = "code-writer") -> FakeSession:
         return FakeSession(self.scenario, self.name, req)

@@ -12,6 +12,14 @@ tool_kinds:
   Bash: shell
   PowerShell: shell
   shell: shell
+  # nomes usados pelo Devin CLI
+  read: read
+  glob: read
+  grep: read
+  write: write
+  edit: write
+  notebook_edit: write
+  exec: shell
   WebFetch: fetch
   WebSearch: fetch
   TodoWrite: harmless
