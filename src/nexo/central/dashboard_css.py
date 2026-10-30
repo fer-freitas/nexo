@@ -12,7 +12,7 @@ h2{font-size:15px;font-weight:600}.num,td.n,.big{font-family:var(--mono);font-va
 flex-direction:column;gap:20px;position:sticky;top:0;height:100vh;overflow-y:auto}
 .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;padding:0 8px;color:var(--text);
 text-decoration:none}.brand i{width:11px;height:11px;border-radius:3px;background:var(--accent);display:inline-block}
-.group{display:flex;flex-direction:column;gap:1px}.group span{font-size:11px;font-weight:600;letter-spacing:.08em;
+.group{display:flex;flex-direction:column;gap:1px}.group span{font-size:12px;font-weight:600;letter-spacing:.08em;
 text-transform:uppercase;color:var(--muted);padding:0 8px 4px}
 .group a{color:var(--text);text-decoration:none;padding:6px 8px;border-radius:7px}
 .group a:hover{background:var(--surface)}.group a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
@@ -62,14 +62,14 @@ border-radius:9px;background:var(--surface-2)}.att .sev{align-self:stretch;borde
 font-family:var(--mono);font-size:12px;color:var(--accent)}
 .charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
 .wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13.5px}
-th{text-align:left;color:var(--muted);font-weight:500;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;
+th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.05em;
 padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}tr:last-child td{border-bottom:0}
 th.n,td.n{text-align:right}th a.sort{color:inherit;text-decoration:none}th a.sort:hover{color:var(--accent)}
 code.id{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .empty{border:1px dashed var(--line);border-radius:10px;padding:12px 14px;color:var(--muted);font-size:13px}
 .empty b{color:var(--text);font-weight:600}
-.ind{border-left:3px solid var(--warn)}.tag{font-size:11px;padding:1px 8px;border-radius:99px;
+.ind{border-left:3px solid var(--warn)}.tag{font-size:12px;padding:1px 8px;border-radius:99px;
 background:var(--warn-soft);color:var(--warn);font-weight:600;margin-left:6px}
 .kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .k{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;
@@ -79,7 +79,7 @@ font-variant-numeric:tabular-nums;font-size:17px;font-weight:600}.k a{color:inhe
 details.all>summary{cursor:pointer;color:var(--muted);font-weight:500;padding:4px 0}
 details.all[open]>summary{margin-bottom:10px}
 .note{color:var(--muted);font-size:12.5px;margin:0}
-svg.chart{width:100%;height:auto;display:block}svg.chart text{fill:var(--muted);font:11px var(--mono)}
+svg.chart{width:100%;height:auto;display:block}svg.chart text{fill:var(--muted);font:14px var(--mono)}
 svg.chart text.v{fill:var(--text)}svg.chart line{stroke:var(--line)}svg.chart rect{fill:var(--accent)}
 svg.chart rect.past{fill:var(--accent);opacity:.45}svg.chart rect.zero{fill:var(--faint);opacity:.6}
 .alta{color:var(--bad)}.media{color:var(--warn)}.baixa{color:var(--muted)}

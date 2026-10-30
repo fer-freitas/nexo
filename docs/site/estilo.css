@@ -1,15 +1,9 @@
 /* Layout da documentação do Nexo. Paleta aproximada da identidade pública do Itaú Unibanco: confirmar com o time de marca. */
 :root {
-  --laranja: #ec7000; --laranja-texto: #bf5600; --laranja-claro: #fde9d7; --azul: #0f1a3d; --azul-2: #1c2b6b;
-  --fundo: #fafaf8; --cartao: #ffffff; --linha: #e6e2da; --texto: #14213d; --apagado: #56607a;
-  --bom: #1f7a52; --bom-claro: #dff3ea; --atencao: #8a5a00; --atencao-claro: #fbf0d9; --ruim: #b3302a; --ruim-claro: #fbe3e1;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --laranja-texto: #ff9a3d; --laranja-claro: #3a2a22; --fundo: #0f1a3d; --cartao: #16244f; --linha: #2c3c78;
-    --texto: #f2f4fa; --apagado: #aeb8d2; --bom: #5fd3a2; --bom-claro: #12301f; --atencao: #e2b04a; --atencao-claro: #33270f;
-    --ruim: #f07167; --ruim-claro: #3a1714; --azul-2: #aeb8d2;
-  }
+  color-scheme: light;
+  --laranja: #ec7000; --laranja-texto: #a84a00; --laranja-claro: #ffe3cc; --azul: #101828; --azul-2: #1c2b6b;
+  --fundo: #f4f4f2; --cartao: #ffffff; --linha: #c9c5bc; --texto: #101828; --apagado: #3f4859;
+  --bom: #0f6b44; --bom-claro: #ddf3e8; --atencao: #6f4a00; --atencao-claro: #fbefd5; --ruim: #a1231d; --ruim-claro: #fbe3e1;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -27,7 +21,7 @@ h3 { font-size: 18px; margin: 26px 0 6px; }
 p, li { max-width: 780px; }
 a { color: var(--laranja-texto); }
 code { font: 14px/1.5 ui-monospace, Consolas, "SF Mono", Menlo, monospace; background: var(--laranja-claro); padding: 1px 5px; border-radius: 4px; }
-pre { background: var(--azul); color: #f2f4fa; padding: 14px 16px; border-radius: 8px; overflow-x: auto; max-width: 780px; }
+pre { background: var(--azul); color: #ffffff; padding: 14px 16px; border-radius: 8px; overflow-x: auto; max-width: 780px; }
 pre code { background: none; padding: 0; color: inherit; }
 .tabela { overflow-x: auto; margin: 12px 0 18px; }
 table { border-collapse: collapse; width: 100%; font-size: 15px; background: var(--cartao); }
@@ -48,8 +42,8 @@ figure svg { display: block; width: 100%; min-width: 720px; height: auto; }
 figcaption { font-size: 14px; color: var(--apagado); margin-top: 8px; }
 svg text { font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; fill: var(--texto); }
 svg .t { font-size: 15px; font-weight: 600; }
-svg .p { font-size: 12.5px; fill: var(--apagado); }
-svg .g { font-size: 12px; font-weight: 600; fill: var(--laranja-texto); letter-spacing: .4px; }
+svg .p { font-size: 13px; fill: var(--apagado); }
+svg .g { font-size: 13px; font-weight: 600; fill: var(--laranja-texto); letter-spacing: .4px; }
 svg .b { fill: var(--cartao); stroke: var(--linha); stroke-width: 1.2; }
 svg .d { fill: var(--laranja-claro); stroke: var(--laranja); stroke-width: 1.4; }
 svg .z { fill: none; stroke: var(--apagado); stroke-width: 1; stroke-dasharray: 5 4; }

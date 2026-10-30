@@ -24,7 +24,7 @@ def test_dashboard_uses_the_org_brand(people: Any, tmp_path: Path, monkeypatch: 
     seed(people)
     _session(people, "tok-lia")
     page = people.get("/dash/executive").text
-    assert "--accent:#BF5600" in page and "<title>Visão geral · Nexo</title>" in page  # padrão
+    assert "--accent:#A84A00" in page and "<title>Visão geral · Nexo</title>" in page  # padrão
     assert 'id="q-spend"' in page and "Precisa de atenção" in page  # perguntas antes do detalhe
     path = tmp_path / "brand.yaml"
     dump_yaml(path, ACME)
@@ -33,7 +33,7 @@ def test_dashboard_uses_the_org_brand(people: Any, tmp_path: Path, monkeypatch: 
     assert "--accent:#C2185B" in page and "--accent:#F06292" in page and "Acme Dev" in page
     dump_yaml(path, {"light": {"accent": "rosa"}})  # marca inválida: o dashboard segue com o padrão
     collector_brand._load.cache_clear()
-    assert "--accent:#BF5600" in people.get("/dash/executive").text
+    assert "--accent:#A84A00" in people.get("/dash/executive").text
     collector_brand._load.cache_clear()
 
 
