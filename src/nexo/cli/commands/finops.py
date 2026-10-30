@@ -203,6 +203,8 @@ def cost_cmd(
             units + (" (estimado)" if row["estimated"] else ""),
         )
     console.print(table)
+    if data.get("experiments_brl"):
+        console.print(f"Experimentos (`nexo try`): {brl(data['experiments_brl'])}")
     note = f" · provisório: {', '.join(data['provisional'])}" if data["provisional"] else ""
     console.print(f"Total: uso {brl(data['total_usage_brl'])} · alocado {brl(data['total_allocated_brl'])}{note}")
     if data.get("estimated_prices"):

@@ -101,8 +101,10 @@ def create(ctx: AppContext, request: str, agent: str = "", skill: str = "") -> d
 
 def run_agent(ctx: AppContext, data: dict[str, Any], ui: Any = None) -> dict[str, Any]:
     """Roda pelo mesmo caminho das tarefas: política, ambiente mínimo, roteamento, custo e auditoria valem igual."""
-    from nexo.modules.execution.app.run import Orchestrator, RunOptions
+    from nexo.kernel import services
 
+    run = services.load("execution.run")
+    Orchestrator, RunOptions = run.Orchestrator, run.RunOptions  # noqa: N806
     extra = f"Use a skill {data['skill']}." if data.get("skill") else ""
     extra += " É um experimento: não faça push, não abra PR e não altere nada fora desta pasta."
     options = RunOptions(tool=str(data.get("agent") or "") or None, extra_prompt=extra)
@@ -169,8 +171,9 @@ def discard(ctx: AppContext, tid: str) -> dict[str, Any]:
 
 def promote(ctx: AppContext, tid: str) -> dict[str, Any]:
     """Vira ideia, com o diff anexado como insumo. Não é entrega: segue o fluxo inteiro."""
-    from nexo.modules.demands.app import core, flow
+    from nexo.kernel import services
 
+    core, flow = services.load("demands.core"), services.load("demands.flow")
     data = show(ctx, tid)
     idea = flow.idea(ctx, str(data["request"]), source=tid)
     diff = _diff(data)

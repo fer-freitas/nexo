@@ -128,6 +128,10 @@ def init_project(ctx: AppContext, path: Path | None = None) -> InitResult:
     yamlfile.dump(config_path, new_data)
     ensure_gitignore(root)
     ctx.audit("project.init", {"root": str(root), "created": True, "stacks": stacks})
+    from nexo.kernel import services
+
+    if services.available("lineage.app"):
+        services.load("lineage.app").register_project(root)
     return InitResult(root, True, stacks)
 
 

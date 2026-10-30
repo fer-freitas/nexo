@@ -44,13 +44,25 @@ def _brl(ctx: AppContext, total: DayTotal) -> float:
         return 0.0
 
 
+def _company_only(ctx: AppContext, rows: list[Any]) -> list[Any]:
+    """Com projetos registrados, só eles contam: sessão fora de projeto conhecido não é contada nem enviada."""
+    from nexo.kernel import services
+
+    if not services.available("lineage.app"):
+        return rows
+    roots = [str(p) for p in services.load("lineage.app").known_projects()]
+    if not roots or not bool(dict(config.resolved(ctx).values.get("usage") or {}).get("only_known_projects", True)):
+        return rows
+    return [r for r in rows if any(str(r.cwd).replace("\\", "/").startswith(x.replace("\\", "/")) for x in roots)]
+
+
 def scan(ctx: AppContext, full: bool = False, env: dict[str, str] | None = None) -> dict[str, Any]:
     """Relê os registros das ferramentas e atualiza os totais locais. `full` relê todos os arquivos do Claude."""
     flags.require(ctx, "external_usage")
     state = _state(ctx)
     since = 0.0 if full else float(state.get("claude_since", 0.0))
     started = time.time()
-    rows = local_sessions.scan_all(since=since, env=env)
+    rows = _company_only(ctx, local_sessions.scan_all(since=since, env=env))
     prices = claude_prices(dict((config.resolved(ctx).values.get("pricing") or {}).get("models") or {}))
     totals = aggregate(rows, str(ctx.home), prices)
     touched_claude_days = {t.day for t in totals if t.tool == "claude"}

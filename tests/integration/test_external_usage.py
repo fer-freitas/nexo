@@ -128,6 +128,7 @@ def test_outside_usage_reaches_finops_page(  # type: ignore[no-untyped-def]
     own, wt = tmp_path / "meu-repo", project / ".nexo" / "worktrees" / "T-1"
     _env(monkeypatch, tmp_path, own, wt)
     enable(nexo_home)  # telemetria ligada, mas sem external_usage: nada de fora do Nexo sai
+    nexo("config", "set", "usage.only_known_projects", "false", "--project")
     login(nexo_home, central, "tok-sso-bia")
     assert nexo("telemetry", "flush")[0] == 0
     from nexo.central.common import db
@@ -153,3 +154,15 @@ def test_outside_usage_reaches_finops_page(  # type: ignore[no-untyped-def]
     (nexo_home / "local_sessions.json").unlink()
     assert nexo("telemetry", "flush")[0] == 0
     assert len(db().query("SELECT * FROM fact_external_usage")) == len(rows)
+
+
+def test_with_known_projects_only_they_count(tmp_path: Path, project: Path) -> None:
+    from types import SimpleNamespace
+
+    from nexo.kernel.context import AppContext, Options
+    from nexo.modules.lineage.app import lineage
+    from nexo.modules.usage.app.external_usage import _company_only
+
+    lineage.register_project(project)
+    rows = [SimpleNamespace(cwd=str(project / "src")), SimpleNamespace(cwd=str(tmp_path / "pessoal"))]
+    assert [r.cwd for r in _company_only(AppContext(options=Options()), rows)] == [str(project / "src")]

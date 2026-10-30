@@ -230,6 +230,9 @@ class StoryRunner:
             self.ui("phase", {"phase": phase, "story": story_id})
             if phase == "qa":
                 outcome = story_qa.run_qa(self, story_id, run_id, st, spec, tasks, worktree)
+                if outcome is None and self.opts.stop_after_qa:
+                    self._save(run_id, st)
+                    return self._report(story_id, run_id)
             elif phase == "characterize":
                 outcome = story_qa.characterize(self, story_id, run_id, st, spec, tasks, worktree)
             elif phase == "tasks":

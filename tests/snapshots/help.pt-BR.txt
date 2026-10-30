@@ -19,6 +19,7 @@ QA  nexo qa mostra o que está com você
   qa plan              Matriz critério → cenário → tipo de teste
   qa approve           Aprova o plano de teste da história
   qa reject            Reprova o plano de teste da história
+  qa write             Gera os testes antes do código e os bloqueia
   qa run               Pipeline de qualidade da stack
   qa trace             Critério → teste → resultado
   qa perf              Teste de carga com os limites do refinamento
@@ -30,7 +31,7 @@ QA  nexo qa mostra o que está com você
 
 TECH LEAD  nexo tl mostra o que está com você
   tl setup             Prepara o repositório: mapa do código, grafo e pipeline existente
-  tl analyze           Lacunas, riscos e impacto
+  tl analyze           Lacunas, riscos, impacto e consumidores conhecidos
   tl spec              Requisito técnico com premissas
   tl plan              Primeira quebra em tarefas e o que roda em paralelo
   tl approve           Aprova o design
@@ -72,6 +73,7 @@ TODOS
   meeting              Reunião de refinamento: notas, gravação e revisão
   join                 Entra no time sem precisar saber Git
   role                 Mostra seus papéis no time
+  lineage              De onde vem e para onde vai cada componente
   mcp                  Busca, liga e prova a conexão com MCPs
   pack                 Conteúdo de terceiros com commit fixado, hash e licença
   central              Liga esta máquina ao coletor central da empresa

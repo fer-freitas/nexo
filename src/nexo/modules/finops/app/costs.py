@@ -125,6 +125,8 @@ def cost_report(
     p = pricing(ctx)
     allocations = _allocations(ctx, lines)
     rows: dict[str, CostRow] = {}
+    experiments = round(sum(usage_cost_brl(ln, p) for ln in lines if ln.target.startswith("TRY-")), 2)
+    lines = [ln for ln in lines if not ln.target.startswith("TRY-")]  # experimento não distorce o custo das demandas
     for ln in lines:
         key = {
             "story": ln.target,
@@ -147,6 +149,7 @@ def cost_report(
         "rows": [r.__dict__ for r in sorted(rows.values(), key=lambda r: -r.usage_brl)],
         "total_usage_brl": round(sum(r.usage_brl for r in rows.values()), 2),
         "total_allocated_brl": round(sum(r.allocated_brl for r in rows.values()), 2),
+        "experiments_brl": experiments,
         "months": months,
         "provisional": [m for m in months if not _closed(ctx, m)],
         "estimated_prices": sorted(_estimated_tools(ctx) & {ln.tool for ln in lines}),

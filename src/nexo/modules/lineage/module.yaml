@@ -1,3 +1,29 @@
 id: lineage
 version: 1.0.0
 title: "Linhagem de componentes"
+flags:
+  - key: lineage.scan
+    title: "Linhagem: geração do manifesto"
+    area: "Linhagem de componentes"
+    stage: beta
+    commands: ["lineage scan"]
+  - key: lineage.publish
+    title: "Linhagem: publicação no repositório do time"
+    area: "Linhagem de componentes"
+    stage: beta
+    commands: ["lineage publish"]
+  - key: lineage.discover
+    title: "Linhagem: descoberta pela AWS e pelo Kafka"
+    area: "Linhagem de componentes"
+    stage: experimental
+    default: false
+  - key: lineage.gate
+    title: "Linhagem: mudança de contrato vai para decisão humana"
+    area: "Linhagem de componentes"
+    stage: experimental
+    default: false
+cli: "nexo.modules.lineage.cli:register"
+services:
+  lineage.app: "nexo.modules.lineage.app.lineage"
+commands:
+  - {path: "lineage", summary: "De onde vem e para onde vai cada componente"}

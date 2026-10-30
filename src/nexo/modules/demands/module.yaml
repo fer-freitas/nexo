@@ -11,6 +11,7 @@ events:
   consumes: ["plan.created", "plan.packaged", "gate.decision", "state.transition", "bug.created", "ready.checked", "scm.pr", "scm.merged", "review.spec_issue_ignored"]
 cli: "nexo.modules.demands.cli:register"
 services:
+  demands.store: "nexo.modules.demands.adapters.store"
   demands.proposals: "nexo.modules.demands.app.proposals"
   demands.core: "nexo.modules.demands.app.core"
   demands.flow: "nexo.modules.demands.app.flow"
@@ -33,6 +34,7 @@ commands:
   - {path: "qa plan", summary: "Matriz critério → cenário → tipo de teste", roles: [qa], kind: write}
   - {path: "qa approve", summary: "Aprova o plano de teste da história", roles: [qa], kind: gate}
   - {path: "qa reject", summary: "Reprova o plano de teste da história", roles: [qa], kind: gate}
+  - {path: "qa write", summary: "Gera os testes antes do código e os bloqueia", roles: [qa], kind: agent}
   - {path: "qa run", summary: "Pipeline de qualidade da stack", roles: [qa], target: "quality run"}
   - {path: "qa trace", summary: "Critério → teste → resultado", roles: [qa]}
   - {path: "qa perf", summary: "Teste de carga com os limites do refinamento", roles: [qa], target: "quality perf"}
@@ -43,7 +45,7 @@ commands:
   - {path: "qa problem", summary: "Problema descoberto na validação", roles: [qa], kind: write}
   # Tech lead
   - {path: "tl setup", summary: "Prepara o repositório: mapa do código, grafo e pipeline existente", roles: [tl], kind: write}
-  - {path: "tl analyze", summary: "Lacunas, riscos e impacto", roles: [tl], kind: agent, target: "tech analyze"}
+  - {path: "tl analyze", summary: "Lacunas, riscos, impacto e consumidores conhecidos", roles: [tl], kind: agent}
   - {path: "tl spec", summary: "Requisito técnico com premissas", roles: [tl], kind: agent, target: "tech spec"}
   - {path: "tl plan", summary: "Primeira quebra em tarefas e o que roda em paralelo", roles: [tl], kind: agent}
   - {path: "tl approve", summary: "Aprova o design", roles: [tl], kind: gate, target: "plan approve {0} --part design"}

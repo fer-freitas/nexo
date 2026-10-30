@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from typing import Any
 
 from nexo.kernel.context import AppContext
@@ -321,13 +322,11 @@ def reject_story(ctx: AppContext, story: str, part: str, reason: str) -> dict[st
 
 def try_ready(ctx: AppContext, story: str) -> dict[str, Any]:
     """Testes e plano aprovados: confere a DoR sozinho. Se faltar algo, a demanda volta ao dono do item."""
-    from nexo.kernel.errors import NexoError as _NE
-    from nexo.modules.planning.app import ready as ready_app
+    from nexo.kernel import services
 
-    try:
+    ready_app = services.load("planning.ready")
+    with contextlib.suppress(NexoError):  # já existe
         ready_app.init(ctx, story)
-    except _NE:
-        pass  # já existe
     result = ready_app.check(ctx, story)
     return {"ready": bool(result.get("ready")), "problems": list(result.get("problems") or [])}
 

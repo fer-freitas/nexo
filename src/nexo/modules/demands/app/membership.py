@@ -66,6 +66,9 @@ def link(ctx: AppContext, team: str, repo: str) -> dict[str, Any]:
     data["team"] = {"name": team, "repo": repo}
     yamlfile.dump(config, data)
     project = str(data.get("project") or ctx.project_root.name)
+    from nexo.kernel import services
+
+    services.load("lineage.app").register_project(ctx.project_root)
     marker = target / "projects" / project / ".nexo" / "nexo.yaml"
     marker.parent.mkdir(parents=True, exist_ok=True)
     if not marker.is_file():

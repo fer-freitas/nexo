@@ -46,6 +46,7 @@ class RunOptions:
     base_ref: str | None = None  # branch/commit base (ex.: branch da história)
     locked: frozenset[str] = frozenset()  # arquivos travados para o agente
     exclude_tools: frozenset[str] = frozenset()  # escada de escalonamento
+    stop_after_qa: bool = False  # `nexo qa write`: só os testes, bloqueados, sem implementar
     extra_prompt: str = ""  # avaliação de skills: conteúdo da variante injetado no prompt
 
 

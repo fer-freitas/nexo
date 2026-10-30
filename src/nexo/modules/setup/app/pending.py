@@ -95,7 +95,7 @@ def next_steps(ctx: AppContext, limit: int = 9) -> list[Step]:
     from nexo.store.runs import RunStore, project_key
 
     store = RunStore(ctx.conn, project_key(root))
-    steps: list[Step] = []
+    steps: list[Step] = _demand_steps(ctx)
     stories = [
         (str(r["id"]), str(r["title"]), str(r["state"]))
         for r in ctx.conn.execute(
@@ -139,6 +139,20 @@ def next_steps(ctx: AppContext, limit: int = 9) -> list[Step]:
     else:
         steps += context + later
     return steps[:limit]
+
+
+def _demand_steps(ctx: AppContext) -> list[Step]:
+    """Quem está com a demanda sai dos fatos: o que é seu aparece primeiro."""
+    from nexo.kernel import services
+    from nexo.kernel.errors import NexoError
+
+    if not services.available("demands.core"):
+        return []
+    try:
+        rows = services.load("demands.core").holder_inbox(ctx)
+    except (NexoError, OSError):
+        return []
+    return [Step(f"{r['demand']}: {r['action']}", ("brief", str(r["demand"])), str(r["title"])[:70], str(r["demand"]), "decide") for r in rows[:5]]
 
 
 def _dev_unclear_steps(root: Path) -> list[Step]:

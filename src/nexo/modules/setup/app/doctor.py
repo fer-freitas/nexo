@@ -111,7 +111,45 @@ def run_checks(ctx: AppContext) -> list[Check]:
             False,
         )
     )
+    checks += _team_checks(ctx)
     return checks
+
+
+def _team_checks(ctx: AppContext) -> list[Check]:
+    """Repositório do time, fila de envio e última passada da linhagem."""
+    from nexo.kernel import services
+    from nexo.kernel.workspace.specs import project_settings
+
+    out: list[Check] = []
+    if ctx.project_root is not None:
+        settings = project_settings(ctx.project_root)
+        if settings.shared:
+            exists = settings.team_dir().is_dir()
+            detail = f"time {settings.team_name}" if exists else "rode `nexo join` ou `nexo team link`"
+            out.append(Check("team", "repositório do time", OK if exists else WARN, detail, False))
+            if exists:
+                pending = services.load("demands.core").store(ctx).pending()
+                out.append(
+                    Check(
+                        "team-queue",
+                        "envio ao time",
+                        WARN if pending else OK,
+                        f"{pending} gravação(ões) ainda nesta máquina" if pending else "tudo enviado",
+                        False,
+                    )
+                )
+        else:
+            out.append(Check("team", "repositório do time", WARN, "sem time: as demandas ficam só nesta máquina", False))
+    if services.available("lineage.app"):
+        state = services.load("lineage.app").agent_state(ctx)
+        if state["last_error"]:
+            detail = f"último erro: {state['last_error']}"[:120]
+        elif state["last_run"]:
+            detail = f"última passada: {state['last_run']}"
+        else:
+            detail = "ainda sem passada (`nexo lineage agent install`)"
+        out.append(Check("lineage", "linhagem", WARN if state["last_error"] or not state["last_run"] else OK, detail, False))
+    return out
 
 
 def _auth_checks(ctx: AppContext, installed: list[str]) -> list[Check]:

@@ -34,4 +34,7 @@ flags:
     title: "Perguntas do agente pelo Teams com resposta pelo central"
     area: "Execução"
 services:
+  execution.llm: "nexo.modules.execution.app.llm"
+  execution.run: "nexo.modules.execution.app.run"
+  execution.story: "nexo.modules.execution.app.story"
   execution.agents: "nexo.modules.execution.app.agents"

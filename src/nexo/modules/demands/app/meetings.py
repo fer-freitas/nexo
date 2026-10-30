@@ -126,7 +126,9 @@ def note(ctx: AppContext, text: str, mid: str = "") -> dict[str, Any]:
 
 def import_file(ctx: AppContext, source: str, mid: str = "") -> dict[str, Any]:
     """Transcrição, ata, PDF, áudio ou vídeo vira texto redigido. O original nunca vai para o Git."""
-    from nexo.modules.planning.adapters import ingest
+    from nexo.kernel import services
+
+    ingest = services.load("planning.ingest")
 
     mid = mid or active(ctx)
     folder = _dir(ctx, mid) / "entrada"
@@ -167,7 +169,9 @@ def close(ctx: AppContext, mid: str = "", use_ai: bool = False) -> dict[str, Any
 
 
 def _ai_items(ctx: AppContext, mid: str, data: dict[str, Any], offset: int) -> list[dict[str, Any]]:
-    from nexo.modules.execution.app.llm import call_structured
+    from nexo.kernel import services
+
+    call_structured = services.get("execution.llm", "call_structured")
 
     folder = _dir(ctx, mid) / "entrada"
     text = "\n\n".join(p.read_text(encoding="utf-8", errors="replace") for p in sorted(folder.glob("*.md")))

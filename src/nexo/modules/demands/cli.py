@@ -9,7 +9,8 @@ from rich.table import Table
 
 from nexo.cli.surface import role_app
 from nexo.kernel.errors import ExitCode, NexoError, PolicyViolation
-from nexo.modules.demands.app import core, flow, meetings, proposals, views
+from nexo.modules.demands.app import core, flow, proposals, views
+from nexo.modules.demands.cli_meetings import register_meetings
 from nexo.modules.demands.domain import model as m
 
 Reason = Annotated[str, typer.Option("--reason", help="Motivo")]
@@ -98,8 +99,9 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         d = demands.get(target)
         folder = specs.feature_dir(core.root_of(context), target)
         if not (folder / "spec.yaml").is_file():
-            from nexo.modules.planning.app.plan import Planner
+            from nexo.kernel import services
 
+            Planner = services.get("planning.plan", "Planner")  # noqa: N806
             title = d.title if d else target
             Planner(context).new([*inputs, title] if inputs else [title], title=title, fid=target)
             code = 0
@@ -156,6 +158,19 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         """Reprova o plano de teste."""
         show(flow.reject_story(ctx(), story, "testes", reason), f"{story}: plano de teste reprovado")
 
+    @qa.command("write")
+    def qa_write(story: str) -> None:
+        """Gera os testes antes do código e os bloqueia. `dev run` continua dali."""
+        from nexo.kernel import services
+
+        RunOptions = services.get("execution.run", "RunOptions")  # noqa: N806
+        StoryRunner = services.get("execution.story", "StoryRunner")  # noqa: N806
+        core.require_role(ctx(), "qa", "Escrever os testes")
+        proposals.prepare_run(ctx(), story, force=True)
+        o = ctx().options
+        report = StoryRunner(ctx(), RunOptions(profile=o.profile, tool=o.tool, model=o.model, stop_after_qa=True)).run(story)
+        show({"story": story, "state": report.state}, f"{story}: testes prontos e bloqueados")
+
     @qa.command("trace")
     def qa_trace(story: str) -> None:
         """Critério → teste → resultado, com o que falta."""
@@ -203,6 +218,25 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
         code = internal(["init"]) if ctx().project_root is None else 0
         code = code or internal(["discover"])
         raise typer.Exit(code or internal(["graph", "build"]))
+
+    @tl.command("analyze")
+    def tl_analyze(fid: str, components: Annotated[list[str] | None, typer.Option("--component", help="Componente alterado")] = None) -> None:
+        """Lacunas, riscos e impacto. Mostra quem consome o que a feature altera, com o estado de cada ligação."""
+        from nexo.kernel import services
+
+        code = internal(["tech", "analyze", fid])
+        if services.available("lineage.app") and not ctx().options.json:
+            lineage = services.load("lineage.app")
+            for component in components or []:
+                try:
+                    data = lineage.show(ctx(), component)
+                except NexoError as exc:
+                    console.print(exc.message, markup=False)
+                    continue
+                console.print(f"{data['component']}: consumidores conhecidos", markup=False)
+                for row in data["outputs"]:
+                    console.print(f"  {row['channel']} → {row['component']} ({row['state']})", markup=False)
+        raise typer.Exit(code)
 
     @tl.command("plan")
     def tl_plan(fid: str, feedback: Annotated[str, typer.Option("--feedback", help="O que ajustar")] = "") -> None:
@@ -588,45 +622,7 @@ def register(root: typer.Typer, tools: Any) -> None:  # noqa: C901 — tabela de
             raise NexoError("use `nexo problem <US-n>`")
         _problem(args[0], kind, text, "", None, None, None)
 
-    meeting = typer.Typer(help="Reunião de refinamento", no_args_is_help=True)
-    root.add_typer(meeting, name="meeting")
-
-    @meeting.command("start")
-    def meeting_start(
-        did: str,
-        type_: Annotated[str, typer.Option("--type", help="funcional ou tecnico")],
-        with_: Annotated[str, typer.Option("--with", help="Pessoas, separadas por vírgula")] = "",
-    ) -> None:
-        """Abre a reunião e registra quem está presente."""
-        data = meetings.start(ctx(), did, type_, [p.strip() for p in with_.split(",") if p.strip()])
-        show(data, f"{data['id']} aberta para {data['demand']}: {', '.join(data['participants'])}")
-
-    @meeting.command("note")
-    def meeting_note(text: str) -> None:
-        """Registra uma nota. Use prefixos: `critério:`, `técnico:`, `teste:`, `tarefa:`."""
-        show(meetings.note(ctx(), text), "nota registrada")
-
-    @meeting.command("import")
-    def meeting_import(source: str) -> None:
-        """Transcrição, ata, PDF, áudio ou vídeo vira texto redigido; o original não vai para o Git."""
-        emit(meetings.import_file(ctx(), source))
-
-    @meeting.command("close")
-    def meeting_close(ai: Annotated[bool, typer.Option("--ai", help="A IA separa também as transcrições")] = False) -> None:
-        """Separa o que foi dito por seção. Nada entra na spec e nada é aprovado."""
-        data = meetings.close(ctx(), use_ai=ai)
-        text = "\n".join(f"  {i['id']} [{i['section']}] {i['text']}" for i in data["items"])
-        show(data, f"{data['id']} encerrada\n{text}\n  próximo: nexo meeting review {data['id']} --accept I-1")
-
-    @meeting.command("review")
-    def meeting_review(
-        mid: str,
-        accept: Annotated[list[str] | None, typer.Option("--accept")] = None,
-        decline: Annotated[list[str] | None, typer.Option("--decline")] = None,
-    ) -> None:
-        """Cada dono aceita ou recusa o que é da própria seção."""
-        data = meetings.review(ctx(), mid, accept or [], decline or [])
-        show(data, f"{mid}: {len(data['decided'])} decidido(s), {len(data['pending'])} pendente(s)")
+    register_meetings(root, ctx, emit, show)
 
     team_app = typer.Typer(help="Repositório do time", no_args_is_help=True)
     root.add_typer(team_app, name="team")
