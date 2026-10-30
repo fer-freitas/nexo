@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from nexo import __version__
-from tests.conftest import EXAMPLES, Runner
+from tests.conftest import EXAMPLES, Runner, dump_yaml
 
 
 def test_banner_without_project(nexo: Runner) -> None:
@@ -246,3 +246,12 @@ def test_help_option_works_on_any_command(nexo: Runner) -> None:
     assert code == 0 and "doctor" in out
     code, out, _ = nexo("pm", "idea", "--help")
     assert code == 0 and "idea" in out
+
+
+def test_doctor_reports_approval_and_unguarded_tools(nexo: Runner, nexo_home: Path) -> None:
+    checks = {c["name"]: c for c in json.loads(nexo("--json", "doctor")[1])["checks"]}
+    assert "não registrada" in checks["approval"]["detail"]
+    assert "devin" in checks["agent_guard"]["detail"] and "copilot" in checks["agent_guard"]["detail"]
+    dump_yaml(nexo_home / "brain" / "org" / "approval.yaml", {"by": "resp", "date": "2026-10-30", "scope": "empresa"})
+    checks = {c["name"]: c for c in json.loads(nexo("--json", "doctor")[1])["checks"]}
+    assert checks["approval"]["detail"].startswith("resp, 2026-10-30")

@@ -25,7 +25,7 @@ CACHE_WRITE_FACTOR = 1.25  # escrita de cache (5 min) custa 125% da entrada
 
 def is_nexo_session(cwd: str, nexo_home: str = "") -> bool:
     norm = cwd.replace("\\", "/").rstrip("/") + "/"
-    if "/.nexo/" in norm:
+    if "/.nexo/" in norm or "/nexo/wt/" in norm:  # no Windows, a pasta de trabalho fica fora do projeto
         return True
     home = nexo_home.replace("\\", "/").rstrip("/")
     return bool(home) and norm.startswith(home + "/")

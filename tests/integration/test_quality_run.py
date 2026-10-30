@@ -7,7 +7,6 @@ import shutil
 import sys
 from pathlib import Path
 
-
 from nexo.modules.quality.adapters.runner import run_pipeline, run_stage
 from tests.conftest import EXAMPLES, Runner, dump_yaml
 

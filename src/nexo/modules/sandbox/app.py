@@ -7,7 +7,6 @@ só com `promote`, que cria uma ideia e segue o caminho normal, com todos os por
 from __future__ import annotations
 
 import contextlib
-import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -18,6 +17,7 @@ from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.security.redaction import redact
+from nexo.kernel.workspace import git
 
 KEEP_SECONDS = 7 * 86400
 DEFAULT_MAX_BRL = 5.0
@@ -159,9 +159,8 @@ def discard(ctx: AppContext, tid: str) -> dict[str, Any]:
     worktree = str(data.get("worktree") or "")
     if project.is_dir():
         if worktree:
-            _git(project, "worktree", "remove", "--force", worktree, check=False)
             with contextlib.suppress(OSError):
-                shutil.rmtree(worktree, ignore_errors=True)
+                git.remove_worktree(project, Path(worktree))
         _git(project, "worktree", "prune", check=False)
         if data.get("branch"):
             _git(project, "branch", "-D", str(data["branch"]), check=False)

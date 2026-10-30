@@ -147,7 +147,7 @@ class StoryRunner:
         run_id = self.store.create_run(story_id, self.project, self.ctx.actor, str(self.cfg.get("profile")), None)
         branch = f"nexo/story/{story_id}"
         with GIT_LOCK:
-            worktree = git.add_worktree(self.root, self.root / ".nexo" / "worktrees" / story_id, branch, base)
+            worktree = git.add_worktree(self.root, git.worktree_path(self.root, story_id), branch, base)
         prepare_worktree(self.ctx, self.cfg, worktree, self.ctx.brain_dir)
         self.store.update_run(run_id, branch=branch, worktree=str(worktree), base_sha=base, state="EmDev")
         dependency_only = bool(tasks) and all(t.kind == "dependency" for t in tasks)

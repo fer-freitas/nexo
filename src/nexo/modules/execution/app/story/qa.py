@@ -206,7 +206,7 @@ def characterization_failures(
     teste que falha ou nem executa não descreve o comportamento atual."""
     n = int(st.get("char_attempts", 0)) + 1
     # nome que não colide com a worktree da tarefa US-x-CHARn em sistemas de arquivos sem distinção de caixa
-    probe = r.root / ".nexo" / "worktrees" / f"_probe-caracterizacao-{story_id}-{n}"
+    probe = git.worktree_path(r.root, f"_probe-caracterizacao-{story_id}-{n}")
     branch = f"nexo/char/{story_id}-{n}"
     with GIT_LOCK:
         git.add_worktree(r.root, probe, branch, st["base"])
@@ -218,7 +218,7 @@ def characterization_failures(
         run = run_pipeline(r._stack(), probe, r._out(run_id, f"characterization-{n}"), r._brain(), only=["unit"])
     finally:
         with GIT_LOCK:
-            git.git(["worktree", "remove", "--force", str(probe)], r.root, check=False)
+            git.remove_worktree(r.root, probe)
             git.git(["branch", "-q", "-D", branch], r.root, check=False)
     stems = {Path(f).stem for f in tests}
 

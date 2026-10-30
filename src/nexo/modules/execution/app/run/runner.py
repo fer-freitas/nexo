@@ -132,7 +132,7 @@ class Orchestrator:
         )
         branch = f"nexo/task/{task.id}"
         with GIT_LOCK:
-            worktree = git.add_worktree(self.root, self.root / ".nexo" / "worktrees" / task.id, branch, base)
+            worktree = git.add_worktree(self.root, git.worktree_path(self.root, task.id), branch, base)
         prepare_worktree(self.ctx, self.cfg, worktree, self.ctx.brain_dir)
         run_context.write_policy(self, run_id)
         self.store.update_run(

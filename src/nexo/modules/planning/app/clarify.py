@@ -8,12 +8,12 @@ from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.spec import questions as q
 from nexo.kernel.workflow.handoff import ProgressEntry
-from nexo.kernel.workspace import specs, tasks
+from nexo.kernel.workspace import git, specs, tasks
 from nexo.store.runs import RunStore
 
 
 def project_root_for(worktree: Path) -> Path:
-    return worktree.parents[2] if worktree.parent.name == "worktrees" else worktree
+    return git.project_of(worktree)
 
 
 def feature_for_story(project_root: Path, story: str | None) -> Path | None:

@@ -10,6 +10,7 @@ from typing import IO, Any
 from nexo.kernel.context import AppContext
 from nexo.kernel.runtime.resources import load_yaml
 from nexo.kernel.security.policy import Decision, Policy, evaluate, normalize
+from nexo.kernel.workspace import git
 from nexo.store.runs import RunStore
 
 SESSION_START = "session_start"
@@ -132,7 +133,7 @@ def run_pre_tool_policy(
 
 def run_policy(worktree: Path, run_id: str) -> tuple[str, frozenset[str]]:
     """Perfil e arquivos travados gravados pelo orquestrador em `.nexo/runs/<run>/policy.json`."""
-    root = worktree.parents[2] if worktree.parent.name == "worktrees" else worktree
+    root = git.project_of(worktree)
     path = root / ".nexo" / "runs" / run_id / "policy.json"
     if not path.is_file():
         return "code-writer", frozenset()

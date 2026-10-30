@@ -30,7 +30,7 @@ def build_server(ctx: AppContext, run_id: str, role: str | None = None) -> McpSe
     if run is None or not run.worktree:
         raise NexoError(f"execução {run_id} não encontrada")
     worktree = Path(run.worktree)
-    project_root = worktree.parents[2] if worktree.parent.name == "worktrees" else worktree
+    project_root = git.project_of(worktree)
     task = tasks.load_task(project_root, run.target_id)
 
     def get_task_context(args: dict[str, Any]) -> dict[str, Any]:

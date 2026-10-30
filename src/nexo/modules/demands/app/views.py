@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from nexo.kernel.context import AppContext
+from nexo.kernel.workspace import git
 from nexo.modules.demands.app import core
 from nexo.modules.demands.domain import model as m
 
@@ -170,6 +171,9 @@ def verify(ctx: AppContext) -> dict[str, Any]:
                     bad_files.append(str(path))
             except ValueError:
                 bad_files.append(str(path))
+    collisions = []
+    if store.root.is_dir():
+        collisions = git.case_collisions([p.relative_to(store.root).as_posix() for p in store.root.rglob("*")])
     demands = m.project(events)
     orphans = [
         d.id
@@ -181,5 +185,6 @@ def verify(ctx: AppContext) -> dict[str, Any]:
         "demands": len(demands),
         "bad_files": bad_files,
         "orphans": orphans,
-        "ok": not bad_files and not orphans,
+        "case_collisions": collisions,
+        "ok": not bad_files and not orphans and not collisions,
     }

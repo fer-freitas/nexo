@@ -101,7 +101,7 @@ def review(ctx: AppContext, number: int, post: bool = False, quality: bool = Tru
     try:
         return _review_in(ctx, root, scm, number, wt, head, base, title, body, post, quality)
     finally:
-        git.git(["worktree", "remove", "--force", str(wt)], root, check=False)
+        git.remove_worktree(root, wt)
         shutil.rmtree(work, ignore_errors=True)
 
 

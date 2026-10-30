@@ -27,3 +27,14 @@ variable "db_instance_class" {
   type    = string
   default = "db.t4g.micro"
 }
+
+variable "dora_repos" {
+  type        = list(string)
+  description = "Repositórios lidos para o DORA, no formato dono/nome"
+  default     = []
+}
+
+variable "dora_schedule" {
+  type    = string
+  default = "rate(1 day)"
+}

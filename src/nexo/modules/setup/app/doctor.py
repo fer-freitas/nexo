@@ -82,6 +82,8 @@ def run_checks(ctx: AppContext) -> list[Check]:
         checks.append(_telemetry_check(ctx))
         checks.append(_isolation_check(ctx))
         checks.append(_guard_check(ctx))
+        checks.append(_approval_check(ctx))
+        checks.append(_unguarded_check(ctx))
         checks.append(_pricing_check(ctx))
         checks.append(_gitignore_check(ctx))
 
@@ -229,6 +231,26 @@ def _isolation_check(ctx: AppContext) -> Check:
 
     problems = isolation.check(ctx)
     return Check("isolation", "segurança", WARN if problems else OK, "; ".join(problems) or "ok ou não exigido", False)
+
+
+def _approval_check(ctx: AppContext) -> Check:
+    """Quem liberou o uso na empresa, quando e com qual escopo. Fica no cérebro, em `org/approval.yaml`."""
+    from nexo.kernel.runtime import yamlfile
+
+    path = ctx.brain_dir / "org" / "approval.yaml"
+    data = dict(yamlfile.load(path)) if path.is_file() else {}
+    if not data.get("by"):
+        return Check("approval", "segurança", WARN, "liberação não registrada em org/approval.yaml", False)
+    return Check("approval", "segurança", OK, f"{data['by']}, {data.get('date', '?')}: {data.get('scope', '?')}", False)
+
+
+def _unguarded_check(ctx: AppContext) -> Check:
+    """Ferramenta sem prova de bloqueio não recebe dados confidential ou restricted."""
+    from nexo.kernel import services
+
+    tools = sorted(services.load("execution.agents").unguarded(ctx)) if services.available("execution.agents") else []
+    detail = f"sem prova de bloqueio, só dados internal ou public: {', '.join(tools)}" if tools else "todas comprovadas"
+    return Check("agent_guard", "segurança", WARN if tools else OK, detail, False)
 
 
 def _guard_check(ctx: AppContext) -> Check:

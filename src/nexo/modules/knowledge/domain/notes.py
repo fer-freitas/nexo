@@ -47,6 +47,7 @@ class Note:
 
 
 def parse(path: str, text: str) -> Note:
+    text = text.removeprefix("\ufeff").replace("\r\n", "\n")
     match = FRONT.match(text)
     if not match:
         return Note(path, {}, text)

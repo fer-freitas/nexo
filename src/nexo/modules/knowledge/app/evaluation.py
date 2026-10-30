@@ -168,7 +168,7 @@ def _eval_branch(ctx: AppContext, golden: dict[str, Any]) -> str:
     repo = Path(str(golden["repo"]))
     if repo.resolve() != root.resolve():
         git.git(["fetch", "-q", str(repo), str(golden["base_sha"])], root)
-    tmp = root / ".nexo" / "worktrees" / f"eval-{golden['id']}"
+    tmp = git.worktree_path(root, f"eval-{golden['id']}")
     git.add_worktree(root, tmp, branch, str(golden["base_sha"]))
     src = golden_dir(root) / str(golden["id"]) / "tests"
     for path in golden["tests"]:
@@ -176,7 +176,7 @@ def _eval_branch(ctx: AppContext, golden: dict[str, Any]) -> str:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src / path, dest)
     git.checkpoint(tmp, f"eval: testes de referência de {golden['id']}")
-    git.git(["worktree", "remove", "--force", str(tmp)], root, check=False)
+    git.remove_worktree(root, tmp)
     return branch
 
 
@@ -264,7 +264,7 @@ def run(ctx: AppContext, task_id: str, variants: list[Variant], runs: int, kind:
 def _cleanup(root: Path, eid: str, worktree: str | None) -> None:
     (root / ".nexo" / "tasks" / f"{eid}.yaml").unlink(missing_ok=True)
     if worktree:
-        git.git(["worktree", "remove", "--force", worktree], root, check=False)
+        git.remove_worktree(root, Path(worktree))
     git.git(["branch", "-q", "-D", f"nexo/task/{eid}"], root, check=False)
 
 

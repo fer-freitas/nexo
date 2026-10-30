@@ -157,3 +157,14 @@ def test_dora_comes_from_github_read_only(people: Any) -> None:
         http.set_transport(None)
     assert result["deployments"] == 2 and result["without_source"] == ["org/nada"]
     assert collect.__doc__
+
+
+def test_dora_job_reads_repositories_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    from nexo.central import jobs
+
+    seen: list[list[str]] = []
+    monkeypatch.setattr(jobs, "db", lambda: object())
+    monkeypatch.setattr(jobs, "collect", lambda _d, repos: seen.append(repos) or {"new": 0})
+    monkeypatch.setenv("NX_DORA_REPOS", "org/a, org/b")
+    assert jobs.main(["dora"]) == 0 and seen == [["org/a", "org/b"]]
+    assert jobs.main([]) == 2

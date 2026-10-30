@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
+import os
+import shutil
 import subprocess
+import sys
+import time
 from pathlib import Path
 
 from nexo.kernel.errors import NexoError
@@ -21,13 +26,63 @@ class GitError(NexoError):
     pass
 
 
+def git_prefix(platform: str = sys.platform) -> list[str]:
+    """No Windows, repositórios .NET passam fácil de 260 caracteres."""
+    return ["git", "-c", "core.longpaths=true"] if platform == "win32" else ["git"]
+
+
 def git(args: list[str], cwd: Path, check: bool = True) -> str:
     proc = subprocess.run(
-        ["git", *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
+        [*git_prefix(), *args], cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
     )
     if check and proc.returncode != 0:
         raise GitError(f"git {' '.join(args[:3])}: {proc.stderr.strip() or proc.stdout.strip()}")
     return proc.stdout.strip()
+
+
+def worktree_path(root: Path, name: str, platform: str = sys.platform) -> Path:
+    """Fora do projeto no Windows, em pasta curta: o caminho do projeto não entra no limite de 260."""
+    if platform != "win32":
+        return root / ".nexo" / "worktrees" / name
+    digest = hashlib.sha256(str(root).encode("utf-8")).hexdigest()[:10]
+    return Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "nexo" / "wt" / digest / name
+
+
+def project_of(worktree: Path) -> Path:
+    """A raiz do projeto a partir da pasta de trabalho, esteja ela dentro do projeto ou em pasta curta."""
+    if worktree.parent.name == "worktrees":
+        return worktree.parents[2]
+    common = git(["rev-parse", "--path-format=absolute", "--git-common-dir"], worktree, check=False)
+    return Path(common).parent if common else worktree
+
+
+def remove_tree(path: Path, tries: int = 5, wait: float = 0.5) -> None:
+    """Antivírus e editores travam arquivos no Windows por alguns instantes: tenta de novo antes de desistir."""
+    for attempt in range(tries):
+        try:
+            shutil.rmtree(path)
+            return
+        except FileNotFoundError:
+            return
+        except OSError:
+            if attempt == tries - 1:
+                raise
+            time.sleep(wait * (attempt + 1))
+
+
+def remove_worktree(repo: Path, worktree: Path) -> None:
+    git(["worktree", "remove", "--force", str(worktree)], repo, check=False)
+    if worktree.exists():
+        remove_tree(worktree)
+    git(["worktree", "prune"], repo, check=False)
+
+
+def case_collisions(paths: list[str]) -> list[list[str]]:
+    """Nomes que só diferem por maiúscula: no Windows, um sobrescreve o outro."""
+    groups: dict[str, list[str]] = {}
+    for path in paths:
+        groups.setdefault(path.lower(), []).append(path)
+    return [sorted(g) for g in groups.values() if len(g) > 1]
 
 
 def is_repo(path: Path) -> bool:

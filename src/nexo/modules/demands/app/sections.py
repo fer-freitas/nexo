@@ -19,8 +19,20 @@ from nexo.modules.demands.app import core
 from nexo.modules.demands.domain import model as m
 
 
+def _plain(data: Any) -> Any:
+    """Fim de linha e BOM não mudam o conteúdo: sem isso, Windows e macOS teriam hashes diferentes."""
+    if isinstance(data, str):
+        return data.replace("\r\n", "\n").removeprefix("\ufeff")
+    if isinstance(data, dict):
+        return {k: _plain(v) for k, v in data.items()}
+    if isinstance(data, list | tuple):
+        return [_plain(v) for v in data]
+    return data
+
+
 def _sha(data: Any) -> str:
-    return hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False, default=str).encode()).hexdigest()
+    text = json.dumps(_plain(data), sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(text.encode()).hexdigest()
 
 
 def changes_path(ctx: AppContext, section: str, demand: str) -> Path:

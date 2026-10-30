@@ -244,3 +244,56 @@ resource "aws_cloudwatch_metric_alarm" "db_connections" {
   alarm_actions       = var.alarm_topic_arns
   tags                = local.tags
 }
+
+# DORA pela API do GitHub, uma vez por dia, como tarefa do próprio central
+resource "aws_iam_role" "scheduler" {
+  name = "${local.name}-scheduler"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "scheduler.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy" "scheduler" {
+  name = "run-dora"
+  role = aws_iam_role.scheduler.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      { Effect = "Allow", Action = "ecs:RunTask", Resource = aws_ecs_task_definition.app.arn },
+      { Effect = "Allow", Action = "iam:PassRole", Resource = aws_iam_role.execution.arn },
+    ]
+  })
+}
+
+resource "aws_scheduler_schedule" "dora" {
+  name                = "${local.name}-dora"
+  schedule_expression = var.dora_schedule
+  flexible_time_window {
+    mode = "OFF"
+  }
+  target {
+    arn      = aws_ecs_cluster.this.arn
+    role_arn = aws_iam_role.scheduler.arn
+    ecs_parameters {
+      task_definition_arn = aws_ecs_task_definition.app.arn
+      launch_type         = "FARGATE"
+      network_configuration {
+        subnets         = var.private_subnet_ids
+        security_groups = [aws_security_group.app.id]
+      }
+    }
+    input = jsonencode({
+      containerOverrides = [{
+        name        = "central"
+        command     = ["python", "-m", "nexo.central.jobs", "dora"]
+        environment = [{ name = "NX_DORA_REPOS", value = join(",", var.dora_repos) }]
+      }]
+    })
+  }
+}
