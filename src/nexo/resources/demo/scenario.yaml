@@ -1,0 +1,132 @@
+tools:
+  claude: {}
+steps:
+  - tool: claude
+    events:
+      - done:
+          structured:
+            spec_patch:
+              title: Endpoint de versão
+              objective: Consultar versão implantada
+              problem: Não sabemos a versão em produção
+              personas:
+                - SRE
+              scope_in:
+                - função version
+              scope_out:
+                - UI
+              acceptance:
+                - id: AC-1
+                  title: Retorna versão
+                  given:
+                    - serviço
+                  when:
+                    - chamo
+                  then:
+                    - 0.1.0
+              data_class: internal
+              contracts:
+                - id: C-1
+                  type: openapi
+                  path: contracts/version.yaml
+              nfr:
+                performance: < 1 ms
+                security: nada sensível
+                availability: 99,9%
+              dependencies_none: true
+              test_strategy:
+                unit: sim
+                integration: sim
+                contract: sim
+                e2e: sim
+                load: sim
+                architecture: sim
+                lint: sim
+                security: sim
+              risks_reviewed: true
+            questions: []
+            contract_files:
+              - path: contracts/version.yaml
+                content: "openapi: 3.1.0\ninfo: {title: v, version: '1'}\npaths:\n\
+                  \  /version:\n    get:\n      responses:\n        '200': {description:
+                  ok}\n"
+  - tool: claude
+    events:
+      - &id001
+        done:
+          structured:
+            stories:
+              - id: US-1-1
+                title: Consultar versão
+                ac_refs:
+                  - AC-1
+                points: 2
+            tasks:
+              - id: T-1-1
+                story: US-1-1
+                kind: contract
+                title: Contrato
+                files_hint:
+                  - api.yaml
+              - id: T-1-2
+                story: US-1-1
+                kind: backend
+                title: Backend
+                depends_on:
+                  - T-1-1
+                files_hint:
+                  - src/svc/version.py
+                acceptance:
+                  - version() retorna 0.1.0
+              - id: T-1-3
+                story: US-1-1
+                kind: docs
+                title: Docs
+                depends_on:
+                  - T-1-1
+                files_hint:
+                  - README.md
+  - tool: claude
+    events:
+      - *id001
+  - tool: claude
+    role: qa-author
+    events:
+      - edit:
+          path: tests/test_version.py
+          content: "# @AC-1\nfrom svc.version import version\n\n\ndef test_ac_1_retorna_versao()
+            -> None:\n    assert version() == \"0.1.0\"\n"
+      - progress:
+          percent: 100
+  - tool: claude
+    task: T-1-2
+    events:
+      - edit:
+          path: src/svc/version.py
+          content: "def version() -> str:\n    return \"0.1.0\"\n"
+      - progress:
+          percent: 100
+  - tool: claude
+    task: T-1-3
+    events:
+      - edit:
+          path: README.md
+          content: "# 0.1.0\n"
+      - progress:
+          percent: 100
+  - tool: claude
+    task: T-1-1
+    events:
+      - edit:
+          path: contracts/version.yaml
+          content: "# 0.1.0\n"
+      - progress:
+          percent: 100
+  - tool: claude
+    events:
+      - edit:
+          path: exemplo.txt
+          content: "criado no teste livre\n"
+      - progress:
+          percent: 100
+    task: TRY-1

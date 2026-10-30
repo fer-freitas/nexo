@@ -76,6 +76,7 @@ TODOS
   meeting              Reunião de refinamento: notas, gravação e revisão
   join                 Entra no time sem precisar saber Git
   role                 Mostra seus papéis no time
+  demo                 Experimenta a CLI e o site com dados fictícios, sem gastar tokens
   lineage              De onde vem e para onde vai cada componente
   mcp                  Busca, liga e prova a conexão com MCPs
   pack                 Conteúdo de terceiros com commit fixado, hash e licença

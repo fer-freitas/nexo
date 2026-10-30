@@ -1,0 +1,12 @@
+id: demo
+version: 1.0.0
+title: "Inicialização rápida"
+flags:
+  - key: demo.use
+    title: "Experimentar a CLI e o site com dados fictícios"
+    area: "Instalação"
+    stage: ga
+    commands: ["demo"]
+cli: "nexo.modules.demo.cli:register"
+commands:
+  - {path: "demo", summary: "Experimenta a CLI e o site com dados fictícios, sem gastar tokens", kind: write}
