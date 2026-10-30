@@ -1,0 +1,15 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-06
+title: Rota ruim
+algorithm: bad_route
+params:
+  p: 0.1
+  days: 30
+min_sample: 5
+severity: media
+owner: time do Nexo
+action: Propor ajuste de roteamento por PR no nexo-brain
+channels:
+- card
+- issue
+systemic: true

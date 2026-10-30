@@ -1,0 +1,9 @@
+# Mapa de áreas de risco por caminho (nexo-brain/risk-map.yaml sobrescreve). Áreas em always_human exigem portão humano.
+areas:
+  auth: ["**/auth/**", "**/*auth*", "**/*login*", "**/*permission*", "**/*token*", "**/Identity/**"]
+  payments: ["**/payment*/**", "**/*payment*", "**/*refund*", "**/*estorno*", "**/*pix*", "**/billing/**"]
+  migration: ["**/migrations/**", "**/Migrations/**", "**/alembic/**", "**/*.sql"]
+  infra: ["**/*.tf", "**/*.bicep", "**/helm/**", "**/k8s/**", "**/Dockerfile", ".github/workflows/**"]
+  personal_data: ["**/*customer*", "**/*cliente*", "**/*cpf*", "**/*pii*"]
+  dependency: ["**/package.json", "**/package-lock.json", "**/*.csproj", "**/pyproject.toml", "**/requirements*.txt", "**/requirements*.in", "**/uv.lock"]
+always_human: [auth, payments, migration, infra, personal_data, dependency]

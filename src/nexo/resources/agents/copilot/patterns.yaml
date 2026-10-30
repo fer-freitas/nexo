@@ -1,0 +1,19 @@
+# Contrato NÃO VERIFICADO (F1-01): validar no spike quando o Copilot CLI estiver instalado.
+rate_limit:
+  text:
+    - "(?i)rate limit"
+    - "(?i)quota (?:exceeded|exhausted)"
+    - "(?i)premium requests? (?:limit|exhausted)"
+auth_error:
+  text:
+    - "(?i)not (?:logged|signed) in"
+    - "(?i)authenticate"
+context_limit:
+  text:
+    - "(?i)context (?:window|length) exceeded"
+model_unavailable:
+  text:
+    - '(?i)model "[^"]+" (?:from --model flag )?is not available'
+tool_blocked:
+  text:
+    - '(?i)permission denied and could not request permission'

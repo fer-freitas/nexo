@@ -1,0 +1,19 @@
+# Padrões de detecção do adaptador Claude Code (sobrescritos por nexo-brain/agents/claude/patterns.yaml).
+rate_limit:
+  text:
+    - "(?i)usage limit reached"
+    - "(?i)rate limit"
+    - "(?i)you've hit your (?:\\w+ )?limit"
+  api_error_status: [429]
+auth_error:
+  text:
+    - "(?i)invalid api key"
+    - "(?i)please run /login"
+    - "(?i)not logged in"
+  api_error_status: [401, 403]
+context_limit:
+  text:
+    - "(?i)prompt is too long"
+    - "(?i)context (?:window|length) exceeded"
+overloaded:
+  api_error_status: [500, 502, 503, 529]

@@ -1,0 +1,59 @@
+# F49: regras de fábrica para Java/Kotlin (skills java-standards, solid-e-clean-code e ddd-tatico).
+rules:
+  - id: DDD-DOMAIN-INFRA
+    title: Domínio dependendo de framework ou infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/domain/**"]
+    params:
+      imports: ["^org\\.springframework\\.", "^jakarta\\.persistence\\.", "^javax\\.persistence\\.", "^jakarta\\.ws\\.",
+                "^org\\.hibernate\\.", "^java\\.net\\.http\\.", "^okhttp3\\.", "\\.(infrastructure|infra|adapters?)\\."]
+    skill: ddd-tatico
+    message: domínio não depende de Spring, JPA ou HTTP; anote e persista na camada de infraestrutura
+  - id: CLEAN-CATCH-VAZIO
+    title: Exceção engolida
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}" }
+    skill: solid-e-clean-code
+    message: catch vazio esconde a falha; trate, registre ou deixe propagar
+  - id: CLEAN-SYSTEM-OUT
+    title: System.out/err em código de produção
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/src/test/**"]
+    params: { pattern: "\\bSystem\\.(out|err)\\.print|\\.printStackTrace\\(\\)" }
+    skill: java-standards
+    message: use o logger (SLF4J) com contexto, sem dado pessoal
+  - id: JAVA-AUTOWIRED-CAMPO
+    title: Injeção por campo
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/src/test/**"]
+    params: { pattern: "@Autowired\\s+(private|protected|public)?\\s*[\\w<>, ?]+\\s+\\w+\\s*;" }
+    skill: java-standards
+    message: injete pelo construtor (dependência explícita, testável e imutável)
+  - id: CLEAN-FUNCAO-LONGA
+    title: Método longo
+    kind: max_function_lines
+    severity: warning
+    params: { limit: 40 }
+    exclude: ["**/src/test/**"]
+    skill: solid-e-clean-code
+    message: método com responsabilidades demais; extraia métodos com nomes do domínio
+  - id: CLEAN-MUITOS-PARAMETROS
+    title: Muitos parâmetros
+    kind: max_params
+    severity: warning
+    params: { limit: 4 }
+    skill: solid-e-clean-code
+    message: muitos parâmetros; use um record de parâmetros ou divida a responsabilidade
+  - id: DDD-TESTE-DO-DOMINIO
+    title: Regra de domínio sem teste
+    kind: required_test
+    severity: warning
+    paths: ["**/src/main/**/domain/**"]
+    exclude: ["**/package-info.java"]
+    params: { test: "**/src/test/**/{stem}Test.*" }
+    skill: ddd-tatico
+    message: regra nova do domínio vem com teste unitário (código puro, sem Spring)

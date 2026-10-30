@@ -1,0 +1,19 @@
+# F48: padrão de código garantido — regras de fábrica comuns a todas as stacks.
+# O cérebro da org (standards/*.yaml) e o projeto (.nexo/standards.yaml) sobrescrevem por `id`
+# (`severity`, `params`, `paths`...) ou removem com `disabled: true`. Severidade: error (reprova) | warning.
+rules:
+  - id: CLEAN-TODO-SEM-ITEM
+    title: TODO sem item no tracker
+    kind: forbidden_pattern
+    severity: warning
+    params: { pattern: "(?i)\\b(TODO|FIXME)\\b(?![^\\n]*(AB#\\d+|[A-Z][A-Z0-9]+-\\d+|#\\d+))" }
+    skill: solid-e-clean-code
+    message: "TODO/FIXME sem item no tracker (exemplo TODO(AB#123)); registre a pendência ou resolva"
+  - id: CLEAN-ARQUIVO-GRANDE
+    title: Arquivo grande demais
+    kind: max_file_lines
+    severity: warning
+    params: { limit: 400 }
+    exclude: ["**/migrations/**", "**/Migrations/**", "**/*.Designer.cs", "**/*.generated.*", "**/*.lock", "**/*.json", "**/*.g.dart", "**/*.freezed.dart"]
+    skill: solid-e-clean-code
+    message: arquivo com responsabilidades demais; divida por responsabilidade

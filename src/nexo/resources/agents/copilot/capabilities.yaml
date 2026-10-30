@@ -1,0 +1,29 @@
+# GitHub Copilot CLI — contrato VERIFICADO em 2026-10-02 com a versão 1.0.88 (tarefa real: escrita, negação, consumo).
+verified: true
+vendor: github
+executable: copilot
+# Tokens: {prompt} {model} {workdir}. Flags de permissão repetidas por item.
+command: ["{exe}", "-p", "{prompt}", "--model", "{model}", "--no-color"]
+allow_flag: "--allow-tool"
+deny_flag: "--deny-tool"
+mcp_flag: "--additional-mcp-config"
+tool_names:
+  write: "write"
+  shell: "shell"
+# Teste real (1.0.88): no modo `-p`, `--allow-all-tools` é obrigatório (sem ele tudo é negado); a política entra pelas
+# negações, que valem sobre a liberação. O diff do passo continua conferido pelo Nexo (sem hooks nativos).
+allow_all_flag: "--allow-all-tools"
+deny_always: ["shell(git push)", "shell(curl)", "shell(wget)", "shell(sudo)", "url"]
+deny_by_profile:
+  read-only: ["write", "shell"]
+  test-writer: ["shell(git push)"]
+  doc-writer: ["shell(git push)"]
+auth_command: null
+login_command: ["copilot", "login"]
+usage:
+  unit: premium_request
+  per_run: 1            # estimativa, usada só se o banco local não tiver a sessão
+  model_multiplier: { auto: 1, gpt-5-mini: 0, claude-sonnet-4.5: 1, gpt-5: 1 }
+  source: copilot_session_store   # consumo real: ~/.copilot/session-store.db (premium requests, AI Credits e tokens)
+native_hooks: false
+mcp: true

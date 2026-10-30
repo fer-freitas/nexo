@@ -1,0 +1,15 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-05
+title: Licença ociosa
+algorithm: idle_license
+params:
+  util_pct: 20
+  idle_days: 30
+min_sample: 1
+severity: baixa
+owner: FinOps
+action: Revisar a licença com o gestor
+channels:
+- card
+- monthly_finops
+systemic: false

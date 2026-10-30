@@ -1,0 +1,104 @@
+{
+  "packages": [
+    {
+      "package": "cupertino_icons",
+      "kind": "direct",
+      "isDiscontinued": false,
+      "replacedBy": null,
+      "isCurrentRetracted": false,
+      "isCurrentAffectedByAdvisory": false,
+      "current": {
+        "version": "1.0.9"
+      },
+      "upgradable": {
+        "version": "1.0.9"
+      },
+      "resolvable": {
+        "version": "2.0.0"
+      },
+      "latest": {
+        "version": "2.0.0"
+      }
+    },
+    {
+      "package": "material_color_utilities",
+      "kind": "transitive",
+      "isDiscontinued": false,
+      "replacedBy": null,
+      "isCurrentRetracted": false,
+      "isCurrentAffectedByAdvisory": false,
+      "current": {
+        "version": "0.13.0"
+      },
+      "upgradable": {
+        "version": "0.13.0"
+      },
+      "resolvable": {
+        "version": "0.13.0"
+      },
+      "latest": {
+        "version": "0.13.1"
+      }
+    },
+    {
+      "package": "meta",
+      "kind": "transitive",
+      "isDiscontinued": false,
+      "replacedBy": null,
+      "isCurrentRetracted": false,
+      "isCurrentAffectedByAdvisory": false,
+      "current": {
+        "version": "1.18.3"
+      },
+      "upgradable": {
+        "version": "1.19.0"
+      },
+      "resolvable": {
+        "version": "1.19.0"
+      },
+      "latest": {
+        "version": "1.19.0"
+      }
+    },
+    {
+      "package": "test_api",
+      "kind": "transitive",
+      "isDiscontinued": false,
+      "replacedBy": null,
+      "isCurrentRetracted": false,
+      "isCurrentAffectedByAdvisory": false,
+      "current": {
+        "version": "0.7.12"
+      },
+      "upgradable": {
+        "version": "0.7.12"
+      },
+      "resolvable": {
+        "version": "0.7.12"
+      },
+      "latest": {
+        "version": "0.7.14"
+      }
+    },
+    {
+      "package": "vector_math",
+      "kind": "transitive",
+      "isDiscontinued": false,
+      "replacedBy": null,
+      "isCurrentRetracted": false,
+      "isCurrentAffectedByAdvisory": false,
+      "current": {
+        "version": "2.4.0"
+      },
+      "upgradable": {
+        "version": "2.4.3"
+      },
+      "resolvable": {
+        "version": "2.4.3"
+      },
+      "latest": {
+        "version": "2.4.3"
+      }
+    }
+  ]
+}

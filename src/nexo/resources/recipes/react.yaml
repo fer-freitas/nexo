@@ -1,0 +1,66 @@
+stack: react
+semgrep_config: p/typescript
+stages:
+  - id: install
+    kind: build
+    tool: npm
+    when_exists: package-lock.json
+    run: ["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"]
+    parser: exitcode
+    required: true
+  - id: lint
+    kind: lint
+    tool: npx
+    when_contains: {file: package.json, text: "eslint"}
+    run: ["npx", "--no-install", "eslint", "."]
+    parser: exitcode
+    required: true
+  - id: typecheck
+    kind: lint
+    tool: npx
+    when_exists: tsconfig.json
+    run: ["npx", "--no-install", "tsc", "--noEmit"]
+    parser: exitcode
+    required: true
+  - id: unit
+    kind: unit
+    tool: npx
+    when_contains: {file: package.json, text: "vitest"}
+    run: ["npx", "--no-install", "vitest", "run", "--reporter=junit", "--outputFile={out}/junit.xml"]
+    parser: junit
+    report: "{out}/junit.xml"
+    required: true
+  - id: build
+    kind: build
+    tool: npm
+    when_contains: {file: package.json, text: "\"build\""}
+    run: ["npm", "run", "build"]
+    parser: exitcode
+    required: true
+  - id: e2e
+    kind: e2e
+    tool: npx
+    when_glob: "playwright.config.*"
+    run: ["npx", "--no-install", "playwright", "test", "--reporter=junit"]
+    env: {PLAYWRIGHT_JUNIT_OUTPUT_NAME: "{out}/e2e.xml"}
+    parser: junit
+    report: "{out}/e2e.xml"
+    required: true
+  - id: sca
+    kind: security
+    tool: npm
+    when_exists: package-lock.json
+    run: ["npm", "audit", "--audit-level=high", "--omit=dev"]
+    parser: exitcode
+    default_severity: high
+    required: true
+  - id: mutation
+    kind: mutation
+    tool: npx
+    when_exists: stryker.conf.json  # F15 (Q-01)
+    run: ["npx", "--no-install", "stryker", "run"]
+    parser: mutation
+    report: "reports/mutation/mutation.json"
+    min_score: "{min_mutation_score}"
+    required: false
+    timeout: 1800

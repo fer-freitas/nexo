@@ -1,0 +1,15 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-01
+title: Tendência de eficiência
+algorithm: efficiency_trend
+params:
+  worse_pct: 20
+  months: 3
+min_sample: 5
+severity: media
+owner: tech lead e gestor do squad
+action: Investigar causa da piora (stack, tipo de história, rota) no resumo semanal
+channels:
+- card
+- weekly
+systemic: false

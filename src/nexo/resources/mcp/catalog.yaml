@@ -1,0 +1,192 @@
+# F46: servidores MCP oficiais dos produtos que o Nexo integra (levantamento de 2026-10-01).
+# Entram nos agentes como ferramentas extras, por padrão somente leitura; o fluxo automático (estado da história,
+# PR, aprovação, auditoria) continua nas integrações nativas do Nexo.
+#
+# Ligar: `mcp.servers.<id>.enabled: true` (org, squad ou projeto) + aprovação da Segurança em
+# `org/tools.yaml › external_mcp` + fornecedor liberado na `data_policy` para a classe de dados da tarefa.
+#
+# Campos: transport http (url) ou stdio (command/args); `url: null` = informar em `mcp.servers.<id>.url`;
+# auth: bearer (credencial `nexo login mcp_<id>` ou a variável `token_env`), oauth (a pessoa autentica uma vez
+# na própria ferramenta de IA) ou env (variáveis do próprio servidor, em `env`); `vars`: o que configurar em
+# `mcp.servers.<id>.vars`; status: ga | preview | beta; verified: conferido com conta real (V-08).
+version: 1
+as_of: "2026-10-01"
+servers:
+  atlassian:
+    product: Jira, Confluence, Jira Service Management, Bitbucket, Compass
+    vendor: atlassian
+    status: ga
+    transport: http
+    url: https://mcp.atlassian.com/v2/mcp
+    auth: bearer
+    token_env: ATLASSIAN_MCP_TOKEN
+    notes: só Atlassian Cloud (não atende Data Center); respeita as permissões de quem autentica
+    docs: https://github.com/atlassian/atlassian-mcp-server
+    verified: false
+  github:
+    product: GitHub (repositórios, issues, PRs, Actions)
+    vendor: github
+    status: ga
+    transport: http
+    url: https://api.githubcopilot.com/mcp/
+    auth: bearer
+    token_env: GITHUB_MCP_TOKEN
+    docs: https://github.com/github/github-mcp-server
+    verified: false
+  azure-devops:
+    product: Azure DevOps (Boards, Repos, Pipelines)
+    vendor: microsoft
+    status: ga
+    transport: stdio
+    command: npx
+    args: ["-y", "@azure-devops/mcp", "{organization}"]
+    vars: [organization]
+    auth: oauth
+    docs: https://github.com/microsoft/azure-devops-mcp
+    verified: false
+  gitlab:
+    product: GitLab (projetos, issues, merge requests)
+    vendor: gitlab
+    status: beta
+    transport: http
+    url: "{base_url}/api/v4/mcp"
+    vars: [base_url]
+    defaults: { base_url: "https://gitlab.com" }
+    auth: oauth
+    docs: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/ai_catalog_mcp_servers/
+    verified: false
+  linear:
+    product: Linear
+    vendor: linear
+    status: ga
+    transport: http
+    url: https://mcp.linear.app/mcp
+    auth: bearer
+    token_env: LINEAR_MCP_TOKEN
+    docs: https://linear.app/docs/mcp
+    verified: false
+  servicenow:
+    product: ServiceNow (MCP Server Console)
+    vendor: servicenow
+    status: ga
+    transport: http
+    url: null
+    auth: oauth
+    notes: exige Now Assist e Zurich Patch 9 ou Australia Patch 2; a URL vem do MCP Server Console da instância
+    docs: https://www.servicenow.com/community/servicenow-otto-articles/enable-mcp-and-a2a-for-your-agentic-workflows-with-faqs-updated/ta-p/3373907
+    verified: false
+  slack:
+    product: Slack
+    vendor: salesforce
+    status: ga
+    transport: http
+    url: https://mcp.slack.com/mcp
+    auth: oauth
+    docs: https://docs.slack.dev/ai/slack-mcp-server/
+    verified: false
+  teams:
+    product: Microsoft Teams (Work IQ, Agent 365)
+    vendor: microsoft
+    status: preview
+    transport: http
+    url: null
+    auth: oauth
+    notes: preview; a URL vem do registro do Agent 365 do tenant
+    docs: https://github.com/microsoft/work-iq
+    verified: false
+  azure:
+    product: Azure (inclui Key Vault, Storage, Monitor)
+    vendor: microsoft
+    status: ga
+    transport: stdio
+    command: npx
+    args: ["-y", "@azure/mcp@latest", "server", "start"]
+    auth: env
+    notes: usa o login do Azure CLI da máquina (az login)
+    docs: https://github.com/microsoft/mcp
+    verified: false
+  aws:
+    product: AWS (APIs da conta, inclui Bedrock)
+    vendor: aws
+    status: ga
+    transport: stdio
+    command: awslabs.aws-api-mcp-server  # F51: instale com `python -m pip install awslabs.aws-api-mcp-server`
+    args: []
+    env: { READ_OPERATIONS_ONLY: "true" }
+    auth: env
+    notes: usa o perfil/credenciais da AWS da máquina; instale o servidor com pip (python -m pip install awslabs.aws-api-mcp-server)
+    docs: https://github.com/awslabs/mcp
+    verified: false
+  vault:
+    product: HashiCorp Vault
+    vendor: hashicorp
+    status: ga
+    transport: stdio
+    command: docker
+    args: ["run", "-i", "--rm", "-e", "VAULT_ADDR", "-e", "VAULT_TOKEN", "hashicorp/vault-mcp-server"]
+    env: { VAULT_ADDR: "{vault_addr}", VAULT_TOKEN: "${VAULT_MCP_TOKEN}" }
+    vars: [vault_addr]
+    auth: bearer
+    token_env: VAULT_MCP_TOKEN
+    notes: leitura de segredos pelo agente só com aprovação explícita da Segurança (o padrão é negado pela política)
+    docs: https://github.com/hashicorp/vault-mcp-server
+    verified: false
+  datadog:
+    product: Datadog
+    vendor: datadog
+    status: preview
+    transport: http
+    url: null
+    auth: oauth
+    notes: preview com lista de liberação; a URL depende do site do Datadog
+    docs: https://docs.datadoghq.com/
+    verified: false
+  dynatrace:
+    product: Dynatrace
+    vendor: dynatrace
+    status: ga
+    transport: stdio
+    command: npx
+    args: ["-y", "@dynatrace-oss/dynatrace-mcp-server@latest"]
+    env: { DT_ENVIRONMENT: "{environment_url}", DT_PLATFORM_TOKEN: "${DYNATRACE_MCP_TOKEN}" }
+    vars: [environment_url]
+    auth: bearer
+    token_env: DYNATRACE_MCP_TOKEN
+    docs: https://github.com/dynatrace-oss/dynatrace-mcp
+    verified: false
+  newrelic:
+    product: New Relic
+    vendor: newrelic
+    status: preview
+    transport: http
+    url: null
+    auth: bearer
+    token_env: NEWRELIC_MCP_TOKEN
+    notes: preview pública
+    docs: https://docs.newrelic.com/
+    verified: false
+  splunk:
+    product: Splunk (Platform, Enterprise, Cloud)
+    vendor: cisco
+    status: ga
+    transport: http
+    url: null
+    auth: bearer
+    token_env: SPLUNK_MCP_TOKEN
+    notes: app do Splunkbase instalado na instância; a URL é a da instância
+    docs: https://splunkbase.splunk.com/
+    verified: false
+  sonarqube:
+    product: SonarQube Server ou Cloud
+    vendor: sonarsource
+    status: ga
+    transport: stdio
+    command: docker
+    args: ["run", "-i", "--rm", "-e", "SONARQUBE_TOKEN", "-e", "SONARQUBE_URL", "mcp/sonarqube"]
+    env: { SONARQUBE_URL: "{url}", SONARQUBE_TOKEN: "${SONARQUBE_MCP_TOKEN}" }
+    vars: [url]
+    defaults: { url: "https://sonarcloud.io" }
+    auth: bearer
+    token_env: SONARQUBE_MCP_TOKEN
+    docs: https://github.com/SonarSource/sonarqube-mcp-server
+    verified: false

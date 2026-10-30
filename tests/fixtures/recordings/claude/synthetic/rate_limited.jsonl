@@ -1,0 +1,4 @@
+{"type": "system", "subtype": "init", "model": "claude-sonnet-5", "tools": ["Read", "Write", "Edit"], "mcp_servers": [], "permissionMode": "acceptEdits", "session_id": "00000000-0000-0000-0000-000000000001", "cwd": "/WORKDIR"}
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "text", "text": "Starting."}], "usage": {"input_tokens": 10, "output_tokens": 5}}}
+{"type": "rate_limit_event", "rate_limit_info": {"status": "rejected", "resetsAt": 1790238600, "rateLimitType": "five_hour", "unifiedWindows": {"five_hour": {"utilization": 1.0, "resetsAt": 1790238600}}}}
+{"type": "result", "subtype": "error_during_execution", "is_error": true, "api_error_status": 429, "num_turns": 1, "total_cost_usd": 0.001, "usage": {"input_tokens": 10, "output_tokens": 5}, "result": "Claude AI usage limit reached|1790238600", "permission_denials": []}

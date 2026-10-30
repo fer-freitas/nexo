@@ -1,0 +1,158 @@
+# Política de execução dos agentes (SEC-13, SEC-20..24). nexo-brain/org/security/policy.yaml sobrescreve.
+tool_kinds:
+  Read: read
+  Glob: read
+  Grep: read
+  LS: read
+  NotebookRead: read
+  Write: write
+  Edit: write
+  MultiEdit: write
+  NotebookEdit: write
+  Bash: shell
+  PowerShell: shell
+  shell: shell
+  WebFetch: fetch
+  WebSearch: fetch
+  TodoWrite: harmless
+  ExitPlanMode: harmless
+  Task: deny
+  Agent: deny
+
+forbidden_paths:
+  - "**/.env"
+  - "**/.env.*"
+  - "**/*.pem"
+  - "**/*.pfx"
+  - "**/*.p12"
+  - "**/*.key"
+  - "**/id_rsa*"
+  - "**/id_ed25519*"
+  - "**/.ssh/**"
+  - "**/.aws/**"
+  - "**/.azure/**"
+  - "**/secrets*.json"
+  - "**/appsettings.Production.json"
+  - "**/.git/config"
+  - "**/.nexo/nexo.yaml"
+
+# Prefixos de comando permitidos no perfil code-writer (após os bloqueios abaixo).
+shell_allow:
+  - "ls"
+  - "cd"  # argumentos conferidos como os demais (sem sair do diretório de trabalho)
+  - "pwd"
+  - "cat"
+  - "head"
+  - "tail"
+  - "wc"
+  - "grep"
+  - "rg"
+  - "find"
+  - "mkdir"
+  - "rm"
+  - "mv"
+  - "cp"
+  - "touch"
+  - "echo"
+  - "sed -n"
+  - "diff"
+  - "git status"
+  - "git diff"
+  - "git log"
+  - "git show"
+  - "git ls-files"  # leitura do repositório (achado no teste real: o agente usa para se orientar)
+  - "git blame"
+  - "git grep"
+  - "git rev-parse"
+  - "dotnet build"
+  - "dotnet test"
+  - "dotnet format"
+  - "dotnet run"
+  - "dotnet restore"
+  - "dotnet new"  # projeto de testes (achado no teste real: QA de API .NET sem projeto xUnit)
+  - "dotnet sln"
+  - "dotnet add"  # referência entre projetos; pacote novo continua bloqueado (SEC-25)
+  - "dotnet list"
+  - "dotnet clean"
+  - "npm test"
+  - "npm run"
+  - "npm ci"
+  - "npx vitest"
+  - "npx eslint"
+  - "npx tsc"
+  - "npx prettier"
+  - "npx playwright test"
+  # F49: Java (Maven/Gradle, com ou sem wrapper), Angular e Flutter/Dart
+  - "mvn"
+  - "./mvnw"
+  - "gradle"
+  - "./gradlew"
+  - "npx ng test"
+  - "npx ng lint"
+  - "npx ng build"
+  - "npx ng generate"
+  - "ng test"
+  - "ng lint"
+  - "ng build"
+  - "ng generate"
+  - "flutter test"
+  - "flutter analyze"
+  - "flutter pub get"
+  - "flutter pub deps"
+  - "flutter pub run build_runner"
+  - "dart format"
+  - "dart analyze"
+  - "dart fix"
+  - "dart test"
+  - "dart run"  # roda código do projeto, como o flutter test (achado no e2e: QA calculando o valor esperado)
+  - "dart pub get"
+  - "pytest"
+  - "python -m pytest"
+  # F51: projetos Python com pip — o agente roda os testes pelo Python do .venv do worktree (o Nexo prepara)
+  - ".venv/bin/python"
+  - ".venv\\Scripts\\python"
+  - ".venv\\Scripts\\python.exe"
+  - "python3 -m pytest"
+  - "ruff"
+  - "mypy"
+
+# Bloqueios que prevalecem sobre a allowlist (regex).
+shell_deny:
+  - { pattern: "\\brm\\s+-[a-zA-Z]*[rf]", reason: "remoção recursiva/forçada" }
+  - { pattern: "\\b(curl|wget|nc|ncat|telnet)\\b", reason: "acesso de rede não autorizado (SEC-23)" }
+  - { pattern: "\\b(ssh|scp|sftp|rsync)\\b", reason: "acesso remoto" }
+  - { pattern: "\\bgit\\s+(push|commit|reset|checkout|switch|rebase|merge|config|remote|tag)\\b", reason: "operação git reservada ao Nexo" }
+  - { pattern: "\\bsudo\\b|\\bsu\\s", reason: "elevação de privilégio" }
+  - { pattern: "\\b(npm|pnpm|yarn)\\s+(i|install|add)\\s+\\S", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\b(pip|pip3|uv\\s+pip|uv)\\s+(install|add)\\b", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\bdotnet\\s+add\\s+\\S+\\s+package\\b|\\bdotnet\\s+add\\s+package\\b", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\b(flutter|dart)\\s+pub\\s+(add|upgrade|global)\\b|\\bng\\s+(add|update)\\b", reason: "nova dependência exige check_dependency (SEC-25)" }
+  - { pattern: "\\b(mvnw?|gradlew?)\\b.*\\b(deploy|publish|release:|versions:use|versions:set)", reason: "publicação ou troca de versão reservada ao Nexo" }
+  - { pattern: "\\b(brew|apt|apt-get|yum|choco|winget)\\b", reason: "instalação de software no sistema" }
+  - { pattern: "\\$\\(|`", reason: "substituição de comando" }
+  - { pattern: "\\b(chmod|chown)\\s+-?R?\\s*[0-7]*7[0-7]*\\s+/", reason: "permissão em caminho do sistema" }
+  - { pattern: "(^|\\s)(/etc|/usr|/bin|/System|C:\\\\Windows)", reason: "caminho do sistema" }
+  - { pattern: "~/|\\$HOME|%USERPROFILE%", reason: "diretório do usuário" }
+
+# F24: guarda nas sessões de IA abertas fora do Nexo (`nexo guard install`). Só bloqueios duros; a org só acrescenta.
+guard_deny:
+  - { pattern: "\\bsudo\\b|\\bsu\\s", reason: "elevação de privilégio" }
+  - { pattern: "\\brm\\s+-[a-zA-Z]*[rf][a-zA-Z]*\\s+(/|~|\\$HOME)(\\s|/?$)", reason: "remoção da raiz ou da pasta do usuário" }
+  - { pattern: "\\b(curl|wget)\\b[^|]*\\|\\s*(sudo\\s+)?(sh|bash|zsh|python3?)\\b", reason: "execução de script baixado" }
+  - { pattern: "\\bgit\\s+push\\b.*(--force\\b|\\s-f\\b)", reason: "push forçado" }
+  - { pattern: "\\bchmod\\s+-R\\s+777\\b", reason: "permissão total recursiva" }
+
+network:
+  allowed_hosts: []
+
+mcp:
+  allowed_servers: [nexo]
+
+# Ambiente dos agentes (S-01): só variáveis de sistema/proxy/certificados passam por padrão; nomes com cara de
+# segredo (TOKEN, KEY, SECRET, PASSWORD...) só passam se listados aqui. `tools`: credencial da própria ferramenta.
+agent_env:
+  allow: []
+  tools:
+    claude: ["ANTHROPIC_*", "CLAUDE_*", "CLAUDE_CODE_*", "AWS_REGION", "CLOUD_ML_REGION"]
+    copilot: ["COPILOT_*", "GH_TOKEN", "GITHUB_TOKEN", "GH_HOST"]
+    devin: ["DEVIN_*"]

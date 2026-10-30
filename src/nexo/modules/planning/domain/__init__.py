@@ -1,0 +1,1 @@
+"""Pacote `modules.planning.domain`."""

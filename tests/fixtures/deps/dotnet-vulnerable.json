@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "parameters": "--vulnerable",
+  "sources": [
+    "https://api.nuget.org/v3/index.json"
+  ],
+  "projects": [
+    {
+      "path": "/private/tmp/claude-501/-Volumes-KINGSTON-workspaces/87b5e59b-ed98-4a80-8976-bc1465f71d34/scratchpad/deps/net/DotnetApi.csproj",
+      "frameworks": [
+        {
+          "framework": "net8.0",
+          "topLevelPackages": [
+            {
+              "id": "Newtonsoft.Json",
+              "requestedVersion": "12.0.1",
+              "resolvedVersion": "12.0.1",
+              "vulnerabilities": [
+                {
+                  "severity": "High",
+                  "advisoryurl": "https://github.com/advisories/GHSA-5crp-9r3c-p9vr"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+# F49: regras de fábrica para Flutter/Dart (skills flutter-standards, solid-e-clean-code e ddd-tatico).
+rules:
+  - id: DDD-DOMAIN-INFRA
+    title: Domínio dependendo de Flutter ou infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/domain/**"]
+    params:
+      imports: ["^package:flutter/", "^package:http/", "^package:dio/", "^package:shared_preferences/",
+                "^package:firebase_", "^package:sqflite", "^dart:io$", "(^|/)(data|infrastructure|infra|presentation|ui)/"]
+    skill: ddd-tatico
+    message: domínio é Dart puro; widgets, HTTP e armazenamento ficam em data/presentation, atrás de interfaces
+  - id: CLEAN-CATCH-VAZIO
+    title: Exceção engolida
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}|on\\s+\\w+\\s*\\{\\s*\\}" }
+    skill: solid-e-clean-code
+    message: catch vazio esconde a falha; trate, registre ou deixe propagar
+  - id: FLUTTER-PRINT
+    title: print em código de produção
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["test/**", "integration_test/**", "**/test/**"]
+    params: { pattern: "(^|[^\\w.])print\\(" }
+    skill: flutter-standards
+    message: use debugPrint ou o logger da aplicação, sem dado pessoal
+  - id: FLUTTER-SETSTATE-ASSINCRONO
+    title: setState depois de await sem checar mounted
+    kind: forbidden_pattern
+    severity: warning
+    params: { pattern: "await [^;]+;\\s*\\n\\s*setState\\(" }
+    skill: flutter-standards
+    message: depois de await confira `if (!mounted) return;` antes do setState
+  - id: CLEAN-FUNCAO-LONGA
+    title: Função ou build longo
+    kind: max_function_lines
+    severity: warning
+    params: { limit: 60 }
+    exclude: ["test/**", "**/test/**"]
+    skill: solid-e-clean-code
+    message: função ou build com responsabilidades demais; extraia widgets e métodos
+  - id: CLEAN-MUITOS-PARAMETROS
+    title: Muitos parâmetros posicionais
+    kind: max_params
+    severity: warning
+    params: { limit: 4 }
+    skill: solid-e-clean-code
+    message: muitos parâmetros; use parâmetros nomeados (required) ou um objeto
+  - id: DDD-TESTE-DO-DOMINIO
+    title: Regra de domínio sem teste
+    kind: required_test
+    severity: warning
+    paths: ["**/domain/**"]
+    exclude: ["test/**", "**/test/**", "**/*.g.dart", "**/*.freezed.dart"]
+    params: { test: "**/{stem}_test.dart" }
+    skill: ddd-tatico
+    message: regra nova do domínio vem com teste unitário (Dart puro, sem widget)

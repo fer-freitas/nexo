@@ -1,0 +1,161 @@
+Usage: nexo <command> [options]
+
+DAY TO DAY
+  console                               Opens the console: next steps, plain language and commands without typing nexo (same as `nexo`)
+  inbox                                 What is waiting for you: questions, plan parts for your role, DoR, gates and approvals
+  context [init|propose <produto>]      Product and project context: which product it belongs to, which part it is and what it does
+  context init                          Context wizard for a new folder (a few questions)
+  status [id]                           Status and progress (state machine)
+  plan <entradas...>                    Brainstorm, questions and epic/feature creation
+  plan answer <id>                      Answer pending questions (interactive or --file)
+  plan approve <id>                     Approve and break down into stories/tasks with a dependency graph
+  ready <US-n|F-n> [--init]             Definition of Ready: checks the refinement against the single model (test and performance criteria)
+  run story <id>                        Run the story (QA → dev → quality → security → review)
+  run feature <F-n> [--parallel N]      Run the whole feature in waves (dependencies, parallelism, budget)
+  run task <id>                         Run a task
+  resume <id>                           Resume a paused/blocked run
+  approve <id> [--raise N | --economic]
+                                        Approve a human gate (quality or cost)
+  reject <id> --reason                  Reject a gate (creates a bug)
+  logs [id] [--trace <run> --reason]    Auditable timeline
+  ask <pergunta> [--budget]             Questions about the code and decisions, with verified sources
+  pr sync                               React to PR CI/review; merge at L3
+  quality run                           Run the stack quality pipeline
+  doctor                                Diagnose tools, auth, integrations
+  tasks [--all]                         My tasks: what is pending, by story
+  explain <T-n|US-n>                    Explain the task before starting: what, why, where, caveats and how to check
+  check <US-n>                          Check whether the story is really done (DoR, criteria, tests, pipeline, gate, PR, cost)
+
+PLANNING BY ROLE (PM, TECH LEAD)
+  tech analyze <F-n>                    Tech lead: analyze the functional requirement (gaps, risks, questions for the PM)
+  tech return <F-n> [--reason]          Tech lead: send back to the PM the functional gaps the refinement missed
+  tech spec <F-n> [--notes]             Tech lead: technical requirement with assumptions (design, decisions, NFR, risks, tests)
+  plan classify <F-n> <classe> [--reason]
+                                        Feature data class: decides what may be sent to AI tools
+  plan feature <id>                     Enrich the feature, update the spec, raise new questions
+  plan discovery <insumos...> [--feature F-n]
+                                        PM discovery: problem, evidence, hypotheses and recommendation
+  plan decide <F-n> build|drop|investigate --reason
+                                        PM decision; build takes the discovery straight into refinement
+  plan session start|close <F-n>        Joint PM + tech lead + dev session with the AI; closing it builds the package
+  plan package <F-n>                    Requirements + design/SDD + plan package for role approvals
+  plan reject <F-n> --part <parte> --reason
+                                        Reject your role's part; the AI reworks it using the reason
+  plan roles <F-n>                      Who approves what and what is pending
+  plan graph <id>                       Show the dependency graph and what can run in parallel
+
+CODE AND DELIVERY
+  quality ci [--stack]                  Generate the GitHub Actions workflow from the same recipe
+  discover [--as-is] [--no-baseline]    Existing code map, baseline, conventions and as-is design
+  docs update [US-n|F-n] | knowledge [--dry-run]
+                                        Writer agent: updates project documentation and publishes knowledge to the brain
+  docs site                             Project knowledge base (Docusaurus on GitHub Pages): decisions, deliveries, code and product
+  docs portal --repos <pasta> [--product id] [--out pasta] [--check]
+                                        Product portal (all fronts): solution diagram, views, components, features and what needs attention
+  change open <F-n> [--type standard|normal] | status <F-n>
+                                        Change request (ServiceNow, Jira Service Management) from the evidence pack
+  graph build | impact <arquivos> [--depth] | related <arquivos>
+                                        Code and brain graph: change impact and what is linked to a file
+  program repo add | split | run | status <F-n> --workspace W
+                                        Feature across repositories: single plan, ordered execution and linked PRs
+  modernize playbooks | plan --playbook|--find | status <F-n>
+                                        Legacy modernization in waves: dependency-ordered plan and progress without AI
+  incident open <arquivo|-> [--source]  Incident or alert becomes a fix story with stack, files and suspect commit
+  deps scan | plan [--major]            Dependencies and vulnerabilities: scan and update plan applied by Nexo
+  review pr <n> [--post] [--no-quality]
+                                        Review a human PR with Nexo's pipeline and reviewers; never approves on its own
+  quality standards check [--changed-from <ref>] | rules
+                                        Guaranteed code standard: skill rules checked without AI
+  quality perf script <US-n> | check <US-n> --summary <k6.json>
+                                        Performance test with the refinement limits
+
+COST AND MANAGEMENT
+  cost [--dev|--story|--project|--month] | close | reconcile --invoice
+                                        Cost in BRL per dev, story, project
+  metrics [--squad|--project]           Effectiveness, efficiency, first-pass yield
+  cost chargeback --month <AAAA-MM> [--csv F]
+                                        Monthly cost per cost center (Nexo usage, outside usage and licenses)
+  cost close --month <AAAA-MM>          Close the month: freeze subscription allocation
+  cost usage scan [--full] | show [--month]
+                                        AI used inside and outside Nexo
+  cost budget show|set|watch            Budget per dev (manager)
+  cost pricing show | set <item> <valor> | check
+                                        Customer contract prices
+  cost estimate <spec|backlog>          Estimate cost and lead time from history
+  metrics baseline [--since --until | --sprints N]
+                                        Baseline before Nexo from the tracker
+
+SETUP (ONCE)
+  context propose <produto>             Send the product draft to the org brain for every squad
+  context uses <parte>                  Declares that this repository uses another product part (resolves a design deviation)
+  context product list|show|new|part    Products: views and shared components across repositories and squads
+  docs target [docusaurus|confluence|azure_wiki|none]
+                                        Where feature documentation lives (numbered choice)
+  mcp catalog                           Official product MCPs (Atlassian, GitHub, Slack...): status and what is missing
+  mcp check                             Checks that enabled MCPs will be used in runs
+  template list|show|validate|preview   Artifact templates (epic, feature, SDD, FR, design, story, task, bug, ADR)
+  brain pull|status|search|diff|propose|init|migrate|sign|keygen|pubkey
+                                        Second brain (nexo-brain)
+  init [caminho]                        Prepare the project (.nexo/), detect stack
+  config get <chave>                    Read a resolved value and its origin
+  config set <chave> <valor> [--project]
+                                        Write a value (honors org-locked keys)
+  config unset <chave> [--project]      Remove a value from a layer
+  config list                           List resolved config with origin
+  guard install | uninstall | status    Nexo guard in Claude Code: the security policy applies outside Nexo too
+  login <central|figma|tracker|github|jira|teams|slack|smtp|collector|confluence|servicenow>
+                                        Authenticate integrations (keyring)
+  tracker map [--check|--suggest]       State/type mapping with the tracker
+  tracker sync                          Retry pending syncs and pull manual changes from the tracker
+  tracker export [--out <dir>]          Export items as import-format CSV (no API)
+  tracker import <arquivo.csv>          Import states from a CSV exported by the tracker
+  install [--to <dir>]                  Prepare the Nexo environment
+  update [--manifest <url>]             Update Nexo (verifies signature)
+  uninstall [--purge]                   Remove Nexo
+  version                               Nexo and brain version
+  selftest [--agent claude|devin] [--github dono/nexo-selftest] [--keep]
+                                        End-to-end self test with the real tools (panel, agent, GitHub) in a throwaway project
+  help [comando]                        This help
+  extensions skill add|remove|list|show|sync
+                                        Team skills
+  extensions hook add|remove|list|show|sync
+                                        Team hooks
+  extensions tool add|remove|list|show|sync
+                                        Team tools (MCP servers)
+
+ADMINISTRATION AND AUDIT
+  learn collect|review|status|patterns  Lesson candidates from PRs, bugs and incidents
+  eval tasks [--from-repo <dir> --commit <sha>]
+                                        Build golden tasks from history or model repos
+  eval skill <a> <b> --task <id>        Compare two skills
+  eval model --task <id> --routes a,b   Compare routes (tool + model)
+  eval report [--propose]               Evaluation report
+  eval gate [--baseline] [--write] [--max-drop]
+                                        Prompt and skill regression gate (release)
+  audit verify                          Verify the audit chain integrity
+  audit export [--story|--from --to]    Export the audit trail
+  audit evidence build <F-n> | verify <pasta>
+                                        Evidence package per release
+  admin flags list | set <flag> on|off|inherit --reason
+                                        Feature flags
+  admin killswitch status               Blocked tools, models and versions
+  admin insights list | set ID STATE    Central dashboard insights
+  admin telemetry flush | show | status
+                                        Central telemetry
+  admin autonomy status | set <L0-L3> --reason
+                                        Squad earned autonomy
+  admin gates calibrate                 Calibrate the gate threshold
+  admin monitor synthetic [--route] [--no-block]
+                                        Synthetic monitor of agent CLIs
+  admin autopilot [--force]             What Nexo does by itself: sync, close the month, scan dependencies, check the gate
+  admin isolation setup|check           Isolated agent mode
+
+Global options
+  --profile economico|balanceado|maxima-qualidadeRouting profile
+  --tool <nome> / --model <nome>        Force the route (audited)
+  --dry-run                             Show what would happen, without running
+  --lang pt-BR|en                       Message language
+  --json                                JSON output
+  --quiet / --verbose                   Less / more detail
+
+Type `nexo` alone to open the panel (next steps, plain language, no `nexo` prefix).

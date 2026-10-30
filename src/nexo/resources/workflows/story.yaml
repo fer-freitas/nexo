@@ -1,0 +1,31 @@
+# Máquina de status de HISTÓRIA/FEATURE (spec 02 §5). Usada a partir da F2/F3.
+name: story
+initial: Ideia
+terminal: [Concluido, Cancelado]
+states: [Ideia, Refinamento, Pronto, EmDev, EmQA, EmReview, AguardandoHumano, Concluido, Bloqueado, Escalado, Cancelado]
+transitions:
+  - { event: plan,            from: [Ideia, Refinamento],           to: Refinamento }  # replanejar depois de falha do planejador
+  - { event: refine,          from: [Refinamento],                  to: Refinamento }
+  - { event: approve_spec,    from: [Refinamento],                  to: Pronto }
+  - { event: start,           from: [Pronto, Bloqueado, Escalado],  to: EmDev }
+  - { event: implemented,     from: [EmDev],                        to: EmQA }
+  - { event: bug,             from: [EmQA, EmReview],               to: EmDev }
+  - { event: qa_passed,       from: [EmQA],                         to: EmReview }
+  - { event: needs_human,     from: [EmReview],                     to: AguardandoHumano }
+  - { event: auto_approve,    from: [EmReview],                     to: Concluido }
+  - { event: approve,         from: [AguardandoHumano],             to: Concluido }
+  - { event: reject,          from: [AguardandoHumano],             to: EmDev }
+  - { event: spec_ambiguity,  from: [Pronto, EmDev, EmQA, EmReview], to: Refinamento }
+  - { event: block,           from: [EmDev, EmQA, EmReview],        to: Bloqueado }
+  - { event: escalate,        from: [EmQA, EmReview, EmDev],        to: Escalado }
+  - { event: cancel,          from: [Refinamento, Escalado, Ideia], to: Cancelado }
+  # Portão de custo (F8): pausa ao atingir o teto e volta exatamente ao estado de onde saiu.
+  - { event: cost_gate,          from: [EmDev, EmQA, EmReview],  to: AguardandoHumano }
+  - { event: cost_resume_dev,    from: [AguardandoHumano],       to: EmDev }
+  - { event: cost_resume_qa,     from: [AguardandoHumano],       to: EmQA }
+  - { event: cost_resume_review, from: [AguardandoHumano],       to: EmReview }
+  - { event: cost_reject,        from: [AguardandoHumano],       to: Escalado }
+  # Aprovação externa (F8.1): o sinal "stop" interrompe a história sem criar bug.
+  - { event: external_stop,      from: [AguardandoHumano],       to: Escalado }
+  # Autonomia (F14): CI vermelho ou pedido de mudança no PR (ainda não mergeado) reabre o ciclo de correção.
+  - { event: pr_feedback,        from: [Concluido, AguardandoHumano], to: EmDev }

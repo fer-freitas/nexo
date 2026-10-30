@@ -1,0 +1,13 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-15
+title: Telemetria atrasada
+algorithm: telemetry_delay
+params:
+  hours: 72
+min_sample: 1
+severity: media
+owner: time do Nexo (Segurança se âncora divergir)
+action: Contato/suporte com o dispositivo
+channels:
+- card
+systemic: false

@@ -1,0 +1,16 @@
+# De-para padrão Nexo ↔ GitHub Issues (estado open/closed + labels).
+tracker: github
+types: {epic: epic, feature: feature, story: story, task: task, bug: bug}
+states:
+  Ideia:            {state: open, tags: [nexo-idea]}
+  Refinamento:      {state: open, tags: [nexo-refinement]}
+  Pronto:           {state: open, tags: [nexo-ready]}
+  EmDev:            {state: open, tags: [nexo-in-dev]}
+  EmQA:             {state: open, tags: [nexo-in-qa]}
+  EmReview:         {state: open, tags: [nexo-in-review]}
+  AguardandoHumano: {state: open, tags: [nexo-human-gate]}
+  Concluido:        {state: closed}
+  Bloqueado:        {keep_state: true, tags: [nexo-blocked]}
+  Escalado:         {keep_state: true, tags: [nexo-escalated]}
+  Cancelado:        {state: closed, tags: [nexo-cancelled]}
+reverse: {closed: Concluido, open: EmDev}

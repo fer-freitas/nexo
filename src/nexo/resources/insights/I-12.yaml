@@ -1,0 +1,15 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-12
+title: Spec frágil
+algorithm: fragile_spec
+params:
+  per_story: 3
+  days: 90
+min_sample: 1
+severity: media
+owner: PO e tech lead
+action: Revisar o planejamento da feature
+channels:
+- card
+- weekly
+systemic: false

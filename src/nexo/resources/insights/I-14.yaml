@@ -1,0 +1,14 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-14
+title: Divergência de fatura
+algorithm: invoice_divergence
+params:
+  pct: 5
+min_sample: 1
+severity: alta
+owner: FinOps
+action: Revisar a medição e os preços vigentes
+channels:
+- card
+- monthly_finops
+systemic: false

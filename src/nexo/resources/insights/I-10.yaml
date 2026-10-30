@@ -1,0 +1,16 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-10
+title: Efeito de mudança no cérebro
+algorithm: brain_change
+params:
+  p: 0.1
+  cost_pct: 20
+  days: 60
+min_sample: 5
+severity: alta
+owner: time do Nexo
+action: Bloquear a promoção do canário ou reverter por PR
+channels:
+- card
+- issue
+systemic: true

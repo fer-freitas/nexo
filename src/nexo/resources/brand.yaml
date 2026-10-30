@@ -1,0 +1,62 @@
+# Identidade visual do Nexo: o dashboard e o console leem as cores, as fontes e o nome daqui.
+#
+# Para trocar a marca, não edite este arquivo. Crie um `brand.yaml` só com o que muda:
+#   - no cérebro da org (raiz do nexo-brain): vale para o console de todo mundo;
+#   - no coletor central: aponte `NX_BRAND=/caminho/brand.yaml` (vale para o dashboard).
+# Chaves ausentes herdam daqui. Cores em hexadecimal (#RRGGBB).
+#
+# Papéis das cores:
+#   accent     destaque da marca (links, item ativo, barras dos gráficos)
+#   good/warn/bad  estado (bom, atenção, problema); não use a cor da marca para estado
+#   *_soft     fundo claro do selo de cada cor
+#   bg/surface/surface_2/line  fundo da página, cartões, faixas e linhas
+#   text/muted/faint  texto principal, secundário e terciário
+
+name: Nexo
+
+fonts:
+  sans: '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+  mono: '"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace'
+
+light:
+  bg: "#F3F5F9"
+  surface: "#FFFFFF"
+  surface_2: "#EEF2F8"
+  line: "#D9E0EA"
+  text: "#15202E"
+  muted: "#5D6B80"
+  faint: "#8794A8"
+  accent: "#2F5FC4"
+  accent_soft: "#E3EBFB"
+  on_accent: "#FFFFFF"
+  good: "#1F8F62"
+  good_soft: "#DFF3EA"
+  warn: "#A86A00"
+  warn_soft: "#FBF0D9"
+  bad: "#C2372F"
+  bad_soft: "#FBE3E1"
+
+dark:
+  bg: "#0B121B"
+  surface: "#121C28"
+  surface_2: "#172434"
+  line: "#24344A"
+  text: "#E4EBF4"
+  muted: "#93A2B8"
+  faint: "#6C7B92"
+  accent: "#7FA6F5"
+  accent_soft: "#1B2B47"
+  on_accent: "#0B121B"
+  good: "#45C08A"
+  good_soft: "#12301F"
+  warn: "#E2B04A"
+  warn_soft: "#33270F"
+  bad: "#F07167"
+  bad_soft: "#3A1714"
+
+# Console: cores que funcionam em terminal claro e escuro (o terminal não diz qual é o fundo).
+terminal:
+  accent: "#5B8DEF"
+  good: "#2FAE73"
+  warn: "#D69A1E"
+  bad: "#E5534B"

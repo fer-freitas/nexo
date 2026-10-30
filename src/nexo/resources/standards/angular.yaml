@@ -1,0 +1,65 @@
+# F49: regras de fábrica para Angular/TypeScript (skills angular-standards, solid-e-clean-code e ddd-tatico).
+rules:
+  - id: DDD-DOMAIN-INFRA
+    title: Domínio dependendo de framework ou infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/domain/**"]
+    params: { imports: ["^@angular/", "^rxjs", "^@ngrx/", "(^|/)(infrastructure|infra|api|services|components|pages)(/|$)"] }
+    skill: ddd-tatico
+    message: regra de negócio no domínio é TypeScript puro; HttpClient, componentes e store ficam fora
+  - id: ANGULAR-HTTP-NO-COMPONENTE
+    title: HttpClient direto no componente
+    kind: forbidden_pattern
+    severity: warning
+    paths: ["**/*.component.ts"]
+    params: { pattern: "\\bHttpClient\\b" }
+    skill: angular-standards
+    message: componente fala com serviço ou fachada; HTTP fica no serviço de dados
+  - id: CLEAN-CATCH-VAZIO
+    title: Exceção engolida
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "catch\\s*(\\([^)]*\\))?\\s*\\{\\s*\\}" }
+    skill: solid-e-clean-code
+    message: catch vazio esconde a falha; trate, registre ou deixe propagar
+  - id: CLEAN-CONSOLE-LOG
+    title: console.log em código de produção
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/*.spec.ts"]
+    params: { pattern: "\\bconsole\\.log\\(" }
+    skill: solid-e-clean-code
+    message: remova o console.log ou use o serviço de log da aplicação
+  - id: CLEAN-ANY
+    title: any explícito
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/*.spec.ts", "**/*.d.ts"]
+    params: { pattern: ":\\s*any\\b|as\\s+any\\b|<any>" }
+    skill: solid-e-clean-code
+    message: tipe o valor (any desliga o compilador)
+  - id: CLEAN-FUNCAO-LONGA
+    title: Método longo
+    kind: max_function_lines
+    severity: warning
+    params: { limit: 40 }
+    exclude: ["**/*.spec.ts"]
+    skill: solid-e-clean-code
+    message: método com responsabilidades demais; extraia para serviço, pipe ou função pura
+  - id: CLEAN-MUITOS-PARAMETROS
+    title: Muitos parâmetros
+    kind: max_params
+    severity: warning
+    params: { limit: 4 }
+    skill: solid-e-clean-code
+    message: muitos parâmetros; use um objeto de opções tipado
+  - id: DDD-TESTE-DO-DOMINIO
+    title: Regra de domínio sem teste
+    kind: required_test
+    severity: warning
+    paths: ["**/domain/**"]
+    exclude: ["**/*.spec.ts", "**/index.ts"]
+    params: { test: "**/{stem}.spec.ts" }
+    skill: ddd-tatico
+    message: regra nova do domínio vem com teste unitário (TypeScript puro, sem TestBed)

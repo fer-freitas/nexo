@@ -1,0 +1,17 @@
+# Detector de insight (F32). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-16
+title: Maior consumo de tokens
+algorithm: token_hogs
+params:
+  pct: 90
+  min_cache_hit: 0.3
+  steps: 6
+  days: 30
+min_sample: 5
+severity: baixa
+owner: tech lead do squad
+action: Abrir a história e revisar o tamanho das tarefas, o contexto enviado e o acerto do cache
+channels:
+- card
+- weekly
+systemic: false

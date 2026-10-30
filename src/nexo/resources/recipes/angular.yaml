@@ -1,0 +1,69 @@
+# F49: Angular (CLI 21+: testes com Vitest pelo builder `@angular/build:unit-test`; Karma/Jest pelo `ng test` também).
+stack: angular
+semgrep_config: p/typescript
+stages:
+  - id: install
+    kind: build
+    tool: npm
+    when_exists: package-lock.json
+    run: ["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"]
+    parser: exitcode
+    required: true
+  - id: lint
+    kind: lint
+    tool: npx
+    when_contains: {file: angular.json, text: "\"lint\""}  # `ng add angular-eslint` cria o alvo
+    run: ["npx", "--no-install", "ng", "lint"]
+    parser: exitcode
+    required: true
+  - id: typecheck
+    kind: lint
+    tool: npx
+    when_exists: tsconfig.app.json
+    run: ["npx", "--no-install", "tsc", "--noEmit", "-p", "tsconfig.app.json"]
+    parser: exitcode
+    required: true
+  - id: unit
+    kind: unit
+    tool: npx
+    when_contains: {file: package.json, text: "vitest"}
+    run: ["npx", "--no-install", "ng", "test", "--watch=false", "--reporters=junit",
+          "--output-file={out}/junit.xml"]
+    optional_args:
+      - when_contains: {file: package.json, text: "@vitest/coverage-"}  # sem o pacote, o ng test recusa --coverage
+        args: ["--coverage", "--coverage-reporters=cobertura"]
+    parser: junit
+    report: "{out}/junit.xml"
+    coverage_glob: "coverage/**/cobertura-coverage.xml"
+    required: true
+  - id: unit-karma
+    kind: unit
+    tool: npx
+    when_contains: {file: package.json, text: "karma"}
+    run: ["npx", "--no-install", "ng", "test", "--watch=false", "--browsers=ChromeHeadless"]
+    parser: exitcode
+    required: true
+  - id: build
+    kind: build
+    tool: npx
+    when_exists: angular.json
+    run: ["npx", "--no-install", "ng", "build"]
+    parser: exitcode
+    required: true
+  - id: e2e
+    kind: e2e
+    tool: npx
+    when_glob: "playwright.config.*"
+    run: ["npx", "--no-install", "playwright", "test", "--reporter=junit"]
+    env: {PLAYWRIGHT_JUNIT_OUTPUT_NAME: "{out}/e2e.xml"}
+    parser: junit
+    report: "{out}/e2e.xml"
+    required: true
+  - id: sca
+    kind: security
+    tool: npm
+    when_exists: package-lock.json
+    run: ["npm", "audit", "--audit-level=high", "--omit=dev"]
+    parser: exitcode
+    default_severity: high
+    required: true

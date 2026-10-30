@@ -1,0 +1,85 @@
+# F49: Java/Kotlin com Maven ou Gradle. {mvn}/{gradle} = wrapper do projeto (mvnw/gradlew) quando existe.
+# Maven: cobertura pelo JaCoCo chamado na linha de comando (sem mudar o pom). Gradle: só quando o projeto
+# aplica o plugin `jacoco` com relatório XML.
+stack: java
+semgrep_config: p/java
+stages:
+  - id: build
+    kind: build
+    tool: "{mvn}"
+    when_exists: pom.xml
+    run: ["{mvn}", "-B", "-q", "test-compile"]
+    parser: exitcode
+    required: true
+    timeout: 1800
+  - id: lint
+    kind: lint
+    tool: "{mvn}"
+    when_contains: {file: pom.xml, text: "spotless-maven-plugin"}
+    run: ["{mvn}", "-B", "-q", "spotless:check"]
+    parser: exitcode
+    required: true
+  - id: checkstyle
+    kind: lint
+    tool: "{mvn}"
+    when_contains: {file: pom.xml, text: "maven-checkstyle-plugin"}
+    run: ["{mvn}", "-B", "-q", "checkstyle:check"]
+    parser: exitcode
+    required: true
+  - id: unit
+    kind: unit
+    tool: "{mvn}"
+    when_exists: pom.xml
+    run: ["{mvn}", "-B", "org.jacoco:jacoco-maven-plugin:0.8.13:prepare-agent", "test",
+          "org.jacoco:jacoco-maven-plugin:0.8.13:report"]
+    parser: junit
+    report: "target/surefire-reports/TEST-*.xml"
+    coverage: "target/site/jacoco/jacoco.xml"
+    coverage_format: jacoco
+    required: true
+    timeout: 1800
+  - id: build-gradle
+    kind: build
+    tool: "{gradle}"
+    when_glob: "build.gradle*"
+    run: ["{gradle}", "-q", "testClasses"]
+    parser: exitcode
+    required: true
+    timeout: 1800
+  - id: lint-gradle
+    kind: lint
+    tool: "{gradle}"
+    when_contains: {file: "build.gradle*", text: "spotless"}
+    run: ["{gradle}", "-q", "spotlessCheck"]
+    parser: exitcode
+    required: true
+  - id: unit-gradle
+    kind: unit
+    tool: "{gradle}"
+    when_glob: "build.gradle*"
+    run: ["{gradle}", "test"]
+    optional_args:
+      - when_contains: {file: "build.gradle*", text: "jacoco"}
+        args: ["jacocoTestReport"]
+    parser: junit
+    report: "build/test-results/test/TEST-*.xml"
+    coverage: "build/reports/jacoco/test/jacocoTestReport.xml"
+    coverage_format: jacoco
+    required: true
+    timeout: 1800
+  - id: sca
+    kind: security
+    tool: osv-scanner
+    when_exists: pom.xml
+    run: ["osv-scanner", "scan", "source", "--lockfile=pom.xml"]
+    parser: exitcode
+    default_severity: high
+    required: true
+  - id: sca-gradle
+    kind: security
+    tool: osv-scanner
+    when_exists: gradle.lockfile  # Gradle só tem versões resolvidas com o lock de dependências ligado
+    run: ["osv-scanner", "scan", "source", "--lockfile=gradle.lockfile"]
+    parser: exitcode
+    default_severity: high
+    required: true

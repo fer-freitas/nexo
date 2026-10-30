@@ -1,0 +1,72 @@
+# Etapas de segurança comuns a todas as stacks (SEC-43). Tokens: {out} = pasta de artefatos da execução.
+stages:
+  - id: secrets
+    kind: security
+    tool: gitleaks
+    run: ["gitleaks", "detect", "--no-git", "--source", ".", "--redact", "--no-banner",
+          "--report-format", "sarif", "--report-path", "{out}/gitleaks.sarif", "--exit-code", "0"]
+    parser: sarif
+    report: "{out}/gitleaks.sarif"
+    default_severity: high
+    required: true
+  - id: sast
+    kind: security
+    provision: semgrep  # F51: ambiente próprio em ~/.nexo-home/tools, instalado com pip na primeira vez (antes `uvx`)
+    tool: "{semgrep}"
+    run: ["{semgrep}", "scan", "--config", "{semgrep_config}", "--sarif", "--output", "{out}/semgrep.sarif",
+          "--quiet", "--metrics", "off", "--exclude", ".nexo", "."]
+    parser: sarif
+    report: "{out}/semgrep.sarif"
+    required: true
+    timeout: 900
+  # F15 (S-10): infraestrutura como código, contêiner, licenças, SBOM por entrega e DAST — opcionais: só rodam
+  # quando o artefato existe (e a ferramenta está instalada). Achado alto/crítico reprova quando a etapa roda.
+  - id: iac
+    kind: security
+    tool: checkov
+    when_glob: "**/*.tf"
+    run: ["checkov", "-d", ".", "--quiet", "--soft-fail", "-o", "sarif", "--output-file-path", "{out}"]
+    parser: sarif
+    report: "{out}/results_sarif.sarif"
+    default_severity: medium
+    required: false
+  - id: container
+    kind: security
+    tool: trivy
+    when_exists: Dockerfile
+    run: ["trivy", "fs", "--scanners", "vuln,misconfig,secret", "--format", "sarif", "--output",
+          "{out}/trivy.sarif", "--exit-code", "0", "--quiet", "."]
+    parser: sarif
+    report: "{out}/trivy.sarif"
+    default_severity: high
+    required: false
+  - id: license
+    kind: security
+    tool: trivy
+    run: ["trivy", "fs", "--scanners", "license", "--format", "sarif", "--output", "{out}/licenses.sarif",
+          "--exit-code", "0", "--quiet", "."]
+    parser: sarif
+    report: "{out}/licenses.sarif"
+    default_severity: medium
+    required: false
+  - id: sbom
+    kind: sbom
+    tool: syft
+    run: ["syft", "dir:.", "-q", "-o", "cyclonedx-json={out}/sbom.cdx.json"]
+    parser: exitcode
+    required: false
+  - id: dast
+    kind: security
+    tool: docker
+    when_param: dast_url  # quality.dast_url: ambiente efêmero da entrega (ZAP baseline, sem ataques ativos)
+    run: ["docker", "run", "--rm", "-v", "{out}:/zap/wrk:rw", "ghcr.io/zaproxy/zaproxy:stable", "zap-baseline.py",
+          "-t", "{dast_url}", "-J", "zap.json", "-I"]
+    parser: exitcode
+    default_severity: high
+    required: false
+  # F48: padrão de código garantido — regras determinísticas das skills (resources/standards + cérebro + projeto);
+  # regra `error` reprova, `warning` só registra. No código existente (F13), só violação nova bloqueia.
+  - id: standards
+    kind: standards
+    builtin: standards
+    required: true

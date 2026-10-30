@@ -1,0 +1,13 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-13
+title: Adoção
+algorithm: adoption
+params:
+  pct: 30
+min_sample: 5
+severity: baixa
+owner: gestor e time do Nexo
+action: Apoio de adoção ao squad
+channels:
+- card
+systemic: false

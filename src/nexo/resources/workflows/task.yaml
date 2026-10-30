@@ -1,0 +1,12 @@
+# Máquina de status de TAREFA (unidade executada por um agente). QA/review ocorrem no nível da história (F3).
+name: task
+initial: Pronto
+terminal: [Concluido, Cancelado]
+states: [Pronto, EmDev, Concluido, Bloqueado, Escalado, Cancelado]
+transitions:
+  - { event: start,      from: [Pronto, Bloqueado, Escalado], to: EmDev }
+  - { event: complete,   from: [EmDev],                        to: Concluido }
+  - { event: block,      from: [EmDev, Pronto],                to: Bloqueado }
+  - { event: escalate,   from: [EmDev, Bloqueado],             to: Escalado }
+  - { event: cancel,     from: [Pronto, Bloqueado, Escalado],  to: Cancelado }
+  - { event: reopen,     from: [Concluido, Cancelado],         to: Pronto }

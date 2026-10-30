@@ -1,0 +1,154 @@
+{
+ "dependencies": [
+  {
+   "name": "ruff",
+   "version": "0.16.8",
+   "vulns": []
+  },
+  {
+   "name": "requests",
+   "version": "2.25.0",
+   "vulns": [
+    {
+     "id": "PYSEC-2023-74",
+     "fix_versions": [
+      "2.31.0"
+     ],
+     "aliases": [
+      "CVE-2023-32681",
+      "GHSA-j8r2-6x86-q33q"
+     ],
+     "description": "### Impact  Since Requests v2.3.0, Requests has been vulnerable to potentially l"
+    },
+    {
+     "id": "PYSEC-2023-74",
+     "fix_versions": [
+      "2.31.0"
+     ],
+     "aliases": [
+      "CVE-2023-32681",
+      "GHSA-j8r2-6x86-q33q"
+     ],
+     "description": "Requests is a HTTP library. Since Requests 2.3.0, Requests has been leaking Prox"
+    },
+    {
+     "id": "PYSEC-2026-1873",
+     "fix_versions": [
+      "2.32.0"
+     ],
+     "aliases": [
+      "CVE-2024-35195",
+      "GHSA-9wx4-h78v-vm56"
+     ],
+     "description": "When using a `requests.Session`, if the first request to a given origin is made "
+    },
+    {
+     "id": "PYSEC-2026-1872",
+     "fix_versions": [
+      "2.32.4"
+     ],
+     "aliases": [
+      "CVE-2024-47081",
+      "GHSA-9hjg-9r4m-mvj7"
+     ],
+     "description": "### Impact  Due to a URL parsing issue, Requests releases prior to 2.32.4 may le"
+    },
+    {
+     "id": "PYSEC-2026-2275",
+     "fix_versions": [
+      "2.33.0"
+     ],
+     "aliases": [
+      "GHSA-gc5v-m9x4-r6x2",
+      "CVE-2026-25645"
+     ],
+     "description": "### Impact The `requests.utils.extract_zipped_paths()` utility function uses a p"
+    },
+    {
+     "id": "PYSEC-2026-1873",
+     "fix_versions": [
+      "2.32.0"
+     ],
+     "aliases": [
+      "CVE-2024-35195",
+      "GHSA-9wx4-h78v-vm56"
+     ],
+     "description": "When using a `requests.Session`, if the first request to a given origin is made "
+    },
+    {
+     "id": "PYSEC-2026-1872",
+     "fix_versions": [
+      "2.32.4"
+     ],
+     "aliases": [
+      "CVE-2024-47081",
+      "GHSA-9hjg-9r4m-mvj7"
+     ],
+     "description": "### Impact  Due to a URL parsing issue, Requests releases prior to 2.32.4 may le"
+    },
+    {
+     "id": "PYSEC-2026-2275",
+     "fix_versions": [
+      "2.33.0"
+     ],
+     "aliases": [
+      "GHSA-gc5v-m9x4-r6x2",
+      "CVE-2026-25645"
+     ],
+     "description": "Requests is a HTTP library. Prior to version 2.33.0, the `requests.utils.extract"
+    }
+   ]
+  },
+  {
+   "name": "idna",
+   "version": "2.10",
+   "vulns": [
+    {
+     "id": "PYSEC-2024-60",
+     "fix_versions": [
+      "3.7"
+     ],
+     "aliases": [
+      "CVE-2024-3651",
+      "GHSA-jjg7-2v4v-x38h"
+     ],
+     "description": "### Impact A specially crafted argument to the `idna.encode()` function could co"
+    },
+    {
+     "id": "PYSEC-2024-60",
+     "fix_versions": [
+      "3.7"
+     ],
+     "aliases": [
+      "CVE-2024-3651",
+      "GHSA-jjg7-2v4v-x38h"
+     ],
+     "description": "A vulnerability was identified in the kjd/idna library, specifically within the "
+    },
+    {
+     "id": "PYSEC-2026-215",
+     "fix_versions": [
+      "3.15"
+     ],
+     "aliases": [
+      "CVE-2026-45409",
+      "GHSA-65pc-fj4g-8rjx"
+     ],
+     "description": "This is the same issue as CVE-2024-3651, however the original remediation in 202"
+    },
+    {
+     "id": "PYSEC-2026-215",
+     "fix_versions": [
+      "3.15"
+     ],
+     "aliases": [
+      "CVE-2026-45409",
+      "GHSA-65pc-fj4g-8rjx"
+     ],
+     "description": "Internationalized Domain Names in Applications (IDNA) for Python provides suppor"
+    }
+   ]
+  }
+ ],
+ "fixes": []
+}

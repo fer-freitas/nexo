@@ -1,0 +1,10 @@
+# Contrato NÃO VERIFICADO (F1-01): validar no spike quando o Devin CLI estiver instalado.
+rate_limit:
+  text:
+    - "(?i)out of ACUs?"
+    - "(?i)insufficient ACUs?"
+    - "(?i)rate limit"
+auth_error:
+  text:
+    - "(?i)not (?:logged|signed) in"
+    - "(?i)unauthori[sz]ed"

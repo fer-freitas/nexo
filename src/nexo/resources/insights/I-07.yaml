@@ -1,0 +1,18 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-07
+title: Gargalo humano
+algorithm: human_bottleneck
+params:
+  hours: 8
+  approve_pct: 90
+  margin: 0.03
+  days: 30
+min_sample: 5
+severity: media
+owner: tech lead e time do Nexo
+action: Calibrar o limiar do portão por PR (nexo gate calibrate)
+channels:
+- card
+- weekly
+- issue
+systemic: true

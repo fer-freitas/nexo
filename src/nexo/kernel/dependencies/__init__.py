@@ -1,0 +1,1 @@
+"""Pacote `kernel.dependencies`."""

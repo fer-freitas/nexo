@@ -1,0 +1,14 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-04
+title: Orçamento vai estourar
+algorithm: budget_overrun
+params:
+  until_day: 20
+  min_days: 3
+min_sample: 1
+severity: alta
+owner: o próprio dev e o gestor
+action: Avisar o dev e decidir aumento de limite antes do bloqueio
+channels:
+- card
+systemic: false

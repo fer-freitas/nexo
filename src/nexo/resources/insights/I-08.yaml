@@ -1,0 +1,14 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-08
+title: Retrabalho / escape
+algorithm: escape
+params:
+  days: 30
+min_sample: 1
+severity: alta
+owner: tech lead e Qualidade
+action: Registrar lição candidata a partir do bug
+channels:
+- card
+- weekly
+systemic: false

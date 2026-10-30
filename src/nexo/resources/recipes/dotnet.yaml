@@ -1,0 +1,43 @@
+stack: dotnet
+# {dotnet_target}: solução da raiz (*.sln/*.slnx) ou, sem ela, o projeto de testes (achado no teste real: com a API na
+# raiz e os testes numa subpasta sem solução, `dotnet test` rodava só a API e não gerava relatório).
+semgrep_config: p/csharp
+stages:
+  - id: build
+    kind: build
+    tool: dotnet
+    run: ["dotnet", "build", "{dotnet_target}", "--nologo", "-warnaserror"]
+    parser: exitcode
+    required: true
+  - id: lint
+    kind: lint
+    tool: dotnet
+    run: ["dotnet", "format", "{dotnet_target}", "--verify-no-changes", "--no-restore"]
+    parser: exitcode
+    required: true
+  - id: unit
+    kind: unit
+    tool: dotnet
+    when_glob: "**/*Tests.csproj"
+    run: ["dotnet", "test", "{dotnet_target}", "--nologo", "--no-build", "--logger", "trx;LogFileName=tests.trx",
+          "--results-directory", "{out}", "--collect", "XPlat Code Coverage"]
+    parser: trx
+    report: "{out}/tests.trx"
+    coverage_glob: "{out}/**/coverage.cobertura.xml"
+    required: true
+  - id: sca
+    kind: security
+    tool: dotnet
+    run: ["dotnet", "list", "{dotnet_target}", "package", "--vulnerable", "--include-transitive"]
+    parser: dotnet_vulnerable
+    required: true
+  - id: mutation
+    kind: mutation
+    tool: dotnet
+    when_exists: stryker-config.json  # F15 (Q-01)
+    run: ["dotnet", "stryker", "--reporter", "json", "--output", "{out}/stryker"]
+    parser: mutation
+    report: "{out}/stryker/reports/mutation-report.json"
+    min_score: "{min_mutation_score}"
+    required: false
+    timeout: 1800

@@ -1,0 +1,73 @@
+# F48: regras de fábrica para .NET (skills ddd-tatico, solid-e-clean-code e padroes-de-projeto).
+rules:
+  - id: DDD-DOMAIN-INFRA
+    title: Domínio dependendo de infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/*.Domain/**", "**/Domain/**"]
+    params:
+      imports:
+        - "\\.Infrastructure\\b"
+        - "^Microsoft\\.EntityFrameworkCore"
+        - "^Amazon\\."
+        - "^AWSSDK"
+        - "^System\\.Net\\.Http"
+        - "^Microsoft\\.Extensions\\.Logging"
+        - "^Microsoft\\.AspNetCore"
+        - "^Dapper"
+        - "^System\\.Data"
+    skill: ddd-tatico
+    message: o domínio não depende de EF Core, AWS SDK, HTTP, logging ou da Infrastructure; use uma porta no Application
+  - id: DDD-APPLICATION-INFRA
+    title: Aplicação dependendo da implementação de infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/*.Application/**", "**/Application/**"]
+    params: { imports: ["\\.Infrastructure\\b", "^Microsoft\\.EntityFrameworkCore", "^Amazon\\.", "^Dapper"] }
+    skill: solid-e-clean-code
+    message: o caso de uso depende de abstrações (porta); a implementação fica na Infrastructure
+  - id: DDD-SETTER-PUBLICO
+    title: Setter público em entidade do domínio
+    kind: forbidden_pattern
+    severity: warning
+    paths: ["**/*.Domain/**", "**/Domain/**"]
+    params: { pattern: "public\\s+[\\w<>?,\\[\\]\\s]+\\s+\\w+\\s*\\{\\s*get;\\s*set;\\s*\\}" }
+    skill: ddd-tatico
+    message: estado da entidade muda só por métodos com nome do negócio (sem setter público)
+  - id: CLEAN-CATCH-VAZIO
+    title: Exceção engolida
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "catch\\s*(\\([^)]*\\))?\\s*\\{\\s*\\}" }
+    skill: solid-e-clean-code
+    message: catch vazio esconde a falha; trate, registre ou deixe propagar
+  - id: SOLID-NAO-IMPLEMENTADO
+    title: NotImplementedException em código de produção
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/*Tests/**", "**/*.Tests/**", "**/tests/**"]
+    params: { pattern: "throw\\s+new\\s+NotImplementedException" }
+    skill: solid-e-clean-code
+    message: sinal de violação de Liskov/segregação de interfaces; reveja a hierarquia ou quebre a interface
+  - id: SOLID-INTERFACE-NOME
+    title: Interface sem o prefixo I
+    kind: forbidden_pattern
+    severity: warning
+    params: { pattern: "\\binterface\\s+(?!I[A-Z])\\w+" }
+    skill: solid-e-clean-code
+    message: interface em C# começa com I (IRepositorio, IPagamentoGateway)
+  - id: CLEAN-FUNCAO-LONGA
+    title: Método longo
+    kind: max_function_lines
+    severity: warning
+    params: { limit: 30 }
+    exclude: ["**/*Tests/**", "**/*.Tests/**", "**/Migrations/**"]
+    skill: solid-e-clean-code
+    message: método com mais de um nível de abstração; extraia passos com nome do negócio
+  - id: CLEAN-MUITOS-PARAMETROS
+    title: Muitos parâmetros
+    kind: max_params
+    severity: warning
+    params: { limit: 5 }
+    skill: solid-e-clean-code
+    message: muitos parâmetros ou dependências; use objeto de parâmetro ou divida a responsabilidade

@@ -1,0 +1,48 @@
+# F48: regras de fábrica para React/TypeScript (skills solid-e-clean-code e padroes-de-projeto).
+rules:
+  - id: DDD-DOMAIN-INFRA
+    title: Domínio dependendo de UI ou infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/domain/**"]
+    params: { imports: ["^react", "^axios", "^@tanstack/", "(^|/)(infrastructure|infra|api|services|components)(/|$)"] }
+    skill: ddd-tatico
+    message: regra de negócio no domínio não depende de React, HTTP ou componentes; injete pela porta
+  - id: CLEAN-CATCH-VAZIO
+    title: Exceção engolida
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "catch\\s*(\\([^)]*\\))?\\s*\\{\\s*\\}" }
+    skill: solid-e-clean-code
+    message: catch vazio esconde a falha; trate, registre ou deixe propagar
+  - id: CLEAN-CONSOLE-LOG
+    title: console.log em código de produção
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/*.test.*", "**/*.spec.*", "**/__tests__/**"]
+    params: { pattern: "\\bconsole\\.log\\(" }
+    skill: solid-e-clean-code
+    message: remova o console.log ou use o logger da aplicação
+  - id: CLEAN-ANY
+    title: any explícito
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/*.test.*", "**/*.spec.*", "**/*.d.ts"]
+    params: { pattern: ":\\s*any\\b|as\\s+any\\b|<any>" }
+    skill: solid-e-clean-code
+    message: tipe o valor (any desliga o compilador)
+  - id: CLEAN-FUNCAO-LONGA
+    title: Função ou componente longo
+    kind: max_function_lines
+    severity: warning
+    params: { limit: 60 }
+    exclude: ["**/*.test.*", "**/*.spec.*"]
+    skill: solid-e-clean-code
+    message: função ou componente com responsabilidades demais; extraia hooks e subcomponentes
+  - id: CLEAN-MUITOS-PARAMETROS
+    title: Muitos parâmetros
+    kind: max_params
+    severity: warning
+    params: { limit: 4 }
+    skill: solid-e-clean-code
+    message: muitos parâmetros; use um objeto de opções tipado

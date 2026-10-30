@@ -1,0 +1,17 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-02
+title: História fora da curva
+algorithm: outlier_story
+params:
+  pct: 90
+  attempts: 3
+  spec_returns: 2
+  days: 90
+min_sample: 5
+severity: media
+owner: tech lead do squad
+action: Abrir o drill-down da história e revisar spec, tentativas e rota
+channels:
+- card
+- weekly
+systemic: false

@@ -1,0 +1,60 @@
+# F48: regras de fábrica para Python (skills ddd-tatico, solid-e-clean-code e padroes-de-projeto).
+rules:
+  - id: DDD-DOMAIN-INFRA
+    title: Domínio dependendo de infraestrutura
+    kind: forbidden_import
+    severity: error
+    paths: ["**/domain/**"]
+    params:
+      imports:
+        - "(^|\\.)(infrastructure|infra|adapters|api|web|cli)(\\.|$)"
+        - "^(requests|httpx|urllib3|boto3|botocore|sqlalchemy|psycopg|pymongo|redis|fastapi|flask|django|logging)(\\.|$)"
+    skill: ddd-tatico
+    message: o domínio não depende de banco, HTTP, nuvem, framework web ou logging; use uma porta na aplicação
+  - id: CLEAN-EXCEPT-VAZIO
+    title: Exceção engolida
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "except\\s*(Exception\\s*)?:\\s*\\n\\s*pass\\b" }
+    skill: solid-e-clean-code
+    message: except que só faz pass esconde a falha; trate, registre ou deixe propagar
+  - id: CLEAN-EXCEPT-SEM-TIPO
+    title: except sem tipo
+    kind: forbidden_pattern
+    severity: error
+    params: { pattern: "^\\s*except\\s*:" }
+    skill: solid-e-clean-code
+    message: except sem tipo captura até KeyboardInterrupt; capture a exceção esperada
+  - id: CLEAN-PRINT
+    title: print em código de produção
+    kind: forbidden_pattern
+    severity: warning
+    exclude: ["**/tests/**", "**/test_*.py", "**/scripts/**", "**/cli/**", "**/__main__.py"]
+    params: { pattern: "^\\s*print\\(" }
+    skill: solid-e-clean-code
+    message: use logging estruturado (ou a saída da CLI), não print
+  - id: CLEAN-FUNCAO-LONGA
+    title: Função longa
+    kind: max_function_lines
+    severity: warning
+    params: { limit: 30 }
+    exclude: ["**/tests/**", "**/test_*.py"]
+    skill: solid-e-clean-code
+    message: função com mais de um nível de abstração; extraia passos com nome do negócio
+  - id: CLEAN-MUITOS-PARAMETROS
+    title: Muitos parâmetros
+    kind: max_params
+    severity: warning
+    params: { limit: 5 }
+    exclude: ["**/tests/**", "**/test_*.py"]
+    skill: solid-e-clean-code
+    message: muitos parâmetros; use objeto de parâmetro (dataclass) ou divida a responsabilidade
+  - id: DDD-TESTE-DO-DOMINIO
+    title: Regra de domínio sem teste
+    kind: required_test
+    severity: warning
+    paths: ["**/domain/**"]
+    exclude: ["**/__init__.py"]
+    params: { test: "**/test_{stem}.py" }
+    skill: ddd-tatico
+    message: regra nova do domínio vem com teste unitário (código puro, sem mocks)

@@ -1,0 +1,14 @@
+# Detector de insight (F11, §7). Ajuste limiares por PR em nexo-brain/insights/.
+id: I-09
+title: Qualidade em queda
+algorithm: quality_drop
+params:
+  coverage_min: 70
+min_sample: 3
+severity: alta
+owner: tech lead e Segurança
+action: Rever achados, testes instáveis e cobertura da semana
+channels:
+- card
+- weekly
+systemic: false

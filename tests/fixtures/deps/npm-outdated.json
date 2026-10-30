@@ -1,0 +1,12 @@
+{
+  "lodash": {
+    "wanted": "4.17.15",
+    "latest": "4.18.1",
+    "dependent": "js"
+  },
+  "minimist": {
+    "wanted": "1.2.0",
+    "latest": "1.2.8",
+    "dependent": "js"
+  }
+}

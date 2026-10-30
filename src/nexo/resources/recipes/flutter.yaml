@@ -1,0 +1,57 @@
+# F49: Flutter/Dart. Testes pelo protocolo `--machine` (JSON por linha) e cobertura LCOV do próprio `flutter test`.
+stack: flutter
+semgrep_config: p/default
+stages:
+  - id: install
+    kind: build
+    tool: flutter
+    run: ["flutter", "pub", "get"]
+    optional_args:
+      - when_exists: pubspec.lock  # versões travadas: falha se o pubspec divergir do lock (como `npm ci`)
+        args: ["--enforce-lockfile"]
+    parser: exitcode
+    required: true
+  - id: format
+    kind: lint
+    tool: dart
+    run: ["dart", "format", "--output=none", "--set-exit-if-changed", "."]
+    fix: ["dart", "format"]  # correção determinística (arquivos alterados vão no fim)
+    changed_only: [".dart"]
+    parser: exitcode
+    required: true
+  - id: lint
+    kind: lint
+    tool: flutter
+    run: ["flutter", "analyze", "--no-fatal-infos", "."]
+    changed_only: [".dart"]  # código existente (F13): só os arquivos alterados
+    # test-first: o teste de aceite cita código que ainda não existe e o analisador de tipos sempre reprovaria;
+    # antes de travar os testes vale só a formatação (achado no e2e). No pipeline da história ele roda normalmente.
+    skip_on_new_tests: true
+    parser: exitcode
+    required: true
+  - id: unit
+    kind: unit
+    tool: flutter
+    when_exists: test
+    run: ["flutter", "test", "--machine", "--coverage", "--coverage-path={out}/lcov.info"]
+    parser: flutter_machine
+    coverage: "{out}/lcov.info"
+    coverage_format: lcov
+    required: true
+    timeout: 1800
+  - id: integration
+    kind: integration
+    tool: flutter
+    when_exists: integration_test
+    run: ["flutter", "test", "--machine", "integration_test"]
+    parser: flutter_machine
+    required: false  # precisa de dispositivo ou emulador
+    timeout: 1800
+  - id: sca
+    kind: security
+    tool: osv-scanner
+    when_exists: pubspec.lock
+    run: ["osv-scanner", "scan", "source", "--lockfile=pubspec.lock"]
+    parser: exitcode
+    default_severity: high
+    required: true
