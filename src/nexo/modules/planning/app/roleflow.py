@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from nexo.kernel import roles as r
+from nexo.kernel import services
 from nexo.kernel.backlog import Backlog
 from nexo.kernel.config.cascade import resolve
 from nexo.kernel.context import AppContext
@@ -22,9 +23,10 @@ from nexo.kernel.platform import config, flags, identity
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.spec.model import Spec
 from nexo.kernel.workspace import specs
-from nexo.modules.execution.app import llm
-from nexo.modules.knowledge.app import content
-from nexo.modules.notify.app import notify
+
+llm = services.load("execution.llm")
+content = services.load("knowledge.content")
+notify = services.get("notify.main", "notify")
 
 TRUSTED_LEVELS = ("default", "org", "squad")
 ROLES_FILE = "roles.yaml"

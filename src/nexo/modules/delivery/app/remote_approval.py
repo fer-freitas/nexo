@@ -62,10 +62,14 @@ def apply(ctx: AppContext) -> list[dict[str, str]]:
     pending = _pending(ctx)
     if not pending:
         return []
+    from nexo.kernel import services
     from nexo.kernel.platform import identity, telemetry
     from nexo.kernel.runtime import http
-    from nexo.modules.execution.app.run import RunOptions
-    from nexo.modules.execution.app.story import StoryRunner
+
+    RunOptions = services.get("execution.run", "RunOptions")
+    from nexo.kernel import services
+
+    StoryRunner = services.get("execution.story", "StoryRunner")
 
     body = http.request(
         "GET",

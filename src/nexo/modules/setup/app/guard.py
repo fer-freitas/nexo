@@ -35,8 +35,10 @@ def settings_path(ctx: AppContext, env: dict[str, str] | None = None) -> Path:
 
 
 def _command() -> str:
+    from nexo.kernel import services
     from nexo.kernel.runtime.system import shell_join
-    from nexo.modules.execution.app.agents import nexo_command
+
+    nexo_command = services.get("execution.agents", "nexo_command")
 
     return shell_join([*nexo_command(), "hook", "run", "guard"])
 
@@ -177,8 +179,10 @@ def status(ctx: AppContext) -> dict[str, Any]:
 
 def run_hook(ctx: AppContext, stdin: IO[str] | None = None, stdout: IO[str] | None = None) -> int:
     """Protocolo PreToolUse do Claude Code para sessões fora do Nexo: nega o que a política da empresa proíbe."""
+    from nexo.kernel import services
     from nexo.kernel.security.policy import evaluate_guard, normalize
-    from nexo.modules.execution.app.hooks import load_policy
+
+    load_policy = services.get("execution.hooks", "load_policy")
 
     src, dst = stdin or sys.stdin, stdout or sys.stdout
     try:

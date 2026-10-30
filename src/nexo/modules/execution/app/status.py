@@ -21,7 +21,9 @@ def _story_state(root: Path, run_id: str) -> dict[str, Any]:
 
 def story_cost(ctx: AppContext, story_id: str) -> dict[str, Any]:
     """Custo ao vivo de uma história: acumulado, teto e projeção."""
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
 
     root = ctx.project_root
     if root is None:
@@ -46,7 +48,9 @@ def overview(ctx: AppContext) -> list[dict[str, Any]]:
     root = ctx.project_root
     if root is None:
         raise NexoError("nenhum projeto Nexo encontrado; rode `nexo init`")
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
 
     store = RunStore(ctx.conn, project_key(root))
     out: list[dict[str, Any]] = []

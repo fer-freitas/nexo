@@ -57,7 +57,9 @@ def header(ctx: AppContext) -> Header | None:
             states[str(row["state"])] = states.get(str(row["state"]), 0) + 1
     month: float | None
     try:
-        from nexo.modules.finops.app import costs
+        from nexo.kernel import services
+
+        costs = services.load("finops.costs")
 
         month = costs.budget_status(ctx).spent_brl  # seu gasto no mês (dentro do Nexo)
     except Exception:  # custo é só informativo no cabeçalho
@@ -78,8 +80,10 @@ def header(ctx: AppContext) -> Header | None:
 
 def _who(ctx: AppContext) -> tuple[str, tuple[str, ...]]:
     try:
+        from nexo.kernel import services
         from nexo.kernel.platform import identity
-        from nexo.modules.planning.app.roleflow import roles_of
+
+        roles_of = services.get("planning.roleflow", "roles_of")
 
         who = identity.current(ctx).id
         return who, tuple(roles_of(ctx, who))
@@ -166,7 +170,9 @@ def _demand_steps(ctx: AppContext) -> list[Step]:
 
 def _dev_unclear_steps(root: Path) -> list[Step]:
     """A explicação da tarefa achou uma dúvida real: levar ao tech lead (ou seguir com o que já está decidido)."""
-    from nexo.modules.execution.app import devflow
+    from nexo.kernel import services
+
+    devflow = services.load("execution.devflow")
 
     return [
         Step(
@@ -182,8 +188,12 @@ def _dev_unclear_steps(root: Path) -> list[Step]:
 
 def _agent_step(root: Path, sid: str) -> Step | None:
     """A história parou porque o agente perguntou algo: responder; respondida, retomar dali."""
-    from nexo.modules.execution.app.story import clarification
-    from nexo.modules.planning.app.clarify import feature_for_story
+    from nexo.kernel import services
+
+    clarification = services.load("execution.story_clarification")
+    from nexo.kernel import services
+
+    feature_for_story = services.get("planning.clarify", "feature_for_story")
 
     folder = feature_for_story(root, sid)
     if folder is None or not clarification.agent_questions(folder, sid):
@@ -204,8 +214,10 @@ def _agent_step(root: Path, sid: str) -> Step | None:
 
 def _docs_step(ctx: AppContext, root: Path) -> list[Step]:
     """Plano aprovado e nenhum destino de documentação escolhido: onde fica a base de conhecimento?"""
+    from nexo.kernel import services
     from nexo.kernel.workspace import specs
-    from nexo.modules.knowledge.app import docs
+
+    docs = services.load("knowledge.docs")
 
     origin = config.resolved(ctx).origin.get("docs.publish.target", "default")
     if docs.target_kind(ctx) != "none" or origin != "default":  # alguém já escolheu (inclusive "none")
@@ -243,8 +255,12 @@ def _role_steps(ctx: AppContext) -> list[Step]:
     """O que espera pelo seu papel no fluxo por papéis (decisão de discovery do PM, partes do plano do PM e do tech
     lead, sessão conjunta) — o mesmo que o antigo `plan inbox`."""
     try:
-        from nexo.modules.planning.app import roleflow
-        from nexo.modules.planning.app.plan import Planner
+        from nexo.kernel import services
+
+        roleflow = services.load("planning.roleflow")
+        from nexo.kernel import services
+
+        Planner = services.get("planning.plan", "Planner")
 
         items = roleflow.inbox(Planner(ctx, None, lambda _k, _d: None))["items"]
     except Exception:  # fluxo por papéis não configurado: nada a mostrar
@@ -366,8 +382,10 @@ def _tracker_map_steps(ctx: AppContext) -> list[Step]:
     if kind not in ("file", "github"):
         return []
     try:
+        from nexo.kernel import services
         from nexo.kernel.tracker.mapping import check
-        from nexo.modules.demands.app import tracker
+
+        tracker = services.load("demands.tracker")
 
         problems = check(tracker.load_mapping(ctx, kind), None)
     except Exception:  # de-para ilegível: o `tracker map --check` explica
@@ -381,7 +399,10 @@ def _finops_steps(ctx: AppContext) -> list[Step]:
     """Custo estimado (preço de tabela) e mês sem orçamento: o que o FinOps e o gestor ainda não informaram."""
     out: list[Step] = []
     try:
-        from nexo.modules.finops.app import costs, pricing
+        from nexo.kernel import services
+
+        costs = services.load("finops.costs")
+        pricing = services.load("finops.pricing")
 
         issues = pricing.check(ctx)
         if issues:
@@ -420,7 +441,9 @@ def inbox(ctx: AppContext) -> dict[str, Any]:
 
     who = identity.current(ctx)
     try:
-        from nexo.modules.planning.app.roleflow import roles_of
+        from nexo.kernel import services
+
+        roles_of = services.get("planning.roleflow", "roles_of")
 
         roles = list(roles_of(ctx, who.id))
     except Exception:
@@ -438,8 +461,10 @@ def inbox(ctx: AppContext) -> dict[str, Any]:
 
 def _story_ready_step(ctx: AppContext, root: Path, sid: str, title: str) -> Step:
     from nexo.kernel import ready as ready_domain
+    from nexo.kernel import services
     from nexo.kernel.runtime import yamlfile
-    from nexo.modules.planning.app import ready
+
+    ready = services.load("planning.ready")
 
     mode = ready.mode(ctx)
     try:
@@ -492,7 +517,9 @@ def _feature_steps(ctx: AppContext, root: Path, store: Any) -> list[Step]:
 def _is_tech_lead(ctx: AppContext) -> bool:
     """Sem fluxo por papéis, a pessoa tem todos os papéis."""
     try:
-        from nexo.modules.planning.app import roleflow
+        from nexo.kernel import services
+
+        roleflow = services.load("planning.roleflow")
 
         return not roleflow.active(ctx) or "tech_lead" in _who(ctx)[1]
     except Exception:  # fluxo por papéis mal configurado não esconde os passos

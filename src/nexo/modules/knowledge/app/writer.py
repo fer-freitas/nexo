@@ -13,13 +13,15 @@ import re
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config, flags
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.security.redaction import find
 from nexo.kernel.workspace import codemap, git, specs
-from nexo.modules.planning.app.clarify import feature_for_story
+
+feature_for_story = services.get("planning.clarify", "feature_for_story")
 
 STANDARD_DOCS = (
     "docs/arquitetura.md",
@@ -128,8 +130,11 @@ def update(ctx: AppContext, target: str | None = None) -> dict[str, Any]:
     root = ctx.project_root
     if root is None:
         raise NexoError("rode dentro de um repositório com o Nexo (nexo init)")
+    from nexo.kernel import services
     from nexo.kernel.workspace import tasks
-    from nexo.modules.execution.app.run import Orchestrator, RunOptions
+
+    Orchestrator = services.get("execution.run", "Orchestrator")
+    RunOptions = services.get("execution.run", "RunOptions")
 
     stories: list[str] = []
     if target and target.upper().startswith("F-"):
@@ -234,8 +239,12 @@ def publish_knowledge(ctx: AppContext, dry_run: bool = False) -> dict[str, Any]:
     repo = str(brain._cfg(ctx).get("github_repo") or "")
     if repo:
         try:
-            from nexo.modules.delivery.adapters.scm.github import GitHubScm
-            from nexo.modules.demands.app.tracker import github_token
+            from nexo.kernel import services
+
+            GitHubScm = services.get("delivery.github", "GitHubScm")
+            from nexo.kernel import services
+
+            github_token = services.get("demands.tracker", "github_token")
 
             scm = GitHubScm(repo, github_token(ctx))
             branch = f"nexo/conhecimento/{Path(path).stem}-{_stamp()}"

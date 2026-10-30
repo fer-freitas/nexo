@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
+from nexo.kernel import services
 from nexo.kernel.finops.money import brl
 from nexo.kernel.models.agent import AgentRequest
 from nexo.kernel.models.work import Task
@@ -16,7 +17,8 @@ from nexo.modules.execution.app.run import steps as run_steps
 from nexo.modules.execution.app.run.common import CLASSIFIER_SCHEMA, RunReport, _fmt, _now
 from nexo.modules.execution.domain.routing.classify import Classification, classify
 from nexo.modules.execution.domain.routing.router import RouteDecision, RoutingRequest, choose
-from nexo.modules.knowledge.app import content
+
+content = services.load("knowledge.content")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.run.runner import Orchestrator
@@ -108,7 +110,9 @@ def choose_route(
         observed=observed(o, c.kind),
         blocked=killswitch.blocked_routes(o.ctx, o.catalog.routes),
     )
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
 
     costs.sync_limits(o.ctx)  # o limite pode ter mudado fora do Nexo
     budget = costs.budget_status(o.ctx)
@@ -129,20 +133,28 @@ def choose_route(
 
 
 def observed(o: Orchestrator, kind: str | None) -> dict[str, tuple[int, int]]:
-    from nexo.modules.knowledge.app.learning import observed_for
+    from nexo.kernel import services
 
-    return observed_for(o.ctx, kind)
+    observed_for = services.get("knowledge.learning", "observed_for")
+
+    return cast("dict[str, tuple[int, int]]", observed_for(o.ctx, kind))
 
 
 def no_route(o: Orchestrator, task: Task, run_id: str, decision: RouteDecision, routes: list[str]) -> RunReport:
     reasons = set(decision.rejected.values())
     if "orçamento esgotado" in reasons and not decision.earliest_reset:
-        from nexo.modules.finops.app import costs
-        from nexo.modules.notify.app import notify
+        from nexo.kernel import services
+
+        costs = services.load("finops.costs")
+        from nexo.kernel import services
+
+        notify = services.get("notify.main", "notify")
 
         until = costs.next_month_epoch()
         reason = "orçamento esgotado em todas as rotas — retoma quando o gestor aumentar o limite ou o mês virar"
-        from nexo.modules.delivery.app import approval
+        from nexo.kernel import services
+
+        approval = services.load("delivery.approval")
 
         if approval.mode(o.ctx, "budget") == "external":
             pending = approval.find_pending(o.ctx, "budget", dev=o.ctx.actor)

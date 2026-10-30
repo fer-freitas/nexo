@@ -11,17 +11,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.finops.costs import usage_cost_brl
 from nexo.kernel.finops.money import brl
+from nexo.kernel.learning.model import VariantResult, compare, wilson
 from nexo.kernel.platform import config
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.workspace import git
-from nexo.modules.finops.app import costs as finops_costs
-from nexo.modules.knowledge.domain.learning.model import VariantResult, compare, wilson
-from nexo.modules.quality.adapters.runner import run_pipeline
 from nexo.store.runs import now_iso, project_key
+
+finops_costs = services.load("finops.costs")
+run_pipeline = services.get("quality.runner", "run_pipeline")
 
 TEST_HINTS = ("tests/", "test/", ".Tests/", ".test.", ".spec.", "test_")
 
@@ -181,7 +183,10 @@ def _eval_branch(ctx: AppContext, golden: dict[str, Any]) -> str:
 
 
 def run(ctx: AppContext, task_id: str, variants: list[Variant], runs: int, kind: str) -> dict[str, Any]:
-    from nexo.modules.execution.app.run import Orchestrator, RunOptions
+    from nexo.kernel import services
+
+    Orchestrator = services.get("execution.run", "Orchestrator")
+    RunOptions = services.get("execution.run", "RunOptions")
 
     root = _root(ctx)
     scope = project_key(root)

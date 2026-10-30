@@ -10,14 +10,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError, PolicyViolation
 from nexo.kernel.extensions.model import Extension, most_similar
 from nexo.kernel.platform import config
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.security.redaction import find, redact
-from nexo.modules.knowledge.app import brain as knowledge_brain
 from nexo.modules.packs.adapters import extensions as ext_adapter
+
+knowledge_brain = services.load("knowledge.brain")
 
 LOCAL_SCOPES = ("personal", "project")
 
@@ -186,7 +188,9 @@ def remove(ctx: AppContext, ext_type: str, name: str, scope: str | None) -> list
 
 
 def sync(ctx: AppContext) -> ext_adapter.InstallReport:
-    from nexo.modules.execution.app.agents import nexo_command
+    from nexo.kernel import services
+
+    nexo_command = services.get("execution.agents", "nexo_command")
 
     extensions = effective(ctx)
     report = ext_adapter.transpile(extensions, tool_paths(ctx), nexo_command())

@@ -7,15 +7,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
-from nexo.kernel.platform import config
-from nexo.kernel.secrets import credentials
-from nexo.kernel.security.redaction import redact
-from nexo.modules.execution.app import llm
-from nexo.modules.knowledge.adapters import learning_sources
-from nexo.modules.knowledge.app import brain, content
-from nexo.modules.knowledge.domain.learning.model import (
+from nexo.kernel.learning.model import (
     LESSON_TYPES,
     Lesson,
     RawEvent,
@@ -24,7 +19,14 @@ from nexo.modules.knowledge.domain.learning.model import (
     dedup_lessons,
     posterior,
 )
+from nexo.kernel.platform import config
+from nexo.kernel.secrets import credentials
+from nexo.kernel.security.redaction import redact
+from nexo.modules.knowledge.adapters import learning_sources
+from nexo.modules.knowledge.app import brain, content
 from nexo.store.runs import now_iso, project_key
+
+llm = services.load("execution.llm")
 
 LESSON_SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -110,7 +112,9 @@ def _collect_source(ctx: AppContext, root: Path, cfg: dict[str, Any], source: st
         return routing_events(ctx)
     if source == "pr_comments":
         repo = str((cfg.get("scm") or {}).get("repo") or "")
-        from nexo.modules.demands.app.tracker import github_token
+        from nexo.kernel import services
+
+        github_token = services.get("demands.tracker", "github_token")
 
         gh_token = github_token(ctx, required=False)
         if not repo or not gh_token:
@@ -349,7 +353,9 @@ def routing_events(ctx: AppContext) -> list[RawEvent]:
 
 def propose_routing(ctx: AppContext) -> dict[str, Any]:
     """Proposta revisável de ajuste das prioridades de rota a partir do histórico (mudança via PR no cérebro)."""
-    from nexo.modules.execution.app.agents import catalog
+    from nexo.kernel import services
+
+    catalog = services.get("execution.agents", "catalog")
 
     cat = catalog(ctx)
     min_samples = int((_cfg(ctx).get("routing") or {}).get("min_samples", 5))

@@ -50,7 +50,9 @@ def build_server(ctx: AppContext, run_id: str, role: str | None = None) -> McpSe
             last = handoffs[-1]["packet_path"] if handoffs else None
             parts["handoff"] = Path(last).read_text(encoding="utf-8") if last and Path(last).is_file() else "(nenhum)"
         if section in ("standards", "all"):
-            from nexo.modules.packs.app.extensions import effective
+            from nexo.kernel import services
+
+            effective = services.get("packs.extensions", "effective")
 
             names = {p.name for p in embedded_dir("skills").iterdir() if p.is_dir()}
             names |= {e.meta.name for e in effective(ctx) if e.meta.type == "skill"}  # cérebro, squad, projeto
@@ -59,7 +61,9 @@ def build_server(ctx: AppContext, run_id: str, role: str | None = None) -> McpSe
         return {"content": text, "refs": list(parts), "truncated": truncated}
 
     def search_brain(args: dict[str, Any]) -> dict[str, Any]:
-        from nexo.modules.knowledge.app.brain import search
+        from nexo.kernel import services
+
+        search = services.get("knowledge.brain", "search")
 
         return {"results": search(ctx, str(args["query"]), int(args.get("limit") or 5))}
 
@@ -79,7 +83,9 @@ def build_server(ctx: AppContext, run_id: str, role: str | None = None) -> McpSe
         return {"ok": True, "checkpoint_sha": sha}
 
     def request_clarification(args: dict[str, Any]) -> dict[str, Any]:
-        from nexo.modules.planning.app import clarify
+        from nexo.kernel import services
+
+        clarify = services.load("planning.clarify")
 
         qid = clarify.register(
             ctx, run_id, str(args["question"]), str(args.get("section") or ""), bool(args.get("blocking", True))
@@ -87,8 +93,10 @@ def build_server(ctx: AppContext, run_id: str, role: str | None = None) -> McpSe
         return {"status": "queued", "question_id": qid}
 
     def run_checks(args: dict[str, Any]) -> dict[str, Any]:
+        from nexo.kernel import services
         from nexo.kernel.platform import config
-        from nexo.modules.quality.adapters.runner import run_pipeline
+
+        run_pipeline = services.get("quality.runner", "run_pipeline")
 
         stacks = config.resolved(ctx).values.get("stacks") or ["python"]
         stages = [str(s) for s in args.get("stages") or ["lint", "unit", "secrets"]]
@@ -271,7 +279,9 @@ def build_server(ctx: AppContext, run_id: str, role: str | None = None) -> McpSe
                 lineage_neighbors,
             )
         )
-    from nexo.modules.knowledge.app import content
+    from nexo.kernel import services
+
+    content = services.load("knowledge.content")
 
     allowed = content.tools_for_role(ctx, role)  # org/tools.yaml › roles
     if allowed is not None:

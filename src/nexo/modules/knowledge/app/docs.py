@@ -19,9 +19,13 @@ def publish(ctx: AppContext, folder: Path, spec: Spec, root: Path | None = None)
 
 def as_built(ctx: AppContext, root: Path, story_id: str) -> bool:
     """Quando todas as histórias da feature estão concluídas, regrava os documentos como as-built e publica."""
+    from nexo.kernel import services
     from nexo.kernel.workspace import specs
-    from nexo.modules.planning.app import templates
-    from nexo.modules.planning.app.clarify import feature_for_story
+
+    templates = services.load("planning.templates")
+    from nexo.kernel import services
+
+    feature_for_story = services.get("planning.clarify", "feature_for_story")
     from nexo.store.runs import RunStore, project_key
 
     folder = feature_for_story(root, story_id)

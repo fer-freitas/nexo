@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import time
@@ -57,6 +58,28 @@ def forbidden_terms() -> dict[str, object]:
     return {"step": "termos proibidos", "ok": not hits, "seconds": 0, "checked": bool(terms)}
 
 
+def optional_tools() -> list[dict[str, object]]:
+    """Segredos, dependências e SAST. Ferramenta ausente fica registrada como não verificada, nunca como aprovada."""
+    tools = {
+        "gitleaks": ["gitleaks", "detect", "--no-banner", "--redact"],
+        "pip-audit": ["pip-audit", "--progress-spinner", "off"],
+        "semgrep": ["semgrep", "--config", "auto", "--error", "--quiet", "src"],
+    }
+    steps: list[dict[str, object]] = []
+    for name, cmd in tools.items():
+        if shutil.which(cmd[0]) or Path(PY).with_name(cmd[0]).is_file():
+            steps.append(
+                run(
+                    name,
+                    [str(Path(PY).with_name(cmd[0])) if Path(PY).with_name(cmd[0]).is_file() else cmd[0], *cmd[1:]],
+                )
+            )
+        else:
+            print(f"[não verificado] {name}: não instalado")
+            steps.append({"step": name, "ok": True, "seconds": 0, "checked": False})
+    return steps
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fast", action="store_true")
@@ -64,13 +87,16 @@ def main() -> int:
     steps = [
         forbidden_terms(),
         run("lint", [PY, "-m", "ruff", "check", "src", "tests", "scripts"]),
+        run("formatação", [PY, "-m", "ruff", "format", "--check", "src", "tests", "scripts"]),
+        run("camadas", [str(Path(PY).with_name("lint-imports")), "--no-cache"]),
         run("arquitetura", [PY, "-m", "pytest", "tests/architecture", "-q", "-p", "no:cacheprovider"]),
     ]
     if args.fast:
         steps.append(run("testes de unidade", [PY, "-m", "pytest", "tests/unit", "-q", "-n", "auto"]))
     else:
         steps.append(run("tipos", [PY, "-m", "mypy"]))
-        steps.append(run("testes", [PY, "-m", "pytest", "tests", "-q", "-n", "auto"]))
+        steps.append(run("testes", [PY, "-m", "pytest", "tests", "-q", "-n", "auto", "--timeout=120"]))
+        steps += optional_tools()
     ok = all(s["ok"] for s in steps)
     out = ROOT / "evidence" / "local" / f"{platform.system().lower()}.json"
     out.parent.mkdir(parents=True, exist_ok=True)

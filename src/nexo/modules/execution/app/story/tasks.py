@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from nexo.kernel import services
 from nexo.kernel.backlog import Backlog, BacklogTask, waves
 from nexo.kernel.context import AppContext
 from nexo.kernel.runtime import yamlfile
@@ -15,8 +16,9 @@ from nexo.kernel.workspace import tasks as workspace_tasks
 from nexo.modules.execution.app.run import Orchestrator, RunOptions, RunReport
 from nexo.modules.execution.app.story import cost as story_cost
 from nexo.modules.execution.app.story.common import StoryReport
-from nexo.modules.knowledge.app import content
-from nexo.modules.planning.app.clarify import feature_for_story
+
+content = services.load("knowledge.content")
+feature_for_story = services.get("planning.clarify", "feature_for_story")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.story.runner import StoryRunner
@@ -137,7 +139,7 @@ def rebase(r: StoryRunner, story_id: str, st: dict[str, Any], task_id: str, conf
         )
         + f"\n\n## Mudança original da tarefa (reaplique sobre o código atual)\n```diff\n{task_diff}\n```\n"
     )
-    spec = specs.load_spec(feature_for_story(r.root, story_id))  # type: ignore[arg-type]
+    spec = specs.load_spec(feature_for_story(r.root, story_id))
     write(
         r,
         rid,

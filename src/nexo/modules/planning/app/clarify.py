@@ -73,9 +73,11 @@ def ask_remote(ctx: AppContext, root: Path, feature_dir: str, qid: str, question
     """Registra o id no central (sem o texto) e manda o cartão ao Teams com o link do formulário de resposta."""
     import json
 
+    from nexo.kernel import services
     from nexo.kernel.platform import flags, telemetry
     from nexo.kernel.runtime import http
-    from nexo.modules.notify.app import notify
+
+    notify = services.get("notify.main", "notify")
 
     if not telemetry.enabled(ctx) or not flags.enabled(ctx, "clarification_teams"):
         return None

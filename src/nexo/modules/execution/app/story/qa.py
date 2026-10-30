@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import shutil
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
+from nexo.kernel import services
 from nexo.kernel.backlog import BacklogTask
 from nexo.kernel.quality.model import ERROR, FAILED, TestCase
 from nexo.kernel.quality.traceability import ac_ids_in
@@ -15,8 +16,9 @@ from nexo.kernel.workspace import git, specs
 from nexo.modules.execution.app.run import GIT_LOCK
 from nexo.modules.execution.app.story import tasks as story_tasks
 from nexo.modules.execution.app.story.common import StoryReport, is_test_file, is_test_task, sha256_file
-from nexo.modules.planning.app.clarify import feature_for_story
-from nexo.modules.quality.adapters.runner import run_pipeline
+
+feature_for_story = services.get("planning.clarify", "feature_for_story")
+run_pipeline = services.get("quality.runner", "run_pipeline")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.story.runner import StoryRunner
@@ -112,20 +114,24 @@ def run_qa(
 
 
 def to_characterize(r: StoryRunner, tasks: list[BacklogTask]) -> list[Any]:
-    from nexo.modules.planning.app import discover
+    from nexo.kernel import services
+
+    discover = services.load("planning.discover")
 
     cfg = dict(r.cfg.get("brownfield") or {})
     if not cfg.get("characterization", True) or discover.load_map(r.root) is None:
         return []
     threshold = float(cfg.get("characterization_below", 60))
     targets = sorted({f for t in tasks for f in t.files_hint})
-    return discover.impacted_low_coverage(r.root, targets, threshold)
+    return cast("list[Any]", discover.impacted_low_coverage(r.root, targets, threshold))
 
 
 def characterize(
     r: StoryRunner, story_id: str, run_id: str, st: dict[str, Any], spec: Spec, tasks: list[BacklogTask], worktree: Path
 ) -> StoryReport | None:
-    from nexo.modules.planning.app import discover
+    from nexo.kernel import services
+
+    discover = services.load("planning.discover")
 
     impacted = to_characterize(r, tasks)
     if not impacted:
@@ -190,7 +196,9 @@ def characterize(
 
 def lint_new_tests(r: StoryRunner, run_id: str, worktree: Path, tests: list[str], label: str) -> list[str]:
     """Testes escritos por agente passam pelo lint (com correção automática) ANTES de serem travados."""
-    from nexo.modules.quality.adapters.runner import lint_files
+    from nexo.kernel import services
+
+    lint_files = services.get("quality.runner", "lint_files")
 
     before = git.head(worktree)
     findings = lint_files(r._stack(), worktree, r._out(run_id, f"lint-{label}"), tests, r._brain())

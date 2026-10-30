@@ -13,14 +13,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.workspace import specs
 from nexo.kernel.workspace import tasks as workspace_tasks
 from nexo.modules.execution.app import llm
-from nexo.modules.knowledge.app import content
-from nexo.modules.planning.app.clarify import feature_for_story
 from nexo.store.runs import RunStore, project_key
+
+content = services.load("knowledge.content")
+feature_for_story = services.get("planning.clarify", "feature_for_story")
 
 DONE = "Concluido"
 BRIEFING_SCHEMA = {
@@ -92,7 +94,9 @@ def _story(root: Path, sid: str) -> tuple[Path, Any, Any]:
 
 def explain(ctx: AppContext, item: str, ui: Any = None) -> dict[str, Any]:
     """Explicação da tarefa (ou da história) para o dev, antes de começar."""
-    from nexo.modules.planning.app import discover
+    from nexo.kernel import services
+
+    discover = services.load("planning.discover")
 
     root = _root(ctx)
     item = item.upper()
@@ -267,7 +271,9 @@ class Check:
 def check(ctx: AppContext, sid: str) -> dict[str, Any]:
     """Está tudo certo com a história? Cada item diz o que falta e o comando que resolve."""
     from nexo.kernel import ready as ready_domain
-    from nexo.modules.planning.app import ready
+    from nexo.kernel import services
+
+    ready = services.load("planning.ready")
 
     root = _root(ctx)
     sid = sid.upper()

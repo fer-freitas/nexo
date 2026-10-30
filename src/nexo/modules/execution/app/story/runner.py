@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+from nexo.kernel import services
 from nexo.kernel.backlog import Backlog, BacklogTask
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
@@ -23,10 +24,11 @@ from nexo.modules.execution.app.story import qa as story_qa
 from nexo.modules.execution.app.story import quality as story_quality
 from nexo.modules.execution.app.story import tasks as story_tasks
 from nexo.modules.execution.app.story.common import UI, StoryReport, _noop, is_test_task
-from nexo.modules.knowledge.app import content
-from nexo.modules.planning.app.clarify import feature_for_story
-from nexo.modules.planning.app.plan import story_workflow
 from nexo.store.runs import RunStore, project_key
+
+content = services.load("knowledge.content")
+feature_for_story = services.get("planning.clarify", "feature_for_story")
+story_workflow = services.get("planning.plan", "story_workflow")
 
 
 class StoryRunner:
@@ -54,7 +56,9 @@ class StoryRunner:
         loop = self.cfg.get("bug_loop") or {}
         self.max_attempts = int(loop.get("max_attempts", 3))
         self.max_spec_returns = int(loop.get("max_spec_returns", 2))
-        from nexo.modules.demands.app.tracker import Sync
+        from nexo.kernel import services
+
+        Sync = services.get("demands.tracker", "Sync")
 
         self.sync = Sync(ctx, root)
 
@@ -111,7 +115,7 @@ class StoryRunner:
             story_publish.record(self, item)  # registro da entrega vai no mesmo PR que o código
             story_publish.publish(self, item)
         self.ui("state", {"from": current, "to": target, "reason": reason, "item": item})
-        return target
+        return cast("str", target)
 
     # ------------------------------------------------------------------ entradas
 
@@ -134,7 +138,9 @@ class StoryRunner:
             return self.resume(story_id)
         if state != "Pronto":
             raise NexoError(f"história {story_id} está em {state}; esperado Pronto")
-        from nexo.modules.planning.app import ready
+        from nexo.kernel import services
+
+        ready = services.load("planning.ready")
 
         blocked = ready.gate(self.ctx, story_id)  # Definition of Ready antes do desenvolvimento
         if blocked:
@@ -274,7 +280,9 @@ class StoryRunner:
         return self._report(story_id, run_id, reason)
 
     def _notify(self, story_id: str, title: str, message: str, link_override: str | None = None) -> None:
-        from nexo.modules.notify.app import notify
+        from nexo.kernel import services
+
+        notify = services.get("notify.main", "notify")
 
         if not content.hook_enabled(self.ctx, "story_notify"):  # org/hooks.yaml
             return
@@ -301,9 +309,11 @@ class StoryRunner:
         return self.root / ".nexo" / "runs" / run_id / name
 
     def _history(self) -> float:
-        from nexo.modules.finops.app.metrics import history_success
+        from nexo.kernel import services
 
-        return history_success(self.ctx, self._stack())
+        history_success = services.get("finops.metrics", "history_success")
+
+        return cast("float", history_success(self.ctx, self._stack()))
 
     # ------------------------------------------------------------------ custo ao vivo e teto
 

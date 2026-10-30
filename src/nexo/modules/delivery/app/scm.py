@@ -41,8 +41,10 @@ def build(ctx: AppContext) -> Any:
         raise NexoError(f"configure scm.provider ({' | '.join(PROVIDERS)}) e scm.repo no projeto")
     repo, remote = str(cfg["repo"]), str(cfg.get("remote", "origin"))
     if provider == "github":
+        from nexo.kernel import services
         from nexo.modules.delivery.adapters.scm.github import GitHubScm
-        from nexo.modules.demands.app.tracker import github_token
+
+        github_token = services.get("demands.tracker", "github_token")
 
         return GitHubScm(repo, github_token(ctx), remote)
     if provider == "gitlab":
@@ -53,8 +55,11 @@ def build(ctx: AppContext) -> Any:
         from nexo.modules.delivery.adapters.scm.bitbucket import BitbucketScm
 
         return BitbucketScm(repo, _secret("bitbucket"), remote)
+    from nexo.kernel import services
     from nexo.modules.delivery.adapters.scm.azure import AzureReposScm
-    from nexo.modules.demands.app.tracker import azure_bearer, tracker_config
+
+    azure_bearer = services.get("demands.tracker", "azure_bearer")
+    tracker_config = services.get("demands.tracker", "tracker_config")
 
     az = dict(tracker_config(ctx).get("azure") or {})
     org, project = cfg.get("org_url") or az.get("org_url"), cfg.get("project") or az.get("project")

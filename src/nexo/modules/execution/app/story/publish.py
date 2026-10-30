@@ -31,9 +31,11 @@ def record(r: StoryRunner, story_id: str) -> Path | None:
     entregue, em qual feature e parte do produto, quem aprovou, o que mudou e quais decisões a feature tem.
     Um arquivo por história evita conflito quando vários devs entregam no mesmo dia. Falha aqui não bloqueia a
     entrega: fica na trilha."""
+    from nexo.kernel import services
     from nexo.kernel.context import PROJECT_DIR
     from nexo.kernel.runtime import yamlfile
-    from nexo.modules.planning.app import product_context as pc
+
+    pc = services.load("planning.product_context")
     from nexo.store.runs import now_iso
 
     run = r.story_run(story_id)
@@ -114,7 +116,9 @@ def _lineage_note(r: StoryRunner, worktree: Path) -> tuple[list[str], list[str]]
 def publish(r: StoryRunner, story_id: str) -> None:
     """História concluída: push da branch e PR (GitHub, GitLab, Bitbucket ou Azure Repos) com `AB#id`,
     evidências e decisão do portão (4.4)."""
-    from nexo.modules.delivery.app.scm import PROVIDERS
+    from nexo.kernel import services
+
+    PROVIDERS = services.get("delivery.scm", "PROVIDERS")
 
     scm_cfg = dict(r.cfg.get("scm") or {})
     if scm_cfg.get("provider") not in PROVIDERS or not scm_cfg.get("open_pr", True):
@@ -133,7 +137,9 @@ def publish(r: StoryRunner, story_id: str) -> None:
         r.ctx.audit("scm.pr_skipped", {"story": story_id, "autonomy": st.get("autonomy")}, ref=story_id)
         return
     try:
-        from nexo.modules.delivery.app import scm as delivery_scm
+        from nexo.kernel import services
+
+        delivery_scm = services.load("delivery.scm")
 
         scm = delivery_scm.build(r.ctx)
         evidence = _freeze_in_branch(r, story_id, Path(st["worktree"]))
@@ -173,8 +179,10 @@ def docs(
     """Com `docs.writer: auto`, o agente writer atualiza a documentação antes das revisões.
 
     Falha do writer não bloqueia a entrega: fica registrada e a documentação pode ser feita depois."""
+    from nexo.kernel import services
     from nexo.kernel.platform import flags
-    from nexo.modules.knowledge.app import writer
+
+    writer = services.load("knowledge.writer")
 
     if st.get("docs_done") or writer.mode(r.ctx) != "auto" or not flags.enabled(r.ctx, "writer"):
         return None
@@ -209,7 +217,9 @@ def docs(
 
 def as_built(r: StoryRunner, story_id: str) -> None:
     """Última história da feature concluída → documentos as-built e publicação."""
-    from nexo.modules.knowledge.app import docs
+    from nexo.kernel import services
+
+    docs = services.load("knowledge.docs")
 
     try:
         docs.as_built(r.ctx, r.root, story_id)

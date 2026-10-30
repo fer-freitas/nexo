@@ -24,3 +24,6 @@ commands:
   - {path: "init", summary: "Prepara o repositório", kind: write}
   - {path: "doctor", summary: "O que falta nesta máquina"}
   - {path: "login", summary: "Credenciais no cofre do sistema", kind: write}
+services:
+  setup.banner: "nexo.modules.setup.app.banner"
+  setup.project: "nexo.modules.setup.app.project"

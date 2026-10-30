@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from nexo.kernel import services
 from nexo.kernel.backlog import BacklogTask
 from nexo.kernel.finops import tokens
 from nexo.kernel.gates.confidence import ReviewVerdict
@@ -15,9 +16,10 @@ from nexo.kernel.spec import questions as q
 from nexo.kernel.workspace import specs
 from nexo.modules.execution.app.story import tasks as story_tasks
 from nexo.modules.execution.app.story.common import StoryReport
-from nexo.modules.planning.app import templates
-from nexo.modules.planning.app.clarify import feature_for_story
 from nexo.store.runs import now_iso
+
+templates = services.load("planning.templates")
+feature_for_story = services.get("planning.clarify", "feature_for_story")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.story.runner import StoryRunner
@@ -103,7 +105,7 @@ def run_bugfix(
     st["attempts"] += 1
     attempt = st["attempts"]
     bug = yamlfile.load(r.root / ".nexo" / "bugs" / f"{bug_id}.yaml")
-    spec = specs.load_spec(feature_for_story(r.root, story_id))  # type: ignore[arg-type]
+    spec = specs.load_spec(feature_for_story(r.root, story_id))
     fix_id = f"{story_id}-FIX{attempt}"
     lines = [
         f"Corrigir o bug {bug_id} da história {story_id} (tentativa {attempt}/{r.max_attempts}).",

@@ -9,8 +9,9 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import flags
@@ -18,7 +19,8 @@ from nexo.kernel.runtime import yamlfile
 from nexo.kernel.workspace import codemap
 from nexo.modules.knowledge.app import brain
 from nexo.modules.knowledge.domain import graph as graph_domain
-from nexo.modules.planning.app import discover
+
+discover = services.load("planning.discover")
 
 DOC_GLOBS = ("spec/adr/*.md", "docs/adr/*.md", ".nexo/specs/*/adr/*.md")
 MAX_FILE_BYTES = 400_000
@@ -45,7 +47,7 @@ def _key(ctx: AppContext, root: Path) -> str:
 
 
 def _path(root: Path) -> Path:
-    return discover.map_dir(root) / "graph.json"
+    return cast("Path", discover.map_dir(root) / "graph.json")
 
 
 def _collect(ctx: AppContext, root: Path) -> graph_domain.Graph:

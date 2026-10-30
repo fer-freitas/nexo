@@ -18,12 +18,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config, flags
 from nexo.kernel.workspace import git
-from nexo.modules.execution.app import llm
-from nexo.modules.knowledge.app import content
+
+llm = services.load("execution.llm")
+content = services.load("knowledge.content")
 
 STORY_REF = re.compile(r"\bUS-\d+-\d+\b")
 BLOCKING = ("high", "critical")
@@ -118,11 +120,15 @@ def _review_in(
     post: bool,
     run_quality: bool,
 ) -> PrReview:
+    from nexo.kernel import services
     from nexo.kernel.gates.confidence import risk_areas
     from nexo.kernel.runtime.resources import load_yaml
     from nexo.kernel.security.injection import check
-    from nexo.modules.execution.app.story.common import REVIEW_SCHEMA
-    from nexo.modules.quality.adapters.runner import run_pipeline
+
+    REVIEW_SCHEMA = services.get("execution.story_common", "REVIEW_SCHEMA")
+    from nexo.kernel import services
+
+    run_pipeline = services.get("quality.runner", "run_pipeline")
 
     story, acceptance = _acceptance(ctx, root, f"{title}\n{body}")
     project_cfg = config.resolved(ctx).values

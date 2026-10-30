@@ -119,7 +119,9 @@ def _audit_verify(ctx: AppContext) -> list[Alert]:
 
 def _learn_collect(ctx: AppContext) -> list[Alert]:
     """Lições candidatas sem IA; a curadoria (com IA) fica para a pessoa decidir rodar."""
-    from nexo.modules.knowledge.app import learning
+    from nexo.kernel import services
+
+    learning = services.load("knowledge.learning")
 
     learning.collect(ctx)
     pending = sum(int(v.get("pending") or 0) for v in learning.status(ctx)["sources"].values())
@@ -158,8 +160,12 @@ def _guard(ctx: AppContext) -> list[Alert]:
 
 
 def _sync(ctx: AppContext, root: Path) -> list[Alert]:
-    from nexo.modules.delivery.app import approval
-    from nexo.modules.demands.app import tracker
+    from nexo.kernel import services
+
+    approval = services.load("delivery.approval")
+    from nexo.kernel import services
+
+    tracker = services.load("demands.tracker")
 
     approval.sync(ctx)
     sync = tracker.Sync(ctx, root)
@@ -170,8 +176,10 @@ def _sync(ctx: AppContext, root: Path) -> list[Alert]:
 
 
 def _month_close(ctx: AppContext) -> list[Alert]:
+    from nexo.kernel import services
     from nexo.kernel.errors import NexoError
-    from nexo.modules.finops.app import costs
+
+    costs = services.load("finops.costs")
 
     current = costs.current_month()
     year, month = (int(x) for x in current.split("-"))
@@ -186,7 +194,9 @@ def _month_close(ctx: AppContext) -> list[Alert]:
 
 
 def _calibration(ctx: AppContext) -> list[Alert]:
-    from nexo.modules.finops.app import metrics
+    from nexo.kernel import services
+
+    metrics = services.load("finops.metrics")
 
     result = metrics.calibrate(ctx)
     if result["samples"] < 10 or abs(float(result["proposal"]) - float(result["current"])) < 0.01:

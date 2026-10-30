@@ -70,11 +70,13 @@ def api_mode(ctx: AppContext) -> str:
 
 
 def _api_adapters(ctx: AppContext) -> dict[str, AgentAdapter]:
+    from nexo.kernel import services
     from nexo.kernel.models.llm_api import PROVIDERS, price_table
     from nexo.kernel.secrets import credentials
     from nexo.modules.execution.adapters.agents.api import ApiAdapter, Hooks
     from nexo.modules.execution.app import hooks
-    from nexo.modules.knowledge.app import brain as knowledge_brain
+
+    knowledge_brain = services.load("knowledge.brain")
 
     cfg = api_config(ctx)
     out: dict[str, AgentAdapter] = {}

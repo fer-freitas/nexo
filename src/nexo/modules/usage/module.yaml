@@ -7,4 +7,6 @@ flags:
     area: "FinOps"
     commands: ["usage"]
 services:
+  usage.copilot: "nexo.modules.usage.adapters.copilot"
+  usage.devin: "nexo.modules.usage.adapters.devin"
   usage.external: "nexo.modules.usage.app.external_usage"

@@ -60,9 +60,13 @@ def review(planner: Any, folder: Path, spec: Spec, backlog: Backlog) -> Backlog:
     """Completa as tarefas com o que já foi decidido e transforma o resto em dúvida para o tech lead."""
     import os
 
+    from nexo.kernel import services
     from nexo.kernel.platform import config
-    from nexo.modules.execution.app import llm
-    from nexo.modules.knowledge.app import content
+
+    llm = services.load("execution.llm")
+    from nexo.kernel import services
+
+    content = services.load("knowledge.content")
 
     ctx: AppContext = planner.ctx
     if os.environ.get("NX_REVIEW_BREAKDOWN") == "0":  # testes com cenário fixo de respostas

@@ -6,3 +6,6 @@ flags:
     title: "Pipeline de qualidade avulso e geração de CI"
     area: "Qualidade"
     commands: ["quality"]
+services:
+  quality.runner: "nexo.modules.quality.adapters.runner"
+  quality.standards: "nexo.modules.quality.adapters.standards"

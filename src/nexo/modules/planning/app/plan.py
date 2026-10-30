@@ -11,6 +11,7 @@ from typing import Any
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
 
+from nexo.kernel import services
 from nexo.kernel.backlog import Backlog, normalize, validate, waves
 from nexo.kernel.context import PROJECT_DIR, AppContext
 from nexo.kernel.errors import NexoError
@@ -24,13 +25,14 @@ from nexo.kernel.spec.model import Readiness, Spec, apply_patch, readiness
 from nexo.kernel.workflow.engine import Workflow
 from nexo.kernel.workspace import specs
 from nexo.kernel.workspace import tasks as workspace_tasks
-from nexo.modules.execution.app import llm
-from nexo.modules.knowledge.app import content
 from nexo.modules.planning.adapters import ingest
 from nexo.modules.planning.app import backlog_review, classify, templates
 from nexo.modules.planning.app.schemas import planner_schema
-from nexo.modules.setup.app.project import list_files
 from nexo.store.runs import RunStore, project_key
+
+llm = services.load("execution.llm")
+content = services.load("knowledge.content")
+list_files = services.get("setup.project", "list_files")
 
 PLACEHOLDER_TITLE = "Nova feature"
 DEFAULT_WORKSPACE = "rascunho"
@@ -89,7 +91,7 @@ def injection_suspects(folder: Path) -> list[dict[str, Any]]:
 
 
 class Planner:
-    def __init__(self, ctx: AppContext, workspace: str | None = None, ui: llm.UI | None = None) -> None:
+    def __init__(self, ctx: AppContext, workspace: str | None = None, ui: Any | None = None) -> None:
         self.ctx = ctx
         self.ui = ui
         self.workspace: str | None = None
@@ -104,7 +106,9 @@ class Planner:
         self.store = RunStore(ctx.conn, project_key(self.root))
         self.workflow = story_workflow(ctx)
         self.project = str(self.project_cfg.get("project") or self.root.name)
-        from nexo.modules.demands.app.tracker import Sync
+        from nexo.kernel import services
+
+        Sync = services.get("demands.tracker", "Sync")
 
         self.sync = Sync(ctx, self.root)
         self._docs = templates.FeatureDocs()
@@ -282,7 +286,9 @@ class Planner:
             (docs_dir / f"{t.id}.md").write_text(doc.text, encoding="utf-8")
             self.sync.ensure(t.id, "task", t.title, "Pronto", parent=t.story, description=doc.tracker_description())
         self._readiness(folder, spec, specs.load_questions(folder))  # documentos com backlog e rastreabilidade
-        from nexo.modules.knowledge.app import docs as knowledge_docs
+        from nexo.kernel import services
+
+        knowledge_docs = services.load("knowledge.docs")
 
         knowledge_docs.publish(self.ctx, folder, spec, self.root)
         self._transition(fid, "approve_spec")

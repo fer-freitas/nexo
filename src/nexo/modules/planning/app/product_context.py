@@ -14,7 +14,7 @@ from __future__ import annotations
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from nexo.kernel import product as model
 from nexo.kernel.context import PROJECT_DIR, AppContext
@@ -309,8 +309,10 @@ def draft_project_text(ctx: AppContext, what: str, users: str, product: Product 
 
 def propose(ctx: AppContext, pid: str) -> str | None:
     """Envia o rascunho do produto ao time do cérebro (issue com os arquivos); devolve o link, se houver."""
+    from nexo.kernel import services
     from nexo.kernel.security.redaction import find, redact
-    from nexo.modules.knowledge.app.brain import create_issue
+
+    create_issue = services.get("knowledge.brain", "create_issue")
 
     folder = draft_dir(ctx, pid)
     if not (folder / "produto.yaml").is_file():
@@ -329,4 +331,4 @@ def propose(ctx: AppContext, pid: str) -> str | None:
     )
     url = create_issue(ctx, f"Produto: {pid}", body, ["nexo", "produto"])
     ctx.audit("product.proposed", {"product": pid, "issue": url})
-    return url
+    return cast("str | None", url)

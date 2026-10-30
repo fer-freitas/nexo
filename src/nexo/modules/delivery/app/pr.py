@@ -50,12 +50,18 @@ def _report_status(ctx: AppContext, scm: Any, story_id: str, sha: str) -> None:
 
 
 def sync(ctx: AppContext) -> list[dict[str, Any]]:
+    from nexo.kernel import services
     from nexo.kernel.platform import flags
     from nexo.kernel.security.injection import check
     from nexo.kernel.workflow.autonomy import merges
-    from nexo.modules.execution.app import autonomy
-    from nexo.modules.execution.app.run import RunOptions
-    from nexo.modules.execution.app.story import StoryRunner
+
+    autonomy = services.load("execution.autonomy")
+    from nexo.kernel import services
+
+    RunOptions = services.get("execution.run", "RunOptions")
+    from nexo.kernel import services
+
+    StoryRunner = services.get("execution.story", "StoryRunner")
     from nexo.store.runs import RunStore, project_key
 
     root = ctx.project_root
@@ -102,7 +108,9 @@ def sync(ctx: AppContext) -> list[dict[str, Any]]:
             st["ci_blocked"] = sha
             path.write_text(json.dumps(st, ensure_ascii=False, indent=2), encoding="utf-8")
             ctx.audit("scm.ci_blocked", {"story": story_id, "pr": url, "checks": blocked}, ref=story_id)
-            from nexo.modules.notify.app import notify
+            from nexo.kernel import services
+
+            notify = services.get("notify.main", "notify")
 
             notify(
                 ctx,

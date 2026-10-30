@@ -164,7 +164,9 @@ def _team_checks(ctx: AppContext) -> list[Check]:
 
 
 def _auth_checks(ctx: AppContext, installed: list[str]) -> list[Check]:
-    from nexo.modules.execution.app.agents import adapters
+    from nexo.kernel import services
+
+    adapters = services.get("execution.agents", "adapters")
 
     registry = adapters(ctx)
     out: list[Check] = []
@@ -199,7 +201,9 @@ def _gitignore_check(ctx: AppContext) -> Check:
 
 def _pricing_check(ctx: AppContext) -> Check:
     """custo calculado com preço de tabela pública (ou sem preço) é estimado até o cliente informar o contrato."""
-    from nexo.modules.finops.app import pricing
+    from nexo.kernel import services
+
+    pricing = services.load("finops.pricing")
 
     issues = pricing.check(ctx)
     if not issues:
@@ -266,7 +270,9 @@ def _guard_check(ctx: AppContext) -> Check:
 
 def _hooks_check(ctx: AppContext) -> Check:
     """hooks de segurança sempre ativos + opcionais e tools conforme org/hooks.yaml e org/tools.yaml."""
-    from nexo.modules.knowledge.app import content
+    from nexo.kernel import services
+
+    content = services.load("knowledge.content")
 
     hooks = content.effective_hooks(ctx)
     off = [h for h, on in hooks["optional"].items() if not on]

@@ -11,17 +11,19 @@ from __future__ import annotations
 
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.errors import NexoError
 from nexo.kernel.roles import DESIGN_FIELDS
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.spec import questions as q
 from nexo.kernel.spec.model import Spec, apply_patch
 from nexo.kernel.workspace import specs
-from nexo.modules.execution.app import llm
-from nexo.modules.knowledge.app import content
 from nexo.modules.planning.app.plan import Planner
 from nexo.modules.planning.app.schemas import _schema_without
 from nexo.modules.planning.domain import techlead as model
+
+llm = services.load("execution.llm")
+content = services.load("knowledge.content")
 
 ANALYSIS_FILE = "analise-tecnica.yaml"
 ANALYSIS_DOC = "analise-tecnica.md"

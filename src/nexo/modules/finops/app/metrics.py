@@ -229,9 +229,11 @@ def baseline(ctx: AppContext, since: str, until: str) -> dict[str, Any]:
     from dataclasses import asdict
     from datetime import date
 
+    from nexo.kernel import services
     from nexo.kernel.finops.metrics import baseline_summary
     from nexo.kernel.platform import telemetry
-    from nexo.modules.demands.app import tracker as integrations_tracker
+
+    integrations_tracker = services.load("demands.tracker")
 
     try:
         if date.fromisoformat(since) >= date.fromisoformat(until):

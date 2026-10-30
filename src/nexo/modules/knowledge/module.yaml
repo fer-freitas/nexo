@@ -22,3 +22,10 @@ flags:
     title: "Aprendizado contínuo (lições e curadoria)"
     area: "Conhecimento"
     commands: ["learn"]
+services:
+  knowledge.brain: "nexo.modules.knowledge.app.brain"
+  knowledge.content: "nexo.modules.knowledge.app.content"
+  knowledge.docs: "nexo.modules.knowledge.app.docs"
+  knowledge.graph: "nexo.modules.knowledge.app.graph"
+  knowledge.learning: "nexo.modules.knowledge.app.learning"
+  knowledge.writer: "nexo.modules.knowledge.app.writer"

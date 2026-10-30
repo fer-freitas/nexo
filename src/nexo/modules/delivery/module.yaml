@@ -34,4 +34,9 @@ flags:
     stage: experimental
     default: false
 services:
+  delivery.approval: "nexo.modules.delivery.app.approval"
+  delivery.approvals: "nexo.modules.delivery.adapters.approvals"
+  delivery.pr: "nexo.modules.delivery.app.pr"
+  delivery.remote_approval: "nexo.modules.delivery.app.remote_approval"
+  delivery.scm: "nexo.modules.delivery.app.scm"
   delivery.github: "nexo.modules.delivery.adapters.scm.github"

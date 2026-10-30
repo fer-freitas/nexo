@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast
-import json
+import importlib
 import re
 from collections import Counter
 from pathlib import Path
@@ -14,7 +14,6 @@ from nexo.kernel import modules
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src" / "nexo"
-DEBT = Path(__file__).with_name("module_debt.json")
 
 
 def _unit(mod: str) -> str:
@@ -48,12 +47,15 @@ def test_kernel_and_central_never_depend_on_modules_or_cli() -> None:
     assert bad == []
 
 
-def test_module_debt_only_shrinks() -> None:
-    """Módulo não importa módulo. O que veio da extração está em `module_debt.json` e só pode diminuir."""
-    debt = {tuple(k.split(" -> ")): v for k, v in json.loads(DEBT.read_text(encoding="utf-8")).items()}
-    now = {e: c for e, c in _edges().items() if e[0].startswith("modules") and e[1].startswith("modules")}
-    grew = {f"{a} -> {b}": (c, debt.get((a, b), 0)) for (a, b), c in now.items() if c > debt.get((a, b), 0)}
-    assert grew == {}, "dependência nova entre módulos: use evento ou kernel.services"
+def test_module_never_imports_another_module() -> None:
+    """Módulo fala com módulo por evento ou por `kernel.services`, nunca por import."""
+    edges = [f"{a} -> {b}" for a, b in _edges() if a.startswith("modules") and b.startswith("modules")]
+    assert edges == [], "use evento ou kernel.services"
+
+
+def test_every_service_points_to_something_that_exists() -> None:
+    for name, target in {n: t for m in modules.builtin() for n, t in m.services.items()}.items():
+        assert importlib.import_module(target), name
 
 
 FORBIDDEN = (

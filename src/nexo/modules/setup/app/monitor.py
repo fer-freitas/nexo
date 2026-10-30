@@ -15,11 +15,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.models.agent import DONE, FILE_CHANGE, INIT, AgentOutcome, AgentRequest
 from nexo.kernel.platform import config, killswitch
 from nexo.kernel.workspace import git
-from nexo.modules.execution.app import agents as agents_app
+
+agents_app = services.load("execution.agents")
 
 TARGET = "nexo-monitor.txt"
 PROMPT = (
@@ -124,7 +126,9 @@ def synthetic(ctx: AppContext, only: list[str] | None = None, auto_block: bool |
         probes.append(probe)
         ctx.audit("monitor.synthetic", {"route": f"{tool}/{model}", "status": probe.status, "kind": probe.kind})
         if probe.status == "fail" and probe.kind == "format":
-            from nexo.modules.notify.app import notify
+            from nexo.kernel import services
+
+            notify = services.get("notify.main", "notify")
 
             notify(ctx, "monitor", f"monitor sintético: {tool}/{model}", probe.detail, ref=route_id)
             if block:

@@ -21,12 +21,14 @@ from pathlib import Path
 from typing import Any
 
 from nexo.kernel import brain as brain_adapter
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.finops.money import brl
 from nexo.kernel.platform import config, flags
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.workspace import specs
-from nexo.modules.planning.app import ready
+
+ready = services.load("planning.ready")
 
 META_DIR = ".evidencia"
 DOCS = (
@@ -71,8 +73,12 @@ def _events_for(ctx: AppContext, refs: set[str]) -> list[dict[str, Any]]:
 
 
 def _stories(ctx: AppContext, planner: Any, fid: str, folder: Path) -> list[dict[str, Any]]:
-    from nexo.modules.execution.app.run import RunOptions
-    from nexo.modules.execution.app.story import StoryRunner
+    from nexo.kernel import services
+
+    RunOptions = services.get("execution.run", "RunOptions")
+    from nexo.kernel import services
+
+    StoryRunner = services.get("execution.story", "StoryRunner")
 
     backlog = specs.load_backlog(folder)
     if backlog is None:
@@ -102,8 +108,10 @@ def _stories(ctx: AppContext, planner: Any, fid: str, folder: Path) -> list[dict
 
 def _cost(ctx: AppContext, refs: set[str]) -> float:
     """Custo de uso (R$) dos passos da feature: histórias, tarefas e seus derivados (QA, correções)."""
+    from nexo.kernel import services
     from nexo.kernel.finops.costs import usage_cost_brl
-    from nexo.modules.finops.app import costs
+
+    costs = services.load("finops.costs")
 
     pricing = costs.pricing(ctx)
     total = 0.0
@@ -159,7 +167,9 @@ def _quality(run_dir: Path) -> dict[str, Any]:
 
 def build(ctx: AppContext, fid: str, out: Path | None = None, key: str | None = None) -> dict[str, Any]:
     flags.require(ctx, "evidence")
-    from nexo.modules.planning.app.plan import Planner
+    from nexo.kernel import services
+
+    Planner = services.get("planning.plan", "Planner")
 
     planner = Planner(ctx)
     folder = specs.feature_dir(planner.root, fid)

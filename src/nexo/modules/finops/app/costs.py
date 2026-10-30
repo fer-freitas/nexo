@@ -305,8 +305,10 @@ def sync_limits(ctx: AppContext, month: str | None = None, force: bool = False) 
             data = telemetry.pull_budget(ctx, m)
             limits = {str(k): float(v) for k, v in ((data or {}).get("limits") or {}).items()}
         elif source == "external":
+            from nexo.kernel import services
             from nexo.kernel.secrets import credentials
-            from nexo.modules.delivery.adapters import approvals
+
+            approvals = services.load("delivery.approvals")
 
             if ext.get("file"):
                 limits = approvals.external_limit_file(Path(str(ext["file"])).expanduser(), ctx.actor, m) or {}
@@ -355,7 +357,9 @@ def budget_status(ctx: AppContext, dev: str | None = None, month: str | None = N
 
 def check_alerts(ctx: AppContext, dev: str | None = None) -> list[float]:
     """Alertas de 70%/90% — cada nível uma vez por mês."""
-    from nexo.modules.notify.app import notify
+    from nexo.kernel import services
+
+    notify = services.get("notify.main", "notify")
 
     who = dev or ctx.actor
     month = current_month()

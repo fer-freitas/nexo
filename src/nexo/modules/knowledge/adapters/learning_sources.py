@@ -7,9 +7,9 @@ import re
 import urllib.parse
 from pathlib import Path
 
+from nexo.kernel.learning.model import RawEvent
 from nexo.kernel.runtime import http, yamlfile
 from nexo.kernel.workspace import git
-from nexo.modules.knowledge.domain.learning.model import RawEvent
 
 MAX_TEXT = 4000
 

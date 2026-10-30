@@ -105,8 +105,10 @@ def _run_one(
 
 
 def run_feature(ctx: AppContext, fid: str, parallel: int = 1) -> dict[str, Any]:
+    from nexo.kernel import services
     from nexo.kernel.platform import flags
-    from nexo.modules.finops.app import costs
+
+    costs = services.load("finops.costs")
     from nexo.store.runs import RunStore, project_key
 
     flags.require(ctx, "run_feature")

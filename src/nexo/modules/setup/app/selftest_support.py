@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 SAMPLE = "selftest/python-svc"
 
@@ -42,13 +42,17 @@ def refinement(root: Path, feature: str, story: str) -> Path:
 
 
 def find_pr(repo: str, branch: str) -> dict[str, Any] | None:
-    from nexo.modules.delivery.adapters.scm.github import GitHubScm
+    from nexo.kernel import services
 
-    return GitHubScm(repo, github_token()).find_pr(branch)
+    GitHubScm = services.get("delivery.github", "GitHubScm")
+
+    return cast("dict[str, Any] | None", GitHubScm(repo, github_token()).find_pr(branch))
 
 
 def close_pr(repo: str, number: int) -> None:
-    from nexo.modules.delivery.adapters.scm.github import GitHubScm
+    from nexo.kernel import services
+
+    GitHubScm = services.get("delivery.github", "GitHubScm")
 
     GitHubScm(repo, github_token()).update_pr(number, {"state": "closed"})
 

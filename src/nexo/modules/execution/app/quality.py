@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config
 from nexo.kernel.quality.model import QualityReport, telemetry_summary
-from nexo.modules.quality.adapters.runner import (
-    run_pipeline,
-)
+
+run_pipeline = services.get("quality.runner", "run_pipeline")
 
 SETUP = {
     "python": [{"uses": "actions/setup-python@v5", "with": {"python-version": "3.12", "cache": "pip"}}],
@@ -64,7 +64,7 @@ def run(ctx: AppContext, stack: str | None, only: list[str] | None, path: Path |
         json.dumps(report.as_dict(), ensure_ascii=False, indent=2), encoding="utf-8"
     )
     ctx.audit("quality.run", telemetry_summary(report))
-    return report
+    return cast("QualityReport", report)
 
 
 def standards_check(ctx: AppContext, stack: str | None = None, changed_from: str | None = None) -> dict[str, Any]:
@@ -103,7 +103,9 @@ def standards_check(ctx: AppContext, stack: str | None = None, changed_from: str
 
 def standards_rules(ctx: AppContext, stack: str | None = None) -> list[dict[str, Any]]:
     """Regras que valem para o projeto (fábrica → cérebro → projeto, menos as desligadas pela org)."""
-    from nexo.modules.quality.adapters.standards import load_rules
+    from nexo.kernel import services
+
+    load_rules = services.get("quality.standards", "load_rules")
 
     root, chosen = _stack(ctx, stack)
     disabled = tuple(s for s in standards_params(ctx)["standards_disabled"].split(",") if s)

@@ -8,8 +8,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
-from nexo.modules.planning.app.clarify import feature_for_story
+
+feature_for_story = services.get("planning.clarify", "feature_for_story")
 
 UI = Callable[[str, dict[str, Any]], None]
 

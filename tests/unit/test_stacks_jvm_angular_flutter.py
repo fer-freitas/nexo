@@ -204,7 +204,7 @@ def test_policy_for_new_stacks(command: str, allowed: bool) -> None:
 
 
 def test_added_dependencies_only_inside_manifests() -> None:
-    from nexo.modules.knowledge.domain.learning.model import added_dependencies
+    from nexo.kernel.learning.model import added_dependencies
 
     diff = (
         "+++ b/pubspec.yaml\n"

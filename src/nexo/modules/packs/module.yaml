@@ -8,6 +8,7 @@ flags:
     commands: ["skill", "tool", "hook add", "hook remove", "hook list"]
 cli: "nexo.modules.packs.cli:register"
 services:
+  packs.extensions: "nexo.modules.packs.app.extensions"
   packs.packs: "nexo.modules.packs.app.packs"
 commands:
   - {path: "pack", summary: "Conteúdo de terceiros com commit fixado, hash e licença"}

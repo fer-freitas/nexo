@@ -52,7 +52,9 @@ def execute(
     routes: list[str] = []
     handoffs = len(o.store.handoffs(run_id))
     base = o.store.get_run(run_id).base_sha or ""  # type: ignore[union-attr]
-    from nexo.modules.packs.app import extensions
+    from nexo.kernel import services
+
+    extensions = services.load("packs.extensions")
 
     for result in extensions.fire(
         o.ctx, "session_start", {"task": task.id, "run": run_id, "worktree": str(worktree)}, ref=run_id
@@ -132,7 +134,9 @@ def execute(
             return o._escalate(task, run_id, leak, routes)
         sha = git.checkpoint(worktree, f"nexo: checkpoint {step_id}")
         o.store.add_usage(step_id, outcome.usage)
-        from nexo.modules.finops.app import costs
+        from nexo.kernel import services
+
+        costs = services.load("finops.costs")
 
         costs.check_alerts(o.ctx)
         o.store.end_step(step_id, outcome.status, outcome.error_kind, outcome.message, sha, outcome.tool_calls)
@@ -279,7 +283,9 @@ def external_mcp(o: Orchestrator, task: Task, adapter: AgentAdapter) -> tuple[di
     """MCPs oficiais ligados e liberados para a classe de dados da tarefa (só ferramentas com MCP)."""
     if not adapter.capabilities().mcp:
         return {}, {}
-    from nexo.modules.mcp.app import catalog as mcp_catalog
+    from nexo.kernel import services
+
+    mcp_catalog = services.load("mcp.catalog")
 
     servers, env, skipped = mcp_catalog.servers_for_run(o.ctx, run_routing.allowed_vendors(o, task))
     for server, reason in skipped.items():
@@ -304,7 +310,9 @@ def consume(
                 action = normalize(str(event.data.get("name")), dict(event.data.get("input") or {}), o.policy)
                 decision = evaluate(action, req.workdir, o.policy, profile)
                 if decision.allow and not native:
-                    from nexo.modules.packs.app import extensions
+                    from nexo.kernel import services
+
+                    extensions = services.load("packs.extensions")
 
                     denied = [
                         r
@@ -340,7 +348,9 @@ def consume(
                     outcome = AgentOutcome("policy_violation", ERR_POLICY, f"{decision.rule}: {decision.reason}")
                     return outcome
             elif event.kind == CLARIFICATION and run_id:
-                from nexo.modules.planning.app import clarify
+                from nexo.kernel import services
+
+                clarify = services.load("planning.clarify")
 
                 clarify.register(
                     o.ctx,

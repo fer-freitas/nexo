@@ -53,7 +53,9 @@ def _stack(ctx: AppContext) -> str:
 
 def _baseline(ctx: AppContext, root: Path, out: Path) -> tuple[dict[str, Any], dict[str, float]]:
     """Roda o pipeline na versão atual: achados e testes que já falham viram baseline (não bloqueiam depois)."""
-    from nexo.modules.quality.adapters.runner import run_pipeline
+    from nexo.kernel import services
+
+    run_pipeline = services.get("quality.runner", "run_pipeline")
 
     brain = ctx.brain_dir if ctx.brain_dir.is_dir() else None
     report = run_pipeline(_stack(ctx), root, out / "quality", brain)

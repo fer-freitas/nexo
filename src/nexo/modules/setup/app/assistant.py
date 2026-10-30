@@ -40,8 +40,12 @@ def ask(
     known: set[str],
 ) -> Answer:
     """`known`: primeiras palavras válidas de comando (comando fora do catálogo é descartado)."""
-    from nexo.modules.execution.app import llm
-    from nexo.modules.knowledge.app import content
+    from nexo.kernel import services
+
+    llm = services.load("execution.llm")
+    from nexo.kernel import services
+
+    content = services.load("knowledge.content")
 
     root = ctx.project_root or ctx.cwd
     cfg = config.resolved(ctx).values

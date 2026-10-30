@@ -58,7 +58,9 @@ def pull(ctx: AppContext) -> dict[str, Any]:
                 time.sleep(0.5)  # aguarda o pull em segundo plano terminar
     os.close(fd)
     try:
-        from nexo.modules.demands.app.tracker import github_token
+        from nexo.kernel import services
+
+        github_token = services.get("demands.tracker", "github_token")
         from nexo.modules.knowledge.app import content as knowledge_content
 
         token = github_token(ctx, required=False) if "github.com" in repo else None
@@ -110,7 +112,9 @@ def check_update(ctx: AppContext) -> dict[str, Any]:
     result: dict[str, Any] = {"repo": repo or None, "version": local, "update": False, "unknown": False}
     if not repo:
         return result
-    from nexo.modules.demands.app.tracker import github_token
+    from nexo.kernel import services
+
+    github_token = services.get("demands.tracker", "github_token")
 
     try:
         token = github_token(ctx, required=False) if "github.com" in repo else None
@@ -138,7 +142,9 @@ def auto_pull_due(ctx: AppContext) -> bool:
 
 def spawn_background_pull(ctx: AppContext) -> None:
     """Pull em segundo plano no início da sessão — nunca atrasa o comando do dev."""
-    from nexo.modules.execution.app.agents import nexo_command
+    from nexo.kernel import services
+
+    nexo_command = services.get("execution.agents", "nexo_command")
 
     (ctx.home / "brain.last_pull").write_text(str(time.time()), encoding="utf-8")
     kwargs: dict[str, Any] = (
@@ -230,7 +236,9 @@ def create_issue(ctx: AppContext, title: str, body: str, labels: list[str]) -> s
         ctx.audit("brain.issue_skipped", {"title": title, "reason": "brain.github_repo não configurado"})
         return None
     try:
-        from nexo.modules.demands.app.tracker import github_token
+        from nexo.kernel import services
+
+        github_token = services.get("demands.tracker", "github_token")
 
         token = github_token(ctx)
         resp = http.request(
@@ -309,7 +317,8 @@ def propose_clone(ctx: AppContext, clone: Path, source: Path, target: str, title
     repo = str(_cfg(ctx).get("github_repo") or "")
     if repo:
         from nexo.kernel import services
-        from nexo.modules.demands.app.tracker import github_token
+
+        github_token = services.get("demands.tracker", "github_token")
 
         scm = services.get("delivery.github", "GitHubScm")(repo, github_token(ctx))
         pr = scm.open_pr(result["branch"], title, f"Proposta de `{ctx.actor}`.")

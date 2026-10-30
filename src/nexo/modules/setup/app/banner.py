@@ -50,7 +50,9 @@ ACTIVE_STATES = ("EmDev", "EmQA", "EmReview", "AguardandoHumano", "Bloqueado", "
 
 
 def _budget(ctx: AppContext) -> dict[str, object]:
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
 
     try:
         status = costs.budget_status(ctx)

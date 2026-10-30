@@ -19,14 +19,16 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError, PolicyViolation
 from nexo.kernel.platform import config
 from nexo.kernel.runtime import http
 from nexo.kernel.runtime.resources import load_yaml
 from nexo.kernel.secrets import credentials
-from nexo.modules.knowledge.app import content
 from nexo.modules.mcp.domain import rules
+
+content = services.load("knowledge.content")
 
 
 def catalog() -> dict[str, dict[str, Any]]:

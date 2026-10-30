@@ -27,6 +27,11 @@ flags:
     area: "Planejamento"
     commands: ["ready", "perf"]
 services:
+  planning.clarify: "nexo.modules.planning.app.clarify"
+  planning.discover: "nexo.modules.planning.app.discover"
+  planning.product_context: "nexo.modules.planning.app.product_context"
+  planning.roleflow: "nexo.modules.planning.app.roleflow"
+  planning.templates: "nexo.modules.planning.app.templates"
   planning.plan: "nexo.modules.planning.app.plan"
   planning.ready: "nexo.modules.planning.app.ready"
   planning.ingest: "nexo.modules.planning.adapters.ingest"

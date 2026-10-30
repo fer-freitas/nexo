@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from nexo.kernel.learning.model import RouteStats, posterior
 from nexo.modules.execution.domain.routing.catalog import Catalog, Route
-from nexo.modules.knowledge.domain.learning.model import RouteStats, posterior
 
 NEEDS_GUARD = frozenset({"confidential", "restricted"})
 

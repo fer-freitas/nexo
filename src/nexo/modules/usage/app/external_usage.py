@@ -14,12 +14,14 @@ import time
 from datetime import UTC, date, datetime
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.finops.costs import UsageLine, usage_cost_brl
 from nexo.kernel.finops.external import DayTotal, aggregate, claude_prices
 from nexo.kernel.platform import config, flags
-from nexo.modules.finops.app import costs
 from nexo.modules.usage.adapters import local_sessions
+
+costs = services.load("finops.costs")
 
 STATE = "local_sessions.json"
 AUTO_EVERY_S = 3600  # varredura automática no envio da telemetria, no máximo uma vez por hora

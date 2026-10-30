@@ -16,7 +16,9 @@ from nexo.kernel.context import AppContext
 def prepare_worktree(ctx: AppContext, cfg: dict[str, Any], worktree: Path, brain_dir: Path) -> None:
     import os
 
-    from nexo.modules.quality.adapters.runner import prepare_env
+    from nexo.kernel import services
+
+    prepare_env = services.get("quality.runner", "prepare_env")
 
     stacks = [str(s) for s in cfg.get("stacks") or []]
     enabled = (cfg.get("quality") or {}).get("prepare_worktree", True)

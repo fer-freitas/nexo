@@ -8,15 +8,17 @@ from __future__ import annotations
 import json
 import shutil
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from nexo import __version__
+from nexo.kernel import services
 from nexo.kernel.finops import tokens
 from nexo.kernel.models.work import Task
 from nexo.kernel.runtime.resources import embedded_dir
 from nexo.kernel.workflow.handoff import HandoffPacket
 from nexo.kernel.workspace import git
-from nexo.modules.knowledge.app import content
+
+content = services.load("knowledge.content")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.run.runner import Orchestrator
@@ -35,7 +37,9 @@ def team_skills(o: Orchestrator, tool: str, task: Task) -> str:
     """Ferramentas sem skills nativas recebem a lista de skills do time (conteúdo sob demanda via search_brain).
 
     só as skills da stack da tarefa (ou sem stack) entram na lista."""
-    from nexo.modules.packs.app.extensions import effective
+    from nexo.kernel import services
+
+    effective = services.get("packs.extensions", "effective")
 
     stacks = [task.stack] if task.stack else [str(x) for x in o.cfg.get("stacks") or []]
     items = [
@@ -66,9 +70,11 @@ def prompt(o: Orchestrator, task: Task, packet: HandoffPacket | None) -> str:
         handoff=handoff,
         clarifications=clarifications(o, task),
     )
-    from nexo.modules.planning.app import product_context
+    from nexo.kernel import services
 
-    return text + product_context.section(o.ctx, role)  # resumo do produto e do repositório
+    product_context = services.load("planning.product_context")
+
+    return cast("str", text + product_context.section(o.ctx, role))  # resumo do produto e do repositório
 
 
 def run_tokens(o: Orchestrator, run_id: str) -> float:
@@ -82,20 +88,26 @@ def run_tokens(o: Orchestrator, run_id: str) -> float:
 
 def map_context(o: Orchestrator, task: Task) -> str:
     """Código existente relevante (mapa do `nexo discover`), dentro do orçamento de contexto."""
-    from nexo.modules.planning.app import discover
+    from nexo.kernel import services
+
+    discover = services.load("planning.discover")
 
     budget = int((o.cfg.get("brownfield") or {}).get("context_chars", 3000))
     text = discover.context_for(o.root, task.files_hint, budget) if task.files_hint else ""
     out = f"\n\nCódigo existente relacionado (mapa do repositório):\n{text}" if text else ""
-    from nexo.modules.knowledge.app import graph
+    from nexo.kernel import services
+
+    graph = services.load("knowledge.graph")
 
     linked = graph.context_for(o.ctx, task.files_hint)  # só caminhos; o agente lê se precisar
     return out + (f"\n\nLigado aos arquivos da tarefa (grafo):\n{linked}" if linked else "")
 
 
 def clarifications(o: Orchestrator, task: Task) -> str:
+    from nexo.kernel import services
     from nexo.kernel.workspace import specs
-    from nexo.modules.planning.app import clarify
+
+    clarify = services.load("planning.clarify")
 
     folder = clarify.feature_for_story(o.root, task.story)
     if folder is None:
@@ -120,7 +132,9 @@ def skills_plugin(o: Orchestrator) -> str:
         encoding="utf-8",
     )
     shutil.copytree(embedded_dir("skills"), skills)
-    from nexo.modules.packs.app.extensions import effective
+    from nexo.kernel import services
+
+    effective = services.get("packs.extensions", "effective")
 
     for ext in effective(o.ctx):  # skills do time (org/squad/projeto/pessoal) sobrepõem as embutidas
         if ext.meta.type == "skill" and "claude" in ext.meta.targets:

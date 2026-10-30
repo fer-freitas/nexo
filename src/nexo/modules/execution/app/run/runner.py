@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 from nexo import __version__
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.models.work import Task
@@ -30,9 +31,10 @@ from nexo.modules.execution.app.run.common import (
     task_workflow,
 )
 from nexo.modules.execution.domain.routing.classify import Classification
-from nexo.modules.knowledge.app import content
-from nexo.modules.setup.app.banner import brain_version
 from nexo.store.runs import RunRow, RunStore, project_key
+
+content = services.load("knowledge.content")
+brain_version = services.get("setup.banner", "brain_version")
 
 
 class Orchestrator:
@@ -56,7 +58,9 @@ class Orchestrator:
         self.role = opts.role
         self.policy_profile = opts.profile_policy
         self.project = str(self.cfg.get("project") or root.name)
-        from nexo.modules.demands.app.tracker import Sync
+        from nexo.kernel import services
+
+        Sync = services.get("demands.tracker", "Sync")
 
         self.sync = Sync(ctx, root)
         self.profile = opts.profile or str(self.cfg.get("profile", "balanceado"))
@@ -177,7 +181,9 @@ class Orchestrator:
         if state == "Concluido":
             raise NexoError(f"tarefa {task.id} já está concluída")
         if run.blocked_until and run.reason and "orçamento" in run.reason:
-            from nexo.modules.finops.app import costs
+            from nexo.kernel import services
+
+            costs = services.load("finops.costs")
 
             status = costs.budget_status(self.ctx)
             if any(status.tool_ok(t) for t in self.registry):
@@ -220,7 +226,9 @@ class Orchestrator:
             f"\n\nNexo-Run: {run_id}\nNexo-Routes: {', '.join(dict.fromkeys(routes))}"
             f"\nNexo-Responsible: {responsible(self.ctx)}"
         )
-        from nexo.modules.packs.app import extensions
+        from nexo.kernel import services
+
+        extensions = services.load("packs.extensions")
 
         for result in extensions.fire(
             self.ctx, "task_done", {"task": task.id, "run": run_id, "worktree": str(worktree)}, ref=run_id
@@ -256,8 +264,12 @@ class Orchestrator:
         return RunReport(task.id, "Escalado", reason, run_id, routes=routes, usage=run_steps.usage(self, run_id))
 
     def _await_clarification(self, task: Task, run_id: str, items: list[str], routes: list[str]) -> RunReport:
-        from nexo.modules.planning.app import clarify
-        from nexo.modules.planning.app.plan import story_workflow
+        from nexo.kernel import services
+
+        clarify = services.load("planning.clarify")
+        from nexo.kernel import services
+
+        story_workflow = services.get("planning.plan", "story_workflow")
 
         reason = "aguardando " + "; ".join(items) + " — responda com `nexo plan answer` e rode `nexo resume`"
         self._transition(task.id, "block", run_id, reason)

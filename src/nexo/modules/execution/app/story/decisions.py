@@ -4,14 +4,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from nexo.kernel import services
 from nexo.kernel.errors import NexoError, PolicyViolation
 from nexo.kernel.platform import config, identity
-from nexo.modules.delivery.app import approval
 from nexo.modules.execution.app.story import bugs as story_bugs
 from nexo.modules.execution.app.story import cost as story_cost
 from nexo.modules.execution.app.story import publish as story_publish
 from nexo.modules.execution.app.story.common import StoryReport
 from nexo.store.runs import now_iso
+
+approval = services.load("delivery.approval")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.story.runner import StoryRunner

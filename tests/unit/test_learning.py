@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import random
 
-from nexo.kernel.runtime.resources import load_yaml
-from nexo.modules.execution.domain.routing.catalog import Catalog
-from nexo.modules.execution.domain.routing.router import RouteAvailability, RoutingRequest, choose
-from nexo.modules.knowledge.domain.learning.model import (
+from nexo.kernel.learning.model import (
     Lesson,
     RouteStats,
     VariantResult,
@@ -17,6 +14,9 @@ from nexo.modules.knowledge.domain.learning.model import (
     thompson,
     wilson,
 )
+from nexo.kernel.runtime.resources import load_yaml
+from nexo.modules.execution.domain.routing.catalog import Catalog
+from nexo.modules.execution.domain.routing.router import RouteAvailability, RoutingRequest, choose
 
 
 def test_dedup_lessons() -> None:

@@ -13,6 +13,7 @@ import time
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.models.agent import (
     ERR_TECHNICAL,
     MESSAGE,
@@ -27,8 +28,9 @@ from nexo.kernel.models.agent import (
 from nexo.kernel.runtime.resources import load_yaml
 from nexo.kernel.runtime.system import probe, windows_command
 from nexo.modules.execution.adapters.agents.base import ERROR_KIND, Patterns, SubprocessSession
-from nexo.modules.usage.adapters import copilot as copilot_usage
-from nexo.modules.usage.adapters import devin as devin_usage
+
+copilot_usage = services.load("usage.copilot")
+devin_usage = services.load("usage.devin")
 
 # Unidades do consumo real que entram no custo e na telemetria (créditos do Devin ficam só no diagnóstico).
 REAL_UNITS = ("acu", "premium_request", "ai_credits", "tokens_in", "tokens_out", "cache_read", "cache_write")

@@ -4,17 +4,19 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
+from nexo.kernel import services
 from nexo.kernel.backlog import BacklogTask
 from nexo.kernel.errors import NexoError
 from nexo.kernel.finops.money import brl
 from nexo.kernel.platform import identity
 from nexo.kernel.workspace import specs
-from nexo.modules.delivery.app import approval
 from nexo.modules.execution.app.story import decisions as story_decisions
 from nexo.modules.execution.app.story.common import StoryReport
-from nexo.modules.planning.app.clarify import feature_for_story
+
+approval = services.load("delivery.approval")
+feature_for_story = services.get("planning.clarify", "feature_for_story")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.story.runner import StoryRunner
@@ -26,7 +28,9 @@ def settings(r: StoryRunner) -> dict[str, Any]:
 
 def plan(r: StoryRunner, story_id: str) -> dict[str, Any]:
     """Estimativa (R$ por ponto, histórico ou prior) e teto da história."""
-    from nexo.modules.finops.app import metrics
+    from nexo.kernel import services
+
+    metrics = services.load("finops.metrics")
 
     _, _, backlog, _ = r._load(story_id)
     story = next((s for s in backlog.stories if s.id == story_id), None)
@@ -48,7 +52,9 @@ def plan(r: StoryRunner, story_id: str) -> dict[str, Any]:
 
 
 def story_cost(r: StoryRunner, story_id: str) -> tuple[float, dict[str, float]]:
-    from nexo.modules.finops.app import costs as finops_costs
+    from nexo.kernel import services
+
+    finops_costs = services.load("finops.costs")
 
     costs = finops_costs.story_costs(r.ctx, story_id)
     return round(sum(costs.values()), 2), costs
@@ -98,7 +104,7 @@ def feature_budget_file(r: StoryRunner, story_id: str) -> Path:
     folder = feature_for_story(r.root, story_id)
     if folder is None:
         raise NexoError(f"feature de {story_id} não encontrada")
-    return folder / "budget.json"
+    return cast("Path", folder / "budget.json")
 
 
 def feature_cap(r: StoryRunner, story_id: str) -> float | None:

@@ -102,8 +102,12 @@ def find_pending(ctx: AppContext, kind: str, target: str | None = None, dev: str
 
 def request(ctx: AppContext, kind: str, target: str, title: str, detail: dict[str, Any]) -> str:
     """Abre a solicitação, escala pelo canal e notifica. Devolve o id `AP-n`."""
-    from nexo.modules.finops.app import costs
-    from nexo.modules.notify.app import notify
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
+    from nexo.kernel import services
+
+    notify = services.get("notify.main", "notify")
 
     n = int(ctx.conn.execute("SELECT COUNT(*) FROM approval_requests").fetchone()[0]) + 1
     request_id = f"AP-{n}"
@@ -150,7 +154,9 @@ def _tracker_cfg(ctx: AppContext) -> dict[str, Any]:
 
 
 def _tracker_escalate(ctx: AppContext, target: str, request_id: str, title: str) -> str | None:
-    from nexo.modules.demands.app import tracker as integrations_tracker
+    from nexo.kernel import services
+
+    integrations_tracker = services.load("demands.tracker")
 
     if ctx.project_root is None:
         raise NexoError("o canal tracker exige um projeto Nexo")
@@ -166,7 +172,9 @@ def _tracker_escalate(ctx: AppContext, target: str, request_id: str, title: str)
 
 
 def _tracker_poll(ctx: AppContext, row: Any) -> str | None:
-    from nexo.modules.demands.app import tracker as integrations_tracker
+    from nexo.kernel import services
+
+    integrations_tracker = services.load("demands.tracker")
 
     if ctx.project_root is None or not row["external_ref"]:
         return None
@@ -248,7 +256,9 @@ def resolve(ctx: AppContext, request_id: str, decision: str, by: str) -> dict[st
         if decision == "continue":
             result["granted_brl"] = _grant(ctx, row)
         return result
-    from nexo.modules.execution.app.story import StoryRunner
+    from nexo.kernel import services
+
+    StoryRunner = services.get("execution.story", "StoryRunner")
 
     report = StoryRunner(ctx).apply_external(str(row["target"]), request_id, decision, by)
     result["state"] = report.state
@@ -257,7 +267,9 @@ def resolve(ctx: AppContext, request_id: str, decision: str, by: str) -> dict[st
 
 def _grant(ctx: AppContext, row: Any) -> float:
     """Crédito no mês do dev: percentual do limite vigente (`approvals.on_continue.budget_grant_pct`)."""
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
 
     pct = float((_cfg(ctx).get("on_continue") or {}).get("budget_grant_pct", 20.0))
     status = costs.budget_status(ctx, str(row["dev"]), str(row["month"]))

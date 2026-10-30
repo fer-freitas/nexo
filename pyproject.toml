@@ -74,3 +74,40 @@ markers = ["slow: testes lentos"]
 [tool.coverage.run]
 source = ["nexo"]
 branch = true
+
+[tool.importlinter]
+root_package = "nexo"
+include_external_packages = false
+
+[[tool.importlinter.contracts]]
+name = "Módulo não importa módulo"
+type = "independence"
+modules = [
+  "nexo.modules.console",
+  "nexo.modules.delivery",
+  "nexo.modules.demands",
+  "nexo.modules.execution",
+  "nexo.modules.finops",
+  "nexo.modules.knowledge",
+  "nexo.modules.lineage",
+  "nexo.modules.mcp",
+  "nexo.modules.notify",
+  "nexo.modules.packs",
+  "nexo.modules.planning",
+  "nexo.modules.quality",
+  "nexo.modules.sandbox",
+  "nexo.modules.setup",
+  "nexo.modules.usage",
+]
+
+[[tool.importlinter.contracts]]
+name = "O kernel não conhece módulos, CLI nem central"
+type = "forbidden"
+source_modules = ["nexo.kernel", "nexo.store"]
+forbidden_modules = ["nexo.modules", "nexo.cli", "nexo.central"]
+
+[[tool.importlinter.contracts]]
+name = "O central não conhece módulos nem CLI"
+type = "forbidden"
+source_modules = ["nexo.central"]
+forbidden_modules = ["nexo.modules", "nexo.cli"]

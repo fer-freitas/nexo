@@ -13,13 +13,15 @@ import re
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config, flags
 from nexo.kernel.security.redaction import redact
 from nexo.kernel.workspace import codemap
-from nexo.modules.execution.app import llm
 from nexo.modules.knowledge.app import brain, content
+
+llm = services.load("execution.llm")
 
 STOP = frozenset(
     {

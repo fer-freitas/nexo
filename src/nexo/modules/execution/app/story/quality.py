@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from nexo.kernel import services
 from nexo.kernel.errors import NexoError
 from nexo.kernel.gates.confidence import GateInput, ReviewVerdict, decide, risk_areas
 from nexo.kernel.quality.model import ERROR, FAILED, PASSED, QualityReport, telemetry_summary
@@ -13,7 +14,6 @@ from nexo.kernel.quality.traceability import AcTrace, ac_ids_in, trace
 from nexo.kernel.runtime import yamlfile
 from nexo.kernel.spec.model import Spec
 from nexo.kernel.workspace import git
-from nexo.modules.delivery.app import approval
 from nexo.modules.execution.app import llm
 from nexo.modules.execution.app.quality import quality_params, standards_params
 from nexo.modules.execution.app.story import bugs as story_bugs
@@ -25,9 +25,11 @@ from nexo.modules.execution.app.story.common import (
     is_test_file,
     sha256_file,
 )
-from nexo.modules.knowledge.app import content
-from nexo.modules.quality.adapters.runner import run_pipeline
 from nexo.store.runs import now_iso, project_key
+
+approval = services.load("delivery.approval")
+content = services.load("knowledge.content")
+run_pipeline = services.get("quality.runner", "run_pipeline")
 
 if TYPE_CHECKING:
     from nexo.modules.execution.app.story.runner import StoryRunner
@@ -49,7 +51,9 @@ def autofix(r: StoryRunner, run_id: str, st: dict[str, Any], worktree: Path, att
     """Correção determinística de lint (ex.: ordem de imports, formatação) no código alterado pelo dev, antes do
     pipeline: não gasta uma rodada de agente com o que a ferramenta corrige sozinha.
     Testes travados do QA ficam de fora (o hash deles é a garantia do test-first)."""
-    from nexo.modules.quality.adapters.runner import lint_files
+    from nexo.kernel import services
+
+    lint_files = services.get("quality.runner", "lint_files")
 
     locked = set(st.get("locked") or {})
     files = [
@@ -71,8 +75,10 @@ def run_quality(
     if r.store.item_state(story_id) == "EmDev":
         r._transition(story_id, "implemented", "retomada na fase de qualidade")
     attempt = st["attempts"]
+    from nexo.kernel import services
     from nexo.kernel.workspace import codemap
-    from nexo.modules.planning.app import discover
+
+    discover = services.load("planning.discover")
 
     quality_cfg = dict(r.cfg.get("quality") or {})
     autofix(r, run_id, st, worktree, attempt)
@@ -150,7 +156,9 @@ def run_quality(
     if st.get("characterization_missing") and result.decision != "fail":
         result.decision = "human"
         result.human_areas = [*result.human_areas, "código legado sem caracterização"]
-    from nexo.modules.planning.app.plan import injection_suspects
+    from nexo.kernel import services
+
+    injection_suspects = services.get("planning.plan", "injection_suspects")
 
     if injection_suspects(folder) and result.decision != "fail":  # S-03: insumo externo suspeito
         result.decision = "human"
@@ -202,7 +210,9 @@ def run_quality(
         return r._report(story_id, run_id, f"{reason} — aprovação externa {st['external_approval']}")
     from contextlib import suppress
 
-    from nexo.modules.delivery.app import remote_approval
+    from nexo.kernel import services
+
+    remote_approval = services.load("delivery.remote_approval")
 
     link = None
     with suppress(NexoError, OSError):  # sem central, segue a aprovação pelo terminal

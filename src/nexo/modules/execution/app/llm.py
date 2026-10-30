@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from nexo.kernel import services
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.models.agent import DONE, ERR_AUTH, AgentOutcome, AgentRequest
@@ -21,8 +22,9 @@ from nexo.modules.execution.adapters.agents.base import AgentAdapter
 from nexo.modules.execution.app import agents as agents_app
 from nexo.modules.execution.app import hooks
 from nexo.modules.execution.domain.routing.router import RoutingRequest, choose
-from nexo.modules.setup.app.banner import brain_version
 from nexo.store.runs import RunStore, now_iso, project_key
+
+brain_version = services.get("setup.banner", "brain_version")
 
 UI = Callable[[str, dict[str, Any]], None]
 
@@ -72,7 +74,9 @@ def _call_structured(
     from nexo.kernel.feedback import FEEDBACK
 
     ui = ui or (FEEDBACK[0] if FEEDBACK else _noop)
-    from nexo.modules.planning.app import product_context
+    from nexo.kernel import services
+
+    product_context = services.load("planning.product_context")
 
     prompt += product_context.section(ctx, role)  # o produto e o repositório, com orçamento
     from nexo.kernel.platform import telemetry
@@ -247,6 +251,8 @@ def _parse_json(text: str) -> dict[str, Any] | None:
 
 
 def _budget(ctx: AppContext) -> object:
-    from nexo.modules.finops.app import costs
+    from nexo.kernel import services
+
+    costs = services.load("finops.costs")
 
     return costs.budget_status(ctx)

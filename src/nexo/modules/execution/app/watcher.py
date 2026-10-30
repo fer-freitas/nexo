@@ -11,25 +11,37 @@ from nexo.modules.execution.app.agents import nexo_command
 
 
 def resume_ready(ctx: AppContext) -> list[str]:
-    from nexo.modules.delivery.app import approval
+    from nexo.kernel import services
+
+    approval = services.load("delivery.approval")
+    from nexo.kernel import services
     from nexo.modules.execution.app.run import Orchestrator, RunOptions
     from nexo.modules.execution.app.story import StoryRunner
-    from nexo.modules.finops.app import costs
-    from nexo.modules.finops.app.metrics import blocked_items
+
+    costs = services.load("finops.costs")
+    from nexo.kernel import services
+
+    blocked_items = services.get("finops.metrics", "blocked_items")
 
     costs.sync_limits(ctx, force=True)  # limite externo atualizado
     approval.sync(ctx)  # sinais externos: histórias aprovadas/paradas, créditos de orçamento
     resumed = []
     from contextlib import suppress
 
-    from nexo.modules.delivery.app import pr
-    from nexo.modules.planning.app import clarify
+    from nexo.kernel import services
+
+    pr = services.load("delivery.pr")
+    from nexo.kernel import services
+
+    clarify = services.load("planning.clarify")
 
     with suppress(NexoError, OSError, KeyError, ValueError):  # respostas pelo Teams e reação aos PRs
         for item in clarify.apply_remote_answers(ctx):
             ctx.audit("watcher.clarified", {"item": item})
     with suppress(NexoError, OSError, KeyError, ValueError):  # decisões dos portões tomadas pelo Teams
-        from nexo.modules.delivery.app import remote_approval
+        from nexo.kernel import services
+
+        remote_approval = services.load("delivery.remote_approval")
 
         for decision in remote_approval.apply(ctx):
             ctx.audit("watcher.approved", decision)

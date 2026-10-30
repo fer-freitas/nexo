@@ -27,9 +27,11 @@ def fire(ctx: AppContext, name: str, payload: dict[str, Any], ref: str | None = 
 
 def load_policy(ctx: AppContext) -> Policy:
     """Piso embutido + política da org (só restringe) + MCPs externos aprovados em `org/tools.yaml`."""
+    from nexo.kernel import services
     from nexo.kernel.runtime import yamlfile
     from nexo.kernel.security.policy import merge_floor
-    from nexo.modules.knowledge.app import content
+
+    content = services.load("knowledge.content")
 
     data = load_yaml("policy.yaml")  # piso: sempre a baseline embutida
     org_path = ctx.brain_dir / "org" / "security" / "policy.yaml"
@@ -59,7 +61,9 @@ def _report_floor(ctx: AppContext, violations: list[str]) -> None:
     marker.write_text("\n".join(violations), encoding="utf-8")
     for v in violations:
         ctx.audit("policy.violation", {"rule": "SEC-76", "reason": f"piso de segurança: {v}"})
-    from nexo.modules.knowledge.app import brain
+    from nexo.kernel import services
+
+    brain = services.load("knowledge.brain")
 
     body = "A política da org tentou afrouxar o piso de segurança; os itens abaixo foram ignorados:\n\n" + "\n".join(
         f"- {v}" for v in violations
