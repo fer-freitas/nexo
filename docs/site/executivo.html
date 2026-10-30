@@ -1,19 +1,30 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Para executivos · Nexo</title><link rel="stylesheet" href="estilo.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Para executivos: Nexo</title><link rel="stylesheet" href="estilo.css"></head>
 <body>
-<header class="topo"><div><strong>Nexo</strong><a href="index.html">Início</a><a href="funcional.html">Como funciona</a><a href="arquitetura.html">Arquitetura</a><a href="features.html">Features</a><a href="executivo.html" aria-current="page">Para executivos</a><a href="usuarios.html">Guia do usuário</a></div></header>
-<main>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<div class="pagina">
+<aside class="lateral"><a class="marca" href="index.html">Nexo</a><nav aria-label="Documentação"><p class="grupo">Entender</p><ul><li><a href="index.html">Início</a></li><li><a href="funcional.html">Como funciona</a></li><li><a href="arquitetura.html">Arquitetura</a></li></ul><p class="grupo">Acompanhar</p><ul><li><a href="features.html">Features</a></li></ul><p class="grupo">Decidir</p><ul><li><a href="executivo.html" aria-current="page">Para executivos</a><ul class="indice"><li><a href="#o-que-pedimos">O que pedimos</a></li><li><a href="#o-problema">O problema</a></li><li><a href="#o-que-muda">O que muda</a></li><li><a href="#por-que-e-seguro-aprovar">Por que é seguro aprovar</a></li><li><a href="#onde-estamos">Onde estamos</a></li><li><a href="#como-vamos-medir-o-retorno">Como vamos medir o retorno</a></li><li><a href="#riscos-que-assumimos-abertamente">Riscos que assumimos abertamente</a></li></ul></li></ul><p class="grupo">Usar</p><ul><li><a href="usuarios.html">Guia do usuário</a></li></ul></nav></aside>
+<main class="conteudo" id="conteudo">
 <h1>IA no desenvolvimento, com controle e custo visíveis</h1>
 <p class="lead">O Nexo conduz o trabalho de PM, QA, tech lead e dev do pedido até o PR, usando as IAs já aprovadas. A empresa decide as regras, e a IA não consegue passar por cima delas.</p>
-<h2>O problema</h2>
-<div class="cartoes">
-<div class="cartao"><h3>Adoção sem padrão</h3><p>Cada pessoa usa a IA do seu jeito. Sem processo comum, o resultado depende de quem está usando.</p></div>
-<div class="cartao"><h3>Controle depois do fato</h3><p>Revisão e segurança só enxergam o que chega ao PR. Regra escrita em prompt é sugestão, não garantia.</p></div>
-<div class="cartao"><h3>Custo sem dono</h3><p>É difícil responder quanto cada entrega custou em IA, e se valeu a pena.</p></div>
-<div class="cartao"><h3>Conhecimento que se perde</h3><p>Contexto, decisões e dependências entre times ficam na cabeça das pessoas.</p></div>
+<div class="decisao">
+<h2 id="o-que-pedimos">O que pedimos</h2>
+<ul class="pedidos">
+<li><strong>Uma máquina Windows da empresa</strong>, para os testes finais.</li>
+<li><strong>Uma conta AWS e a rede interna</strong>, com o time do Nexo como responsável pelo serviço.</li>
+<li><strong>Dois projetos e um squad-piloto</strong>, com uma pessoa de cada papel.</li>
+<li><strong>Os aceites</strong> de Segurança, Jurídico e LGPD sobre classes de dados e métricas de pessoas.</li>
+</ul>
 </div>
-<h2>O que muda</h2>
+<h2 id="o-problema">O problema</h2>
+<div class="lista-problemas">
+<div class="problema"><h3>Adoção sem padrão</h3><p>Cada pessoa usa a IA do seu jeito. Sem processo comum, o resultado depende de quem está usando.</p></div>
+<div class="problema"><h3>Controle depois do fato</h3><p>Revisão e segurança só enxergam o que chega ao PR. Regra escrita em prompt é sugestão, não garantia.</p></div>
+<div class="problema"><h3>Custo sem dono</h3><p>É difícil responder quanto cada entrega custou em IA, e se valeu a pena.</p></div>
+<div class="problema"><h3>Conhecimento que se perde</h3><p>Contexto, decisões e dependências entre times ficam na cabeça das pessoas.</p></div>
+</div>
+<h2 id="o-que-muda">O que muda</h2>
 <div class="tabela"><table><tr><th>Hoje</th><th>Com o Nexo</th></tr>
 <tr><td>A passagem entre PM, tech lead, QA e dev depende de mensagens e reuniões</td><td>Cada demanda diz com quem está e o que falta, sem ninguém precisar saber Git</td></tr>
 <tr><td>A IA decide quando terminou</td><td>Portões determinísticos decidem. Testes travados, varredura de segredos e aprovação humana nas áreas sensíveis</td></tr>
@@ -21,7 +32,7 @@
 <tr><td>Custo aparece na fatura do mês</td><td>Custo em reais por história, pessoa e squad, com orçamento e teto</td></tr>
 <tr><td>Mudar algo sem saber quem consome</td><td>Linhagem entre componentes de times diferentes, sem pedir nada ao GitHub Actions</td></tr>
 </table></div>
-<h2>Por que é seguro aprovar</h2>
+<h2 id="por-que-e-seguro-aprovar">Por que é seguro aprovar</h2>
 <ul>
 <li><strong>Usa o que já foi aprovado:</strong> Claude, Devin e Copilot. Não instala nada de marketplace sem revisão.</li>
 <li><strong>Dados sob regra:</strong> cada classe de dados só vai para o fornecedor permitido. Ferramenta sem bloqueio comprovado não recebe dado confidencial.</li>
@@ -30,7 +41,7 @@
 <li><strong>Kill switch e flags:</strong> dá para desligar uma ferramenta durante um incidente, e nenhuma flag desliga o piso de segurança.</li>
 <li><strong>Sem depender do GitHub Actions:</strong> respeita o padrão atual da empresa.</li>
 </ul>
-<h2>Onde estamos</h2>
+<h2 id="onde-estamos">Onde estamos</h2>
 <div class="aviso"><strong>Ainda não há número de ganho.</strong> O Nexo não rodou em projeto real da empresa, e este documento não estima retorno sem medição.</div>
 <div class="tabela"><table><tr><th>Item</th><th>Situação</th></tr>
 <tr><td>Código das entregas</td><td>Feito, com validação automatizada em macOS</td></tr>
@@ -39,7 +50,7 @@
 <tr><td>Serviço na AWS</td><td>Infraestrutura escrita, ainda não implantada</td></tr>
 <tr><td>Uso por pessoas</td><td>Ainda não testado com uma pessoa de cada papel</td></tr>
 </table></div>
-<h2>Como vamos medir o retorno</h2>
+<h2 id="como-vamos-medir-o-retorno">Como vamos medir o retorno</h2>
 <p>A linha de base é coletada antes do primeiro uso, e o painel compara os mesmos indicadores depois do piloto.</p>
 <div class="tabela"><table><tr><th>Pergunta</th><th>Indicador</th><th>Fonte</th></tr>
 <tr><td>Entregamos mais rápido?</td><td>Tempo da ideia ao PR e frequência de implantação</td><td>Demandas e DORA</td></tr>
@@ -48,21 +59,15 @@
 <tr><td>Está sob controle?</td><td>Uso de IA que passou pelos portões, e bloqueios de política</td><td>Coleta local e auditoria</td></tr>
 <tr><td>As pessoas conseguem usar?</td><td>Fluxo completo só com a ajuda da ferramenta</td><td>Teste de uso</td></tr>
 </table></div>
-<h2>O que pedimos</h2>
-<ol>
-<li><strong>Uma máquina Windows da empresa</strong>, para os testes finais.</li>
-<li><strong>Uma conta AWS e a rede interna</strong>, com o time do Nexo como responsável pelo serviço.</li>
-<li><strong>Dois projetos e um squad-piloto</strong>, com uma pessoa de cada papel.</li>
-<li><strong>Os aceites</strong> de Segurança, Jurídico e LGPD sobre classes de dados e métricas de pessoas.</li>
-</ol>
-<h2>Riscos que assumimos abertamente</h2>
+<h2 id="riscos-que-assumimos-abertamente">Riscos que assumimos abertamente</h2>
 <div class="tabela"><table><tr><th>Risco</th><th>Como tratamos</th></tr>
 <tr><td>O ambiente da empresa pode bloquear partes do desenho</td><td>Testes curtos do ambiente vêm primeiro, e cada bloqueio tem alternativa definida</td></tr>
 <tr><td>Hoje só o Claude recebe dado confidencial</td><td>Provar o bloqueio no Devin e no Copilot. Até lá, sem troca automática para eles nesses dados</td></tr>
 <tr><td>Métricas de pessoas são sensíveis</td><td>Pseudônimo, matriz de visibilidade e validação com Jurídico e RH antes de ligar</td></tr>
 <tr><td>Dificuldade de uso</td><td>O MVP só termina com pessoas reais executando o fluxo sem ajuda</td></tr>
 </table></div>
+<p class="rodape">Nexo 0.1.0. Documento interno, antes da primeira liberação. As cores são aproximadas da identidade do Itaú Unibanco e faltam confirmar com o time de marca. O logo e a fonte da empresa dependem de liberação.</p>
 </main>
-<footer>Nexo 0.1.0 · Documento interno, antes da primeira liberação. Cores aproximadas da identidade do Itaú Unibanco, a confirmar com o time de marca. O logo e a fonte da empresa dependem de liberação.</footer>
+</div>
 </body>
 </html>

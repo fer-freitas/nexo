@@ -1,0 +1,104 @@
+<h1>Guia do usuário</h1>
+<p class="lead">Tudo o que você precisa para usar o Nexo no dia a dia. Em dúvida, <code>nexo help</code> lista os comandos, e <code>--help</code> funciona em qualquer um.</p>
+<div class="aviso">O Nexo ainda não foi liberado para uso em projetos da empresa. Até lá, use só a demonstração.</div>
+<h2>Começar</h2>
+<div class="passos">
+<h3 class="passo">Prepare a máquina</h3>
+<pre><code>nexo setup --check     # mostra o que falta, sem instalar
+nexo setup             # instala, sempre perguntando antes
+nexo squad set sq-seu-squad
+nexo doctor            # confere tudo</code></pre>
+<h3 class="passo">Experimente sem risco</h3>
+<pre><code>nexo demo cli     # repositório de exemplo com agente simulado, e um roteiro para seguir
+nexo demo site    # portal local, com um login para cada perfil</code></pre>
+<p>Tudo é fictício, não gasta tokens e não mexe nas suas configurações.</p>
+<h3 class="passo">Entre no seu time</h3>
+<pre><code>nexo join nome-do-time --repo endereço-do-repositório-do-time</code></pre>
+<p>Não precisa saber Git. A partir daqui, o Nexo sincroniza sozinho.</p>
+<h3 class="passo">Prepare um repositório</h3>
+<p>Quem cuida do repositório faz isto uma vez:</p>
+<pre><code>nexo init
+nexo team link nome-do-time --repo endereço-do-repositório-do-time
+nexo context init           # poucas perguntas sobre o projeto e o repositório
+nexo lineage agent install  # opcional: mantém a linhagem atualizada</code></pre>
+</div>
+<h2>O dia a dia</h2>
+<p>Digite só o seu papel para ver o que está com você, do mais antigo para o mais novo. <code>nexo brief &lt;id&gt;</code> explica o que fazer em qualquer demanda, e <code>nexo board</code> mostra tudo.</p>
+<h2>Se você é PM</h2>
+<div class="tabela"><table><tr><th>Quero</th><th>Comando</th></tr>
+<tr><td>Registrar uma ideia</td><td><code>nexo pm idea "texto"</code></td></tr>
+<tr><td>Decidir se segue</td><td><code>nexo pm decide IDEA-1 build --reason "motivo"</code></td></tr>
+<tr><td>Dividir em features</td><td><code>nexo pm split IDEA-1 --feature "nome"</code></td></tr>
+<tr><td>Enriquecer a spec com a IA</td><td><code>nexo pm refine F-1</code></td></tr>
+<tr><td>Responder as dúvidas</td><td><code>nexo pm answer</code></td></tr>
+<tr><td>Saber custo e prazo</td><td><code>nexo pm estimate</code></td></tr>
+<tr><td>Aprovar os requisitos</td><td><code>nexo pm approve F-1</code></td></tr>
+<tr><td>Dar o aceite de negócio</td><td><code>nexo pm accept US-1-1</code></td></tr>
+</table></div>
+<h2>Se você é tech lead</h2>
+<div class="tabela"><table><tr><th>Quero</th><th>Comando</th></tr>
+<tr><td>Preparar o repositório</td><td><code>nexo tl setup</code></td></tr>
+<tr><td>Ver lacunas, riscos e quem consome</td><td><code>nexo tl analyze F-1</code></td></tr>
+<tr><td>Devolver uma lacuna funcional à PM</td><td><code>nexo tl return F-1 --reason "motivo"</code></td></tr>
+<tr><td>Aprovar o desenho</td><td><code>nexo tl approve F-1</code></td></tr>
+<tr><td>Indicar dev e QA</td><td><code>nexo tl assign F-1 --dev pessoa --qa pessoa</code></td></tr>
+<tr><td>Entender um portão</td><td><code>nexo tl gate US-1-1</code></td></tr>
+<tr><td>Liberar a entrega</td><td><code>nexo approve US-1-1</code> ou <code>nexo reject US-1-1 --reason "motivo"</code></td></tr>
+</table></div>
+<h2>Se você é QA</h2>
+<div class="tabela"><table><tr><th>Quero</th><th>Comando</th></tr>
+<tr><td>Ligar critérios a cenários</td><td><code>nexo qa plan US-1-1</code>, depois <code>nexo qa approve US-1-1</code></td></tr>
+<tr><td>Gerar os testes antes do código</td><td><code>nexo qa write US-1-1</code></td></tr>
+<tr><td>Ver critério sem teste</td><td><code>nexo qa trace US-1-1</code></td></tr>
+<tr><td>Registrar um bug</td><td><code>nexo qa bug US-1-1 "descrição"</code></td></tr>
+<tr><td>Verificar a correção</td><td><code>nexo qa verify BUG-1</code></td></tr>
+<tr><td>Validar a entrega</td><td><code>nexo qa pass US-1-1</code></td></tr>
+</table></div>
+<h2>Se você é dev</h2>
+<div class="tabela"><table><tr><th>Quero</th><th>Comando</th></tr>
+<tr><td>Entender a tarefa</td><td><code>nexo dev explain T-1-1</code></td></tr>
+<tr><td>Propor melhorias</td><td><code>nexo dev refine US-1-1</code></td></tr>
+<tr><td>Aprovar o plano</td><td><code>nexo dev approve US-1-1</code></td></tr>
+<tr><td>Executar com a IA</td><td><code>nexo dev run US-1-1</code></td></tr>
+<tr><td>Avisar de um problema</td><td><code>nexo dev problem US-1-1</code></td></tr>
+<tr><td>Retomar</td><td><code>nexo dev resume US-1-1</code></td></tr>
+<tr><td>Testar sem criar demanda</td><td><code>nexo try "pedido"</code></td></tr>
+</table></div>
+<h2>Contexto do projeto</h2>
+<p><strong>Projeto</strong> é o conjunto maior, que pode ter vários repositórios, chamados de partes. <strong>Repositório</strong> é cada pasta de código. Quanto melhor o contexto, melhor a IA planeja.</p>
+<div class="tabela"><table><tr><th>Quero</th><th>Comando</th></tr>
+<tr><td>Ver o contexto atual</td><td><code>nexo context</code></td></tr>
+<tr><td>Criar, com perguntas curtas</td><td><code>nexo context init</code></td></tr>
+<tr><td>Incluir uma regra ou decisão</td><td><code>nexo context add "texto"</code></td></tr>
+<tr><td>Explicar uma sigla</td><td><code>nexo context term "PMO" "escritório de projetos"</code></td></tr>
+<tr><td>Pedir sugestões à IA, a partir de um documento</td><td><code>nexo context enrich --from regras.md</code></td></tr>
+<tr><td>Levar o projeto para os outros squads</td><td><code>nexo context propose id-do-projeto</code></td></tr>
+</table></div>
+<p>O que a IA sugere só entra depois que você aceita. Texto com segredo ou dado pessoal é recusado.</p>
+<h2>Squad</h2>
+<pre><code>nexo squad                  # mostra o seu e de onde vem
+nexo squad set sq-seu-squad # vale em todos os repositórios
+nexo squad list             # os que o Nexo conhece</code></pre>
+<p>Custo, métricas e flags por squad dependem disso. Ao entrar em um time com <code>nexo join</code>, o nome do time vira o seu squad, se você ainda não tiver informado um.</p>
+<h2>Portal</h2>
+<p>O portal mostra features, dashboard, insights, board e acessos. Cada pessoa vê o que o perfil dela permite. Na fase atual, o login é por convite; o SSO da empresa será conectado depois.</p>
+<h2>Quando algo dá errado</h2>
+<div class="tabela"><table><tr><th>Mensagem</th><th>O que fazer</th></tr>
+<tr><td><em>falta instalar antes de executar</em></td><td>Rode <code>nexo setup</code>. Nada foi gasto</td></tr>
+<tr><td><em>identidade verificada exigida</em></td><td>Rode <code>nexo login github</code></td></tr>
+<tr><td><em>ainda não está pronta: faltam as aprovações</em></td><td>Rode <code>nexo brief US-1-1</code> para ver quem precisa aprovar</td></tr>
+<tr><td><em>guarda não comprovada</em></td><td>A ferramenta não pode receber esta classe de dados. Use outra, ou uma tarefa de classe permitida</td></tr>
+<tr><td>A história escalou</td><td><code>nexo logs US-1-1</code> mostra o motivo, e <code>nexo dev resume US-1-1</code> retoma</td></tr>
+<tr><td>Comando desligado por flag</td><td><code>nexo flags explain chave</code> mostra quem desligou e por quê</td></tr>
+<tr><td>Qualquer outra coisa</td><td><code>nexo doctor</code></td></tr>
+</table></div>
+<h2>Glossário</h2>
+<div class="tabela"><table>
+<tr><td><strong>Spec</strong></td><td>O documento da feature: requisitos, critérios e desenho</td></tr>
+<tr><td><strong>DoR</strong></td><td>Definition of Ready: o que precisa estar completo antes de construir</td></tr>
+<tr><td><strong>Portão</strong></td><td>Verificação por regras que decide se a entrega passa</td></tr>
+<tr><td><strong>Piso</strong></td><td>Controles de segurança que nenhuma flag desliga</td></tr>
+<tr><td><strong>Cérebro</strong></td><td>Repositório de conhecimento da empresa, atualizado por PR e assinado</td></tr>
+<tr><td><strong>Linhagem</strong></td><td>O mapa de quais componentes publicam e consomem o quê</td></tr>
+<tr><td><strong>Pack</strong></td><td>Conjunto de skills de mercado, travado por hash</td></tr>
+</table></div>

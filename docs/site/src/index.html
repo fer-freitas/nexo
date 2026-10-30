@@ -1,0 +1,33 @@
+<section class="capa">
+<div class="capa-texto">
+<h1>Do pedido ao PR, com a IA dentro das regras da empresa.</h1>
+<p>O Nexo é uma ferramenta de linha de comando para PM, QA, tech lead e dev. Cada demanda sempre diz com quem está. Quem decide o que passa são regras fixas, não a IA.</p>
+</div>
+<figure class="terminal" aria-label="Exemplo de saída do comando nexo pm">
+<pre><code><span class="prompt">$</span> nexo pm
+Com você (PM), do mais antigo para o mais novo:
+  1. F-1  Endpoint de versão
+     Refinar e aprovar os requisitos
+  ver: nexo brief F-1
+
+<span class="prompt">$</span> nexo tl gate US-1-1
+US-1-1: aguarda decisão humana
+  pede humano: revisão independente indisponível
+  agora: nexo approve US-1-1</code></pre>
+</figure>
+</section>
+<div class="aviso"><strong>Ainda não foi liberado às pessoas.</strong> O código está pronto e validado em macOS, mas falta provar no Windows da empresa e na AWS. Veja o que já foi provado em <a href="features.html">Features</a>.</div>
+<h2>Por onde começar</h2>
+<ul class="caminhos">
+<li><a href="usuarios.html#se-voce-e-pm"><strong>Sou PM</strong><span>Registrar ideias, responder dúvidas e aprovar requisitos</span></a></li>
+<li><a href="usuarios.html#se-voce-e-tech-lead"><strong>Sou tech lead</strong><span>Definir o desenho, indicar responsáveis e entender um portão</span></a></li>
+<li><a href="usuarios.html#se-voce-e-qa"><strong>Sou QA</strong><span>Planejar testes, registrar bugs e validar a entrega</span></a></li>
+<li><a href="usuarios.html#se-voce-e-dev"><strong>Sou dev</strong><span>Executar com a IA, avisar de um problema e retomar</span></a></li>
+<li><a href="executivo.html"><strong>Preciso decidir</strong><span>O problema, os controles, como medir e o que pedimos</span></a></li>
+<li><a href="arquitetura.html"><strong>Vou operar ou revisar</strong><span>As peças, por onde passam os dados e as decisões técnicas</span></a></li>
+</ul>
+<h2>Experimente em dois minutos</h2>
+<p>A demonstração usa dados fictícios, não gasta tokens e não mexe nas suas configurações.</p>
+<pre><code>nexo setup       # confere e instala o que falta
+nexo demo cli    # repositório de exemplo, com agente simulado
+nexo demo site   # portal em 127.0.0.1, com um login por perfil</code></pre>

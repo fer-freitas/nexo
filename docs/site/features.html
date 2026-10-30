@@ -1,13 +1,22 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Features · Nexo</title><link rel="stylesheet" href="estilo.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Features: Nexo</title><link rel="stylesheet" href="estilo.css"></head>
 <body>
-<header class="topo"><div><strong>Nexo</strong><a href="index.html">Início</a><a href="funcional.html">Como funciona</a><a href="arquitetura.html">Arquitetura</a><a href="features.html" aria-current="page">Features</a><a href="executivo.html">Para executivos</a><a href="usuarios.html">Guia do usuário</a></div></header>
-<main>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<div class="pagina">
+<aside class="lateral"><a class="marca" href="index.html">Nexo</a><nav aria-label="Documentação"><p class="grupo">Entender</p><ul><li><a href="index.html">Início</a></li><li><a href="funcional.html">Como funciona</a></li><li><a href="arquitetura.html">Arquitetura</a></li></ul><p class="grupo">Acompanhar</p><ul><li><a href="features.html" aria-current="page">Features</a><ul class="indice"><li><a href="#trabalho-por-papel">Trabalho por papel</a></li><li><a href="#contexto-e-conhecimento">Contexto e conhecimento</a></li><li><a href="#gestao">Gestão</a></li><li><a href="#alem-do-mvp-ja-antecipado">Além do MVP, já antecipado</a></li><li><a href="#instalacao-e-plataforma">Instalação e plataforma</a></li></ul></li></ul><p class="grupo">Decidir</p><ul><li><a href="executivo.html">Para executivos</a></li></ul><p class="grupo">Usar</p><ul><li><a href="usuarios.html">Guia do usuário</a></li></ul></nav></aside>
+<main class="conteudo" id="conteudo">
 <h1>Features</h1>
 <p class="lead">O que existe hoje e o que já foi provado. Passar nos testes automáticos não significa estar provado com a ferramenta real, por isso os dois estados são separados.</p>
-<p><span class="selo real">Provado</span> rodou de verdade &nbsp; <span class="selo sim">Com simulador</span> feito e testado, sem prova real &nbsp; <span class="selo falta">Pendente</span> depende de algo fora do código</p>
-<h2>Trabalho por papel</h2>
+<div class="placar" role="img" aria-label="7 itens provados, 17 só com simulador e 14 pendentes">
+<div class="barra"><span class="b-real" style="flex:7"></span><span class="b-sim" style="flex:17"></span><span class="b-falta" style="flex:14"></span></div>
+<dl>
+<div><dt>7</dt><dd><span class="selo real">Provado</span> rodou de verdade</dd></div>
+<div><dt>17</dt><dd><span class="selo sim">Com simulador</span> feito e testado, sem prova real</dd></div>
+<div><dt>14</dt><dd><span class="selo falta">Pendente</span> depende de algo fora do código</dd></div>
+</dl>
+</div>
+<h2 id="trabalho-por-papel">Trabalho por papel</h2>
 <div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
 <tr><td>Comandos por papel</td><td><code>nexo pm</code>, <code>nexo qa</code>, <code>nexo tl</code> e <code>nexo dev</code> mostram o que está com a pessoa</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>Planejamento com IA</td><td>Spec, dúvidas, análise técnica, requisito técnico e histórias</td><td><span class="selo real">Provado com Claude</span></td></tr>
@@ -19,7 +28,7 @@
 <tr><td>Revisão por outro fornecedor</td><td>Quem revisa usa modelo de outro fornecedor. Sem isso, o portão exige uma pessoa</td><td><span class="selo falta">Falta Devin ou Copilot</span></td></tr>
 <tr><td>Teste livre</td><td><code>nexo try</code> e <code>nexo test</code> não criam demanda nem abrem PR</td><td><span class="selo sim">Com simulador</span></td></tr>
 </table></div>
-<h2>Contexto e conhecimento</h2>
+<h2 id="contexto-e-conhecimento">Contexto e conhecimento</h2>
 <div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
 <tr><td>Contexto do projeto</td><td>O projeto, as partes e o que cada repositório faz, usado pela IA</td><td><span class="selo real">Provado com Claude</span></td></tr>
 <tr><td>Enriquecer o contexto</td><td><code>nexo context enrich</code> sugere a partir de documentos, e a pessoa escolhe. <code>add</code> e <code>term</code> incluem direto</td><td><span class="selo sim">Com simulador</span></td></tr>
@@ -29,7 +38,7 @@
 <tr><td>Linhagem de componentes</td><td>Scanners de .NET, Terraform e AsyncAPI, sem CI, com consolidação entre times</td><td><span class="selo falta">Falta .NET real</span></td></tr>
 <tr><td>MCPs</td><td>Busca, aprovação pelo destino, versão fixa e prova</td><td><span class="selo falta">Faltam 3 reais</span></td></tr>
 </table></div>
-<h2>Gestão</h2>
+<h2 id="gestao">Gestão</h2>
 <div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
 <tr><td>Board de demandas</td><td>Todos os projetos e com quem está cada demanda</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>GitHub Issues</td><td>Sincroniza com responsável e etiqueta, sem duplicar</td><td><span class="selo falta">Falta conta real</span></td></tr>
@@ -38,7 +47,7 @@
 <tr><td>DORA</td><td>Pela API do GitHub, em tarefa agendada na AWS</td><td><span class="selo falta">Falta implantar</span></td></tr>
 <tr><td>SSO da empresa</td><td>Porta pronta. Fica para depois, por decisão</td><td><span class="selo falta">Depois</span></td></tr>
 </table></div>
-<h2>Além do MVP, já antecipado</h2>
+<h2 id="alem-do-mvp-ja-antecipado">Além do MVP, já antecipado</h2>
 <p>Vieram da base, com os testes dela, e nunca rodaram em projeto real desta versão.</p>
 <div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
 <tr><td><code>nexo deps</code></td><td>Varre vulnerabilidades e planeja a correção em ondas, sem gastar tokens na atualização</td><td><span class="selo sim">Com simulador</span></td></tr>
@@ -53,7 +62,7 @@
 <tr><td><code>nexo autonomy</code>, <code>nexo isolation</code>, <code>nexo insights</code></td><td>Autonomia por squad, agente em contêiner e detecção de problemas</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td><code>nexo eval</code></td><td>Avaliação de skills e rotas. Os casos de harness ainda não foram feitos</td><td><span class="selo falta">Harness pendente</span></td></tr>
 </table></div>
-<h2>Instalação e plataforma</h2>
+<h2 id="instalacao-e-plataforma">Instalação e plataforma</h2>
 <div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
 <tr><td><code>nexo setup</code></td><td>Confere e instala o necessário, sempre com permissão</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td><code>nexo demo cli</code> e <code>nexo demo site</code></td><td>Experimentar com dados fictícios, sem gastar tokens</td><td><span class="selo real">Provado em macOS</span></td></tr>
@@ -61,7 +70,8 @@
 <tr><td>Windows</td><td>Agendador, cofre, caminhos longos, proxy e TLS</td><td><span class="selo falta">Falta máquina da empresa</span></td></tr>
 <tr><td>Flags e módulos</td><td>Desligar por flag sem nova versão. O piso nunca desliga</td><td><span class="selo sim">Com simulador</span></td></tr>
 </table></div>
+<p class="rodape">Nexo 0.1.0. Documento interno, antes da primeira liberação. As cores são aproximadas da identidade do Itaú Unibanco e faltam confirmar com o time de marca. O logo e a fonte da empresa dependem de liberação.</p>
 </main>
-<footer>Nexo 0.1.0 · Documento interno, antes da primeira liberação. Cores aproximadas da identidade do Itaú Unibanco, a confirmar com o time de marca. O logo e a fonte da empresa dependem de liberação.</footer>
+</div>
 </body>
 </html>

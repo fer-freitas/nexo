@@ -6,7 +6,7 @@ CLI para PM, QA, tech lead e dev que conduz o trabalho do pedido até o PR. As s
 
 ## Documentação
 
-Abra [docs/site/index.html](docs/site/index.html) no navegador: como funciona, arquitetura, features, a apresentação para executivos e o guia do usuário.
+Abra [docs/site/index.html](docs/site/index.html) no navegador: como funciona, arquitetura, features, a apresentação para executivos e o guia do usuário. Para editar, mude `docs/site/src/` e rode `python scripts/build_docs.py`.
 
 ## Experimentar em dois minutos
 

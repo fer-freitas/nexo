@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import html
 import re
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -58,3 +60,21 @@ def test_docs_do_not_load_anything_from_outside() -> None:
 def test_readme_walkthrough_commands_exist() -> None:
     found = commands_in_code((ROOT / "README.md").read_text(encoding="utf-8"))
     assert found and sorted(m for m in found if not exists(m.split())) == []
+
+
+def test_pages_were_generated_from_their_sources() -> None:
+    done = subprocess.run([sys.executable, str(ROOT / "scripts" / "build_docs.py"), "--check"], check=False)
+    assert done.returncode == 0, "rode `python scripts/build_docs.py`"
+
+
+@pytest.mark.parametrize("page", PAGES, ids=lambda p: p.name)
+def test_anchors_point_to_real_sections(page: Path) -> None:
+    for name, anchor in re.findall(r'href="([^"#]*)#([^"]+)"', page.read_text(encoding="utf-8")):
+        target = (page.parent / name) if name else page
+        assert f'id="{anchor}"' in target.read_text(encoding="utf-8"), f"{name}#{anchor}"
+
+
+def test_placar_counts_every_feature() -> None:
+    text = (ROOT / "docs" / "site" / "features.html").read_text(encoding="utf-8")
+    rows = re.findall(r'<td><span class="selo (real|sim|falta)">', text)
+    assert "{{" not in text and f"{rows.count('real')} itens provados" in text

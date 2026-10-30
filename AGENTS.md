@@ -35,3 +35,4 @@ Nada deste projeto cria, altera ou depende de workflow. A política do agente pr
 - `ruff --fix` com regras selecionadas apaga `# noqa` válidos, porque só enxerga as regras selecionadas. Rode com a configuração completa e `--fixable`.
 - Não use expressão regular global em código. Use AST ou troca exata.
 - Depois de mudar comando em manifesto, gere de novo `tests/snapshots/help.*.txt`.
+- A documentação se edita em `docs/site/src/` e `docs/site/estilo.css`. Depois, rode `python scripts/build_docs.py`.
