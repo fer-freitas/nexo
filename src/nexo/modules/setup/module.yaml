@@ -1,0 +1,18 @@
+id: setup
+version: 1.0.0
+title: "Instalação e diagnóstico"
+flags:
+  - key: guard
+    title: "Guarda do Nexo nas sessões de IA fora do Nexo"
+    area: "Segurança"
+    commands: ["guard install"]
+  - key: monitor
+    title: "Monitor sintético das CLIs"
+    area: "Qualidade"
+    commands: ["monitor"]
+  - key: traces
+    title: "Traces OpenTelemetry para o APM"
+    area: "Observabilidade"
+  - key: transcripts
+    title: "Replay redigido das sessões do agente"
+    area: "Observabilidade"

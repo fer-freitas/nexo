@@ -15,8 +15,40 @@ from nexo.kernel.spec.questions import Question
 FEATURE_DIR = re.compile(r"^F-(\d+)(?:-.*)?$")
 
 
+class ProjectSettings:
+    """O que `.nexo/nexo.yaml` diz sobre onde ficam as demandas e o refinamento do projeto."""
+
+    def __init__(self, root: Path, data: dict[str, Any]) -> None:
+        self.root = root
+        self.project = str(data.get("project") or root.name)
+        team = dict(data.get("team") or {})
+        self.team_name = str(team.get("name") or "")
+        self.team_repo = str(team.get("repo") or "")
+
+    def team_dir(self) -> Path:
+        """Clone do repositório do time; sem time, uma pasta local do projeto."""
+        if self.team_name:
+            from nexo.kernel.context import nexo_home
+
+            return nexo_home() / "teams" / self.team_name
+        return self.root / ".nexo" / "team"
+
+    def project_dir(self) -> Path:
+        return self.team_dir() / "projects" / self.project
+
+    @property
+    def shared(self) -> bool:
+        return bool(self.team_name)
+
+
+def project_settings(project_root: Path) -> ProjectSettings:
+    return ProjectSettings(project_root, yamlfile.load(project_root / ".nexo" / "nexo.yaml"))
+
+
 def specs_root(project_root: Path) -> Path:
-    return project_root / ".nexo" / "specs"
+    """Com time configurado, o refinamento mora no repositório do time, para chegar às outras pessoas."""
+    settings = project_settings(project_root)
+    return settings.project_dir() / "specs" if settings.shared else project_root / ".nexo" / "specs"
 
 
 def slug(text: str) -> str:

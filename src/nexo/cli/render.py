@@ -12,12 +12,12 @@ from nexo.kernel.i18n import get_lang, t
 from nexo.modules.setup.app.banner import BannerInfo
 
 LOGO = (
-    " ███╗   ███╗███████╗██████╗ ██╗  ██╗ █████╗ ",
-    " ████╗ ████║██╔════╝██╔══██╗██║  ██║██╔══██╗",
-    " ██╔████╔██║█████╗  ██║  ██║███████║███████║",
-    " ██║╚██╔╝██║██╔══╝  ██║  ██║██╔══██║██╔══██║",
-    " ██║ ╚═╝ ██║███████╗██████╔╝██║  ██║██║  ██║",
-    " ╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝",
+    " ███╗   ██╗███████╗██╗  ██╗ ██████╗ ",
+    " ████╗  ██║██╔════╝╚██╗██╔╝██╔═══██╗",
+    " ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║",
+    " ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║",
+    " ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝",
+    " ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ",
 )
 
 
@@ -89,39 +89,31 @@ def _label(spec: CommandSpec) -> str:
     return f"{spec.path} {spec.args}".strip()
 
 
-def help_all(console: Console) -> None:
-    lang = get_lang()
-    phase_word = "phase" if lang == "en" else "fase"
+ROLE_TITLES = (("pm", "PM"), ("qa", "QA"), ("tl", "TECH LEAD"), ("dev", "DEV"))
+
+
+def help_all(console: Console, role: str = "") -> None:
+    """Ajuda organizada por quem você é. Os comandos internos continuam em `nexo help <comando>`."""
+    from nexo.cli.surface import commands_for
+
     console.print(escape(t("help.usage")), highlight=False)
-    shown = [s for s in COMMANDS if not s.hidden]
-    width = 38  # rótulo longo vai sozinho na linha e a descrição desce (cabe em 100 colunas)
-    for key, names in GROUPS.items():
+    console.print()
+    for key, title in ROLE_TITLES:
+        if role and role != key:
+            continue
+        console.print(f"[nexo.title]{title}[/]  nexo {key} mostra o que está com você")
+        for c in commands_for(key):
+            if c.path.split()[0] == key:
+                console.print(f"  {c.path:<20} {escape(c.summary)}", highlight=False)
         console.print()
-        console.print(f"[nexo.title]{names[1] if lang == 'en' else names[0]}[/]", highlight=False)
-        for spec in (s for s in shown if s.group == key):
-            label = _label(spec)
-            line = (
-                f"  {label:<{width}}{spec.summary(lang)}"
-                if len(label) <= width - 2
-                else f"  {label}\n  {'':<{width}}{spec.summary(lang)}"
-            )
-            if spec.available:
-                console.print(escape(line), highlight=False)
-            else:
-                console.print(
-                    f"[nexo.muted]{escape(line)}  {escape(f'[{phase_word} {spec.phase}]')}[/]", highlight=False
-                )
-    console.print()
-    console.print(f"[nexo.title]{escape(t('help.global'))}[/]", highlight=False)
+    if not role:
+        console.print("[nexo.title]TODOS[/]")
+        for c in commands_for("all"):
+            console.print(f"  {c.path:<20} {escape(c.summary)}", highlight=False)
+        console.print()
+    console.print("[nexo.title]OPÇÕES GLOBAIS[/]")
     for opt, pt, en in GLOBAL_OPTIONS:
-        console.print(escape(f"  {opt:<{width}}{en if lang == 'en' else pt}"), highlight=False)
-    console.print()
-    tip = (
-        "Type `nexo` alone to open the panel (next steps, plain language, no `nexo` prefix)."
-        if lang == "en"
-        else "Digite só `nexo` para abrir o console (próximos passos, do seu jeito, sem digitar `nexo`)."
-    )
-    console.print(f"[nexo.muted]{escape(tip)}[/]", highlight=False)
+        console.print(f"  {opt:<50} {en if get_lang() == 'en' else pt}", highlight=False)
 
 
 def help_for(console: Console, specs: list[CommandSpec]) -> None:

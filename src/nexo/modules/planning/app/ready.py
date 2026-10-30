@@ -105,7 +105,7 @@ def check(ctx: AppContext, story_id: str) -> dict[str, Any]:
         "ready": rep.ready,
         "problems": rep.problems,
         "warnings": rep.warnings,
-        "refinement": path.relative_to(root).as_posix(),
+        "refinement": path.as_posix(),
     }
     ctx.audit("ready.checked", {"story": story_id, "ready": rep.ready, "problems": len(rep.problems)}, ref=story_id)
     return result

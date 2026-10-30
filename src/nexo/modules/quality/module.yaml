@@ -1,0 +1,8 @@
+id: quality
+version: 1.0.0
+title: "Qualidade"
+flags:
+  - key: quality_cli
+    title: "Pipeline de qualidade avulso e geração de CI"
+    area: "Qualidade"
+    commands: ["quality"]

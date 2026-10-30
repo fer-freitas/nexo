@@ -34,6 +34,7 @@ class BacklogTask(BaseModel):
     description: str = ""
     acceptance: list[str] = Field(default_factory=list)
     files_hint: list[str] = Field(default_factory=list)
+    section_refs: list[str] = Field(default_factory=list)
     depends_on: list[str] = Field(default_factory=list)
     size: str = "M"
     human_gate: bool = False
@@ -49,6 +50,7 @@ class BacklogTask(BaseModel):
             description=self.description,
             acceptance=self.acceptance,
             files_hint=self.files_hint,
+            section_refs=self.section_refs,
             depends_on=self.depends_on,
             data_class=data_class,
             story=self.story,

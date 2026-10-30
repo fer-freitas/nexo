@@ -1,0 +1,28 @@
+id: planning
+version: 1.0.0
+title: "Planejamento"
+flags:
+  - key: planning
+    title: "Planejamento com agente (ingestão, refinamento, backlog)"
+    area: "Planejamento"
+    commands: ["plan"]
+  - key: templates
+    title: "Templates de artefatos e documentos"
+    area: "Planejamento"
+    commands: ["template"]
+  - key: discovery
+    title: "Discovery de produto do PM (hipóteses, evidências e decisão)"
+    area: "Planejamento"
+    commands: ["plan discovery", "plan decide"]
+  - key: role_flow
+    title: "Fluxo por papéis: sessão conjunta, pacote e aprovação de cada papel"
+    area: "Planejamento"
+    commands: ["plan session", "plan package", "plan reject", "plan inbox", "plan roles"]
+  - key: discover
+    title: "Descoberta de código existente (mapa, baseline, as-is)"
+    area: "Planejamento"
+    commands: ["discover"]
+  - key: ready
+    title: "Definition of Ready e teste de performance pelo refinamento"
+    area: "Planejamento"
+    commands: ["ready", "perf"]

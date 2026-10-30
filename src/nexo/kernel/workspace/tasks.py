@@ -12,11 +12,21 @@ from nexo.kernel.runtime import yamlfile
 
 
 def tasks_dir(project_root: Path) -> Path:
-    return project_root / ".nexo" / "tasks"
+    from nexo.kernel.workspace.specs import project_settings
+
+    settings = project_settings(project_root)
+    return settings.project_dir() / "tasks" if settings.shared else project_root / ".nexo" / "tasks"
+
+
+def sandbox_dir(project_root: Path) -> Path:
+    """Tarefas de `nexo try`: ficam só nesta máquina, nunca vão para o repositório do time."""
+    return project_root / ".nexo" / "sandbox"
 
 
 def load_task(project_root: Path, task_id: str) -> Task:
     path = tasks_dir(project_root) / f"{task_id}.yaml"
+    if not path.is_file() and (sandbox_dir(project_root) / f"{task_id}.yaml").is_file():
+        path = sandbox_dir(project_root) / f"{task_id}.yaml"
     if not path.is_file():
         raise NexoError(f"tarefa {task_id} não encontrada em {path.parent}")
     try:

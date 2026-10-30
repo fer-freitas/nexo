@@ -1,161 +1,82 @@
 Uso: nexo <comando> [opções]
 
-NO DIA A DIA
-  console                               Entra no console: próximos passos, frases do seu jeito e comandos sem digitar nexo (o mesmo que `nexo`)
-  inbox                                 O que espera por você: dúvidas, partes do plano do seu papel, DoR, portões e aprovações
-  context [init|propose <produto>]      Contexto do produto e do projeto: a que produto pertence, que parte é e o que faz
-  context init                          Assistente de contexto de uma pasta nova (poucas perguntas)
-  status [id]                           Status e progresso (máquina de status)
-  plan <entradas...>                    Brainstorm, dúvidas e criação de épico/feature
-  plan answer <id>                      Responde dúvidas pendentes (interativo ou --file)
-  plan approve <id>                     Aprova e quebra em histórias/tarefas (fluxo por papéis: --part requisitos|design|plano)
-  ready <US-n|F-n> [--init]             Definition of Ready: confere o refinamento no modelo único (critérios de teste e de performance)
-  run story <id>                        Executa a história (QA → dev → qualidade → segurança → review)
-  run feature <F-n> [--parallel N]      Roda a feature inteira em ondas (dependências, paralelismo, orçamento)
-  run task <id>                         Executa uma tarefa
-  resume <id>                           Retoma execução pausada/bloqueada
-  approve <id> [--raise N | --economic]
-                                        Aprova um portão humano (qualidade ou custo)
-  reject <id> --reason                  Reprova um portão (gera bug)
-  logs [id] [--trace <run> --reason]    Linha do tempo auditável
-  ask <pergunta> [--budget]             Perguntas sobre o código e as decisões, com fontes verificadas
-  pr sync                               Reage ao CI e à revisão do PR; merge no L3
-  quality run                           Executa o pipeline de qualidade da stack
-  doctor                                Diagnóstico de ferramentas, autenticação, integrações
-  tasks [--all]                         Minhas tarefas: o que está pendente, por história
-  explain <T-n|US-n>                    Explica a tarefa antes de começar: o quê, por quê, onde mexer, cuidados e como validar
-  check <US-n>                          Confere se a história está pronta de verdade (DoR, critérios, testes, pipeline, portão, PR, custo)
+PM  nexo pm mostra o que está com você
+  pm idea              Registra a ideia e gera IDEA-n, sem IA
+  pm discover          Problema, evidências, hipóteses e recomendação
+  pm decide            Decide a ideia: build, drop ou investigate
+  pm split             Divide a ideia em features
+  pm refine            Enriquece a spec, gera dúvidas e histórias em rascunho
+  pm answer            Responde as dúvidas até a prontidão chegar a 100%
+  pm classify          Classe de dados: o que pode ir para a IA
+  pm estimate          Custo e prazo pelo histórico
+  pm approve           Aprova os requisitos
+  pm reject            Reprova os requisitos
+  pm accept            Aceite de negócio depois da entrega
+  pm confirm           Confirma uma premissa provisória
+  pm decline           Recusa uma premissa provisória
 
-PLANEJAMENTO POR PAPEL (PM, TECH LEAD)
-  tech analyze <F-n>                    Tech lead: analisa o requisito funcional (lacunas, riscos, perguntas para o PM)
-  tech return <F-n> [--reason]          Tech lead: devolve ao PM as lacunas funcionais que escaparam do refinamento
-  tech spec <F-n> [--notes]             Tech lead: requisito técnico com premissas (design, decisões, NFR, riscos, testes)
-  plan classify <F-n> <classe> [--reason]
-                                        Classificação de dados da feature: decide o que pode ir para as ferramentas de IA
-  plan feature <id>                     Enriquece a feature, atualiza a spec, gera novas dúvidas
-  plan discovery <insumos...> [--feature F-n]
-                                        Discovery do PM: problema, evidências, hipóteses e recomendação
-  plan decide <F-n> build|drop|investigate --reason
-                                        Decisão do PM; build leva o discovery direto ao refinamento
-  plan session start|close <F-n>        Sessão conjunta PM + tech lead + dev com a IA; ao encerrar, gera o pacote
-  plan package <F-n>                    Pacote requisitos + design/SDD + plano para aprovação por papel
-  plan reject <F-n> --part <parte> --reason
-                                        Rejeita a parte do seu papel; a IA refaz com o motivo
-  plan roles <F-n>                      Quem aprova o quê e o que está pendente
-  plan graph <id>                       Mostra o grafo de dependências e o que é paralelizável
+QA  nexo qa mostra o que está com você
+  qa plan              Matriz critério → cenário → tipo de teste
+  qa approve           Aprova o plano de teste da história
+  qa reject            Reprova o plano de teste da história
+  qa run               Pipeline de qualidade da stack
+  qa trace             Critério → teste → resultado
+  qa perf              Teste de carga com os limites do refinamento
+  qa bug               Registra bug ligado à história e devolve ao dev
+  qa pass              Valida a entrega e libera o portão do tech lead
+  qa verify            Verifica a correção antes de fechar o bug
+  qa flaky             Testes instáveis registrados
+  qa problem           Problema descoberto na validação
 
-CÓDIGO E ENTREGA
-  quality ci [--stack]                  Gera o workflow do GitHub Actions com a mesma receita
-  discover [--as-is] [--no-baseline]    Mapa do código existente, baseline, convenções e design as-is
-  docs update [US-n|F-n] | knowledge [--dry-run]
-                                        Agente writer: atualiza a documentação do projeto e publica o conhecimento no cérebro
-  docs site                             Base de conhecimento do projeto (Docusaurus no GitHub Pages): decisões, entregas, código e produto
-  docs portal --repos <pasta> [--product id] [--out pasta] [--check]
-                                        Portal do produto (todas as frentes): desenho da solução, visões, componentes, features e atenção
-  change open <F-n> [--type standard|normal] | status <F-n>
-                                        Requisição de mudança (ServiceNow, Jira Service Management) a partir do pacote de evidências
-  graph build | impact <arquivos> [--depth] | related <arquivos>
-                                        Grafo do código e do cérebro: impacto de uma mudança e o que está ligado a um arquivo
-  program repo add | split | run | status <F-n> --workspace W
-                                        Feature em vários repositórios: planejamento único, execução em ordem e PRs ligados
-  modernize playbooks | plan --playbook|--find | status <F-n>
-                                        Modernização de legado em ondas: plano por dependência e progresso sem IA
-  incident open <arquivo|-> [--source]  Incidente ou alerta vira história de correção com pilha, arquivos e commit suspeito
-  deps scan | plan [--major]            Dependências e vulnerabilidades: varredura e plano de atualização aplicado pelo Nexo
-  review pr <n> [--post] [--no-quality]
-                                        Revisa um PR humano com o pipeline e os revisores do Nexo; nunca aprova sozinho
-  quality standards check [--changed-from <ref>] | rules
-                                        Padrão de código garantido: regras das skills verificadas sem IA
-  quality perf script <US-n> | check <US-n> --summary <k6.json>
-                                        Teste de performance com os limites do refinamento
+TECH LEAD  nexo tl mostra o que está com você
+  tl setup             Prepara o repositório: mapa do código, grafo e pipeline existente
+  tl analyze           Lacunas, riscos e impacto
+  tl spec              Requisito técnico com premissas
+  tl plan              Primeira quebra em tarefas e o que roda em paralelo
+  tl approve           Aprova o design
+  tl reject            Reprova o design
+  tl assign            Define dev e QA de cada história
+  tl reassign          Troca o responsável, com motivo
+  tl ready             Definition of Ready
+  tl impact            Quem depende do que mudou
+  tl gate              Mostra o porquê do portão
+  tl pass              Aprova o portão humano
+  tl fail              Reprova o portão: gera bug e volta ao dev
+  tl review            Mesmo pipeline para um PR humano
+  tl assume            Libera continuar com premissa provisória; o merge fica retido
+  tl idea              Melhoria técnica sem impacto funcional
+  tl problem           Problema descoberto na análise
 
-CUSTO E GESTÃO
-  cost [--dev|--story|--project|--month] | close | reconcile --invoice
-                                        Custo em BRL por dev, história, projeto
-  metrics [--squad|--project]           Eficácia, eficiência, primeira entrega certa
-  cost chargeback --month <AAAA-MM> [--csv F]
-                                        Custo do mês por centro de custo (uso no Nexo, fora dele e licenças)
-  cost close --month <AAAA-MM>          Fecha o mês: congela o rateio das assinaturas
-  cost usage scan [--full] | show [--month]
-                                        IA usada dentro e fora do Nexo (Claude Code, Copilot, Devin)
-  cost budget show|set|watch            Orçamento por dev (gestor)
-  cost pricing show | set <item> <valor> | check
-                                        Preços do contrato do cliente: câmbio, assinaturas e o que ainda é estimado
-  cost estimate <spec|backlog>          Estima custo e prazo com base no histórico
-  metrics baseline [--since --until | --sprints N]
-                                        Linha de base antes do Nexo (lead time, vazão, bugs) pelo tracker
+DEV  nexo dev mostra o que está com você
+  dev take             Assume uma história da fila
+  dev refine           Melhora o refinamento: tarefas e propostas
+  dev approve          Aprova o plano da história
+  dev reject           Reprova o plano da história
+  dev explain          O quê, por quê, onde mexer e como validar
+  dev ask              Pergunta sobre o código e o cérebro, com fontes
+  dev run              Executa com o agente até o portão
+  dev resume           Retoma depois de cota, dúvida, orçamento ou mudança na spec
+  dev problem          Triagem guiada de um problema na construção
+  dev check            A história está pronta de verdade?
+  dev pr               Reage ao pipeline existente e à revisão do PR
+  dev logs             Linha do tempo auditável
 
-CONFIGURAÇÃO (UMA VEZ)
-  context propose <produto>             Envia o rascunho do produto ao cérebro da org para todos os squads usarem
-  context uses <parte>                  Declara que este repositório usa outra parte do produto (resolve desvio do desenho)
-  context product list|show|new|part    Produtos: visões e componentes compartilhados entre repositórios e squads
-  docs target [docusaurus|confluence|azure_wiki|none]
-                                        Onde fica a documentação das features (escolha numerada)
-  mcp catalog                           MCPs oficiais dos produtos (Atlassian, GitHub, Slack...): situação e o que falta para ligar
-  mcp check                             Confere se os MCPs ligados entram nas execuções
-  template list|show|validate|preview   Templates de artefatos (épico, feature, SDD, RF, design, história, tarefa, bug, ADR)
-  brain pull|status|search|diff|propose|init|migrate|sign|keygen|pubkey
-                                        Segundo cérebro (nexo-brain)
-  init [caminho]                        Prepara o projeto (.nexo/), detecta stack
-  config get <chave>                    Lê um valor resolvido e sua origem
-  config set <chave> <valor> [--project]
-                                        Grava um valor (respeita chaves bloqueadas pela org)
-  config unset <chave> [--project]      Remove um valor da camada
-  config list                           Lista a configuração resolvida com origem
-  guard install | uninstall | status    Guarda do Nexo no Claude Code: a política de segurança vale também fora do Nexo
-  login <central|figma|tracker|github|jira|teams|slack|smtp|collector|confluence|servicenow>
-                                        Autentica integrações (keyring)
-  tracker map [--check|--suggest]       De-para de estados/tipos com a ferramenta de gestão
-  tracker sync                          Reenvia pendências e traz mudanças manuais da ferramenta de gestão
-  tracker export [--out <dir>]          Exporta itens em CSV no formato de importação (sem API)
-  tracker import <arquivo.csv>          Importa estados de um CSV exportado da ferramenta
-  install [--to <dir>]                  Prepara o ambiente do Nexo
-  update [--manifest <url>]             Atualiza o Nexo (verifica assinatura)
-  uninstall [--purge]                   Remove o Nexo
-  version                               Versão do Nexo e do cérebro
-  selftest [--agent claude|devin] [--github dono/nexo-selftest] [--keep]
-                                        Autoteste de ponta a ponta com as ferramentas reais (painel, agente, GitHub) num projeto descartável
-  help [comando]                        Esta ajuda
-  extensions skill add|remove|list|show|sync
-                                        Skills do time
-  extensions hook add|remove|list|show|sync
-                                        Hooks do time
-  extensions tool add|remove|list|show|sync
-                                        Tools (servidores MCP) do time
+TODOS
+  board                Demandas de todos os projetos e com quem estão
+  brief                O que mudou e o que esperam de você nesta demanda
+  demand               Detalhes, árvore, por que está com quem e triagem
+  proposals            Propostas abertas: aceitar ou recusar
+  suggest              Propõe mudança na seção de outro papel
+  return               Devolve a demanda com a pergunta
+  problem              Registra um problema e indica o dono
+  meeting              Reunião de refinamento: notas, gravação e revisão
+  join                 Entra no time sem precisar saber Git
+  role                 Mostra seus papéis no time
 
-ADMINISTRAÇÃO E AUDITORIA
-  learn collect|review|status|patterns  Lições candidatas a partir de PRs, bugs e incidentes
-  eval tasks [--from-repo <dir> --commit <sha>]
-                                        Monta tarefas de referência do histórico ou de repositórios modelo
-  eval skill <a> <b> --task <id>        Compara duas skills
-  eval model --task <id> --routes a,b   Compara rotas (ferramenta + modelo)
-  eval report [--propose]               Relatório das avaliações
-  eval gate [--baseline] [--write] [--max-drop]
-                                        Portão de regressão de prompts e skills (release)
-  audit verify                          Verifica a integridade da cadeia de auditoria
-  audit export [--story|--from --to]    Exporta a trilha de auditoria
-  audit evidence build <F-n> | verify <pasta>
-                                        Pacote de evidências por release (auditoria e regulador)
-  admin flags list | set <flag> on|off|inherit --reason
-                                        Feature flags por empresa ou squad
-  admin killswitch status               Ferramentas, modelos e versões bloqueados
-  admin insights list | set ID STATE    Insights do painel central
-  admin telemetry flush | show | status
-                                        Telemetria central: envio, o que sai e saúde
-  admin autonomy status | set <L0-L3> --reason
-                                        Autonomia conquistada do squad (L0–L3)
-  admin gates calibrate                 Calibra o limiar do portão com as decisões humanas
-  admin monitor synthetic [--route] [--no-block]
-                                        Monitor sintético das CLIs dos agentes
-  admin autopilot [--force]             O que o Nexo faz sozinho: sincronizar, fechar o mês, varrer dependências, conferir o portão
-  admin isolation setup|check           Modo isolado do agente (contêiner com saída restrita)
-
-Opções globais
-  --profile economico|balanceado|maxima-qualidadePerfil de roteamento
-  --tool <nome> / --model <nome>        Força a rota (auditado)
-  --dry-run                             Mostra o que seria feito, sem executar
-  --lang pt-BR|en                       Idioma das mensagens
-  --json                                Saída em JSON
-  --quiet / --verbose                   Menos / mais detalhes
-
-Digite só `nexo` para abrir o console (próximos passos, do seu jeito, sem digitar `nexo`).
+OPÇÕES GLOBAIS
+  --profile economico|balanceado|maxima-qualidade    Perfil de roteamento
+  --tool <nome> / --model <nome>                     Força a rota (auditado)
+  --dry-run                                          Mostra o que seria feito, sem executar
+  --lang pt-BR|en                                    Idioma das mensagens
+  --json                                             Saída em JSON
+  --quiet / --verbose                                Menos / mais detalhes

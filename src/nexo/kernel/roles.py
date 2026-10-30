@@ -1,7 +1,7 @@
 """Fluxo por papéis: discovery do PM, sessão conjunta com a IA e aprovação de cada papel sobre o pacote.
 
-O pacote tem três partes: requisitos (aprova o PM), design técnico e SDD (aprova o tech lead) e plano (aprova o
-dev). Cada aprovação guarda o hash da parte; a parte depende das anteriores, então mudar um requisito invalida as
+O pacote da feature tem duas partes: requisitos (aprova o PM) e design técnico e SDD (aprova o tech lead). Testes
+e plano são aprovados por história, pelo QA e pelo dev indicados. Cada aprovação guarda o hash da parte; a parte depende das anteriores, então mudar um requisito invalida as
 aprovações de design e plano. A sessão conjunta é exigida pelo risco e pelo tamanho da feature (política da org).
 """
 
@@ -18,11 +18,12 @@ from pydantic import BaseModel, Field, field_validator
 from nexo.kernel.backlog import Backlog
 from nexo.kernel.spec.model import Spec
 
-PARTS = ("requisitos", "design", "plano")
-ROLES = ("pm", "tech_lead", "dev")
-ROLE_FOR = {"requisitos": "pm", "design": "tech_lead", "plano": "dev"}
-ROLE_LABEL = {"pm": "PM", "tech_lead": "tech lead", "dev": "dev"}
+PARTS = ("requisitos", "design")
+ROLES = ("pm", "tech_lead", "dev", "qa")
+ROLE_FOR = {"requisitos": "pm", "design": "tech_lead"}
+ROLE_LABEL = {"pm": "PM", "tech_lead": "tech lead", "dev": "dev", "qa": "QA"}
 PART_LABEL = {"requisitos": "requisitos funcionais", "design": "design técnico e SDD", "plano": "plano de execução"}
+SESSION_ROLES = ("pm", "tech_lead")
 DECISIONS = ("build", "drop", "investigate")
 
 REQUIREMENT_FIELDS = (
@@ -173,7 +174,7 @@ class Session(BaseModel):
     @property
     def complete(self) -> bool:
         """Sessão conjunta válida: encerrada e com os três papéis presentes."""
-        return bool(self.closed_at) and all(self.participants.get(r) for r in ROLES)
+        return bool(self.closed_at) and all(self.participants.get(r) for r in SESSION_ROLES)
 
 
 class RoleRecord(BaseModel):

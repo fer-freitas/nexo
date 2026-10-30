@@ -21,6 +21,7 @@ class Task(BaseModel):
     description: str = ""
     acceptance: list[str] = Field(default_factory=list)
     files_hint: list[str] = Field(default_factory=list)
+    section_refs: list[str] = Field(default_factory=list)  # trechos da seção técnica de que a tarefa depende
     depends_on: list[str] = Field(default_factory=list)
     data_class: str | None = None
     story: str | None = None

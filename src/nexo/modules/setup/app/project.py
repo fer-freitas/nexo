@@ -31,6 +31,8 @@ MAX_FILES = 20_000
 GITIGNORE_LINES = (
     "runs/",  # execuções locais
     "worktrees/",  # worktrees dos agentes
+    "sandbox/",  # experimentos de `nexo try`
+    "team/",  # demandas de quem trabalha sem repositório do time
     "map/",  # mapa e grafo do código (cache)
     "quality/",  # relatórios gerados por `nexo quality run` e `nexo quality standards check`
     "deps/",  # varredura de dependências

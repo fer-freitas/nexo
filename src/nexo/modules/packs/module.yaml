@@ -1,0 +1,8 @@
+id: packs
+version: 1.0.0
+title: "Packs e extensões"
+flags:
+  - key: extensions
+    title: "Skills, hooks e tools de extensão (instalar e gerenciar)"
+    area: "Qualidade"
+    commands: ["skill", "tool", "hook add", "hook remove", "hook list"]

@@ -13,7 +13,7 @@ import typer
 from typer._click.exceptions import ClickException, UsageError  # Typer ≥ 0.20 embute o Click
 
 from nexo.cli import look
-from nexo.cli.app import UNAUDITED, _state, app, apply_brand, err_console, split_globals
+from nexo.cli.app import UNAUDITED, _state, app, apply_brand, console, ctx, emit, err_console, split_globals
 from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
     context,
     delivery,
@@ -27,65 +27,11 @@ from nexo.cli.commands import (  # noqa: F401 — importar registra os comandos
     platform,
     roles,
 )
-from nexo.cli.commands.execution import run_app
-from nexo.cli.commands.platform import audit_app, config_app
-from nexo.cli.registry import CommandSpec, match, specs_for, top_levels
+from nexo.cli import surface
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import ExitCode, NexoError, NotAvailableInPhase
 from nexo.kernel.i18n import set_lang, t
 from nexo.kernel.platform import config
-
-
-def _stub_for(top: str) -> None:
-    def stub(context: typer.Context) -> None:
-        spec = match([top, *[a for a in context.args if not a.startswith("-")]]) or specs_for(top)[0]
-        raise NotAvailableInPhase(spec.path, spec.phase)
-
-    stub.__name__ = f"stub_{top}"
-    app.command(
-        top,
-        context_settings={"allow_extra_args": True, "ignore_unknown_options": True},
-        add_help_option=False,
-    )(stub)
-
-
-def _register_stubs() -> None:
-    existing = {c.name for c in app.registered_commands} | {g.name for g in app.registered_groups}
-    for top in top_levels():
-        if top in existing:
-            continue
-        specs = specs_for(top)
-        if all(not s.available for s in specs):
-            _stub_for(top)
-
-
-def _future_subcommands(group: typer.Typer, top: str) -> None:
-    for spec in specs_for(top):
-        if spec.available or " " not in spec.path:
-            continue
-        sub = spec.path.split(" ", 1)[1]
-        group.command(sub, context_settings={"allow_extra_args": True, "ignore_unknown_options": True})(
-            _make_stub(spec)
-        )
-
-
-def _make_stub(spec: CommandSpec) -> Any:
-    def stub(context: typer.Context) -> None:
-        raise NotAvailableInPhase(spec.path, spec.phase)
-
-    return stub
-
-
-_future_subcommands(audit_app, "audit")
-
-
-_future_subcommands(run_app, "run")
-
-
-_future_subcommands(config_app, "config")
-
-
-_register_stubs()
 
 
 EXT_VERBS = {
@@ -160,6 +106,22 @@ def _fill_help(group: typer.Typer, prefix: str = "") -> None:
 _fill_help(app)
 
 
+def _internal(args: list[str]) -> int:
+    """Um comando de papel chama outro comando da CLI, com as mesmas regras."""
+    from nexo.kernel.platform import flags
+
+    context = _state["ctx"]
+    flags.check_command(context, args)
+    try:
+        result = app(args=args, prog_name="nexo", standalone_mode=False)
+    except typer.Exit as exc:
+        return int(exc.exit_code)
+    return int(result) if isinstance(result, int) else 0
+
+
+surface.register_modules(app, surface.Tools(ctx, emit, console, err_console, _internal))
+
+
 def _command_name(args: list[str]) -> str | None:
     return next((a for a in args if not a.startswith("-")), None)
 
@@ -205,6 +167,7 @@ def main(argv: list[str] | None = None) -> int:
         return ExitCode.USAGE
     if args[:1] in (["--help"], ["-h"]):
         args = ["help", *args[1:]]
+    args = surface.translate(args)
     context = AppContext(options=opts)
     _state["ctx"] = context
     apply_brand(context)

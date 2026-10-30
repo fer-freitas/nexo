@@ -111,10 +111,10 @@ class Planner:
 
     # ------------------------------------------------------------ comandos
 
-    def new(self, inputs: list[str], title: str | None = None) -> PlanReport:
+    def new(self, inputs: list[str], title: str | None = None, fid: str | None = None) -> PlanReport:
         if not inputs:
             raise NexoError("informe ao menos um insumo: arquivos, link Figma ou texto entre aspas")
-        fid = specs.next_feature_id(self.root)
+        fid = fid or specs.next_feature_id(self.root)
         folder = specs.create_feature_dir(self.root, fid, title or PLACEHOLDER_TITLE)
         spec = Spec(id=fid, title=title or PLACEHOLDER_TITLE)
         specs.save_spec(folder, spec)

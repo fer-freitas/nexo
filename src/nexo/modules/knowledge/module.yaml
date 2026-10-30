@@ -1,0 +1,24 @@
+id: knowledge
+version: 1.0.0
+title: "Conhecimento e cérebro"
+flags:
+  - key: ask
+    title: "Perguntas sobre o código e o cérebro"
+    area: "Conhecimento"
+    commands: ["ask"]
+  - key: writer
+    title: "Agente writer: documentação viva e conhecimento no cérebro"
+    area: "Conhecimento"
+    commands: ["docs"]
+  - key: graph
+    title: "Índice em grafo do código e do cérebro (impacto e contexto)"
+    area: "Conhecimento"
+    commands: ["graph"]
+  - key: eval
+    title: "Avaliação de rotas, skills e portão de regressão"
+    area: "Qualidade"
+    commands: ["eval"]
+  - key: learning
+    title: "Aprendizado contínuo (lições e curadoria)"
+    area: "Conhecimento"
+    commands: ["learn"]

@@ -1,0 +1,33 @@
+id: central
+version: 1.0.0
+title: "Coletor central e portal"
+flags:
+  - key: insights
+    title: "Insights do central (motor e consulta)"
+    area: "Insights"
+    commands: ["insights"]
+    where: ambos
+  - key: dashboard
+    title: "Dashboard unificado"
+    area: "Central"
+    where: central
+  - key: weekly_summary
+    title: "Resumo semanal por squad no Teams"
+    area: "Central"
+    where: central
+  - key: finops_report
+    title: "Relatório mensal de FinOps"
+    area: "Central"
+    where: central
+  - key: systemic_issues
+    title: "Issues sistêmicas no nexo-brain"
+    area: "Central"
+    where: central
+  - key: realtime_alerts
+    title: "Alertas de custo e loop em tempo real"
+    area: "Central"
+    where: central
+  - key: bi_export
+    title: "Export para BI (CSV/Parquet)"
+    area: "Central"
+    where: central

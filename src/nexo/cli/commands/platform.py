@@ -38,8 +38,8 @@ def help_cmd(context: typer.Context) -> None:
             ]
         )
         return
-    if not words:
-        render.help_all(console)
+    if not words or words[0] == "--role":
+        render.help_all(console, words[1] if len(words) > 1 else "")
         return
     specs = [s for s in COMMANDS if s.path == " ".join(words) or s.path.startswith(" ".join(words) + " ")]
     if not specs:

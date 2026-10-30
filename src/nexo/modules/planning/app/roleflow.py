@@ -45,17 +45,27 @@ def _trusted(ctx: AppContext) -> dict[str, Any]:
     return resolve(layers).values
 
 
+def _team(ctx: AppContext) -> Any:
+    from nexo.kernel import team
+
+    return team.load(ctx.project_root)
+
+
 def policy(ctx: AppContext) -> dict[str, Any]:
     return dict((_trusted(ctx).get("planning") or {}).get("role_flow") or {})
 
 
 def active(ctx: AppContext) -> bool:
-    return bool(policy(ctx).get("enabled")) and flags.enabled(ctx, "role_flow")
+    return (bool(policy(ctx).get("enabled")) or _team(ctx).declared) and flags.enabled(ctx, "role_flow")
 
 
 def roster(ctx: AppContext) -> dict[str, list[str]]:
     raw = dict(_trusted(ctx).get("roles") or {})
-    return {role: [str(x) for x in raw.get(role) or []] for role in r.ROLES}
+    out = {role: [str(x) for x in raw.get(role) or []] for role in r.ROLES}
+    team = _team(ctx)
+    for role in r.ROLES:  # `team.yaml` do repositório do time soma ao que a org declarou
+        out[role] += [p for p in team.people("tl" if role == "tech_lead" else role) if p not in out[role]]
+    return out
 
 
 def roles_of(ctx: AppContext, who: str) -> list[str]:
@@ -268,7 +278,7 @@ def session_start(planner: Any, fid: str, participants: dict[str, list[str]]) ->
     record.sessions.append(session)
     _save_record(folder, record)
     planner.ctx.audit("plan.session_started", {"feature": fid, "session": session.id, **participants}, ref=fid)
-    missing = [r.ROLE_LABEL[x] for x in r.ROLES if not participants.get(x)]
+    missing = [r.ROLE_LABEL[x] for x in r.SESSION_ROLES if not participants.get(x)]
     _announce(
         planner,
         fid,
@@ -307,7 +317,7 @@ def session_close(planner: Any, fid: str, notes: str = "") -> dict[str, Any]:
 
 def _require_active(ctx: AppContext) -> None:
     flags.require(ctx, "role_flow")
-    if not policy(ctx).get("enabled"):
+    if not active(ctx):
         raise NexoError("fluxo por papéis desligado: planning.role_flow.enabled na config da org ou do squad")
 
 
@@ -395,7 +405,7 @@ def approve_part(planner: Any, fid: str, part: str) -> dict[str, Any]:
         raise PolicyViolation(
             f"{fid} exige sessão conjunta com PM, tech lead e dev antes das aprovações ({'; '.join(reasons)})"
         )
-    if not policy(planner.ctx).get("allow_same_person", False):
+    if not (policy(planner.ctx).get("allow_same_person", False) or _team(planner.ctx).solo):
         for s in r.part_status(record, digests):
             if s.status == "aprovada" and s.by == who.id and s.part != part:
                 raise PolicyViolation(

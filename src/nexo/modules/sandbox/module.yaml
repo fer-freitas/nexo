@@ -1,0 +1,11 @@
+id: sandbox
+version: 1.0.0
+title: "Testes sem demanda"
+requires: ["execution", "quality"]
+flags:
+  - key: sandbox.try
+    title: "Experimentos sem demanda (`nexo try`)"
+    area: "Testes sem demanda"
+    commands: ["try"]
+    stage: beta
+cli: "nexo.modules.sandbox.cli:register"

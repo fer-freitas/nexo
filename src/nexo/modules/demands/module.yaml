@@ -1,0 +1,81 @@
+id: demands
+version: 1.0.0
+title: "Demandas e fluxo por papel"
+flags:
+  - key: tracker_sync
+    title: "Sincronização com o tracker (Azure Boards, GitHub, Jira)"
+    area: "Integrações"
+    commands: ["tracker"]
+subscribe: "nexo.modules.demands.app.listen:handle"
+events:
+  consumes: ["plan.created", "plan.packaged", "gate.decision", "state.transition", "bug.created", "ready.checked", "scm.pr", "scm.merged", "review.spec_issue_ignored"]
+cli: "nexo.modules.demands.cli:register"
+commands:
+  # PM
+  - {path: "pm idea", summary: "Registra a ideia e gera IDEA-n, sem IA", roles: [pm], kind: write}
+  - {path: "pm discover", summary: "Problema, evidências, hipóteses e recomendação", roles: [pm], kind: agent}
+  - {path: "pm decide", summary: "Decide a ideia: build, drop ou investigate", roles: [pm], kind: write}
+  - {path: "pm split", summary: "Divide a ideia em features", roles: [pm], kind: write}
+  - {path: "pm refine", summary: "Enriquece a spec, gera dúvidas e histórias em rascunho", roles: [pm], kind: agent}
+  - {path: "pm answer", summary: "Responde as dúvidas até a prontidão chegar a 100%", roles: [pm], kind: agent, target: "plan answer"}
+  - {path: "pm classify", summary: "Classe de dados: o que pode ir para a IA", roles: [pm], kind: write, target: "plan classify"}
+  - {path: "pm estimate", summary: "Custo e prazo pelo histórico", roles: [pm], target: "cost estimate"}
+  - {path: "pm approve", summary: "Aprova os requisitos", roles: [pm], kind: gate}
+  - {path: "pm reject", summary: "Reprova os requisitos", roles: [pm], kind: gate, target: "plan reject {0} --part requisitos"}
+  - {path: "pm accept", summary: "Aceite de negócio depois da entrega", roles: [pm], kind: gate}
+  - {path: "pm confirm", summary: "Confirma uma premissa provisória", roles: [pm, tl, qa], kind: gate}
+  - {path: "pm decline", summary: "Recusa uma premissa provisória", roles: [pm, tl, qa], kind: gate}
+  # QA
+  - {path: "qa plan", summary: "Matriz critério → cenário → tipo de teste", roles: [qa], kind: write}
+  - {path: "qa approve", summary: "Aprova o plano de teste da história", roles: [qa], kind: gate}
+  - {path: "qa reject", summary: "Reprova o plano de teste da história", roles: [qa], kind: gate}
+  - {path: "qa run", summary: "Pipeline de qualidade da stack", roles: [qa], target: "quality run"}
+  - {path: "qa trace", summary: "Critério → teste → resultado", roles: [qa]}
+  - {path: "qa perf", summary: "Teste de carga com os limites do refinamento", roles: [qa], target: "quality perf"}
+  - {path: "qa bug", summary: "Registra bug ligado à história e devolve ao dev", roles: [qa], kind: write}
+  - {path: "qa pass", summary: "Valida a entrega e libera o portão do tech lead", roles: [qa], kind: gate}
+  - {path: "qa verify", summary: "Verifica a correção antes de fechar o bug", roles: [qa], kind: gate}
+  - {path: "qa flaky", summary: "Testes instáveis registrados", roles: [qa]}
+  - {path: "qa problem", summary: "Problema descoberto na validação", roles: [qa], kind: write}
+  # Tech lead
+  - {path: "tl setup", summary: "Prepara o repositório: mapa do código, grafo e pipeline existente", roles: [tl], kind: write}
+  - {path: "tl analyze", summary: "Lacunas, riscos e impacto", roles: [tl], kind: agent, target: "tech analyze"}
+  - {path: "tl spec", summary: "Requisito técnico com premissas", roles: [tl], kind: agent, target: "tech spec"}
+  - {path: "tl plan", summary: "Primeira quebra em tarefas e o que roda em paralelo", roles: [tl], kind: agent}
+  - {path: "tl approve", summary: "Aprova o design", roles: [tl], kind: gate, target: "plan approve {0} --part design"}
+  - {path: "tl reject", summary: "Reprova o design", roles: [tl], kind: gate, target: "plan reject {0} --part design"}
+  - {path: "tl assign", summary: "Define dev e QA de cada história", roles: [tl], kind: write}
+  - {path: "tl reassign", summary: "Troca o responsável, com motivo", roles: [tl], kind: write}
+  - {path: "tl ready", summary: "Definition of Ready", roles: [tl], target: "ready"}
+  - {path: "tl impact", summary: "Quem depende do que mudou", roles: [tl], target: "graph impact"}
+  - {path: "tl gate", summary: "Mostra o porquê do portão", roles: [tl], target: "status"}
+  - {path: "tl pass", summary: "Aprova o portão humano", roles: [tl], kind: gate}
+  - {path: "tl fail", summary: "Reprova o portão: gera bug e volta ao dev", roles: [tl], kind: gate, target: "reject"}
+  - {path: "tl review", summary: "Mesmo pipeline para um PR humano", roles: [tl], kind: agent, target: "review pr"}
+  - {path: "tl assume", summary: "Libera continuar com premissa provisória; o merge fica retido", roles: [tl], kind: gate}
+  - {path: "tl idea", summary: "Melhoria técnica sem impacto funcional", roles: [tl], kind: write}
+  - {path: "tl problem", summary: "Problema descoberto na análise", roles: [tl], kind: write}
+  # Dev
+  - {path: "dev take", summary: "Assume uma história da fila", roles: [dev], kind: write}
+  - {path: "dev refine", summary: "Melhora o refinamento: tarefas e propostas", roles: [dev], kind: write}
+  - {path: "dev approve", summary: "Aprova o plano da história", roles: [dev], kind: gate}
+  - {path: "dev reject", summary: "Reprova o plano da história", roles: [dev], kind: gate}
+  - {path: "dev explain", summary: "O quê, por quê, onde mexer e como validar", roles: [dev], kind: agent, target: "explain"}
+  - {path: "dev ask", summary: "Pergunta sobre o código e o cérebro, com fontes", roles: [dev], kind: agent, target: "ask"}
+  - {path: "dev run", summary: "Executa com o agente até o portão", roles: [dev], kind: agent}
+  - {path: "dev resume", summary: "Retoma depois de cota, dúvida, orçamento ou mudança na spec", roles: [dev], kind: agent}
+  - {path: "dev problem", summary: "Triagem guiada de um problema na construção", roles: [dev], kind: write}
+  - {path: "dev check", summary: "A história está pronta de verdade?", roles: [dev], target: "check"}
+  - {path: "dev pr", summary: "Reage ao pipeline existente e à revisão do PR", roles: [dev], kind: write, target: "pr sync"}
+  - {path: "dev logs", summary: "Linha do tempo auditável", roles: [dev], target: "logs"}
+  # Todos
+  - {path: "board", summary: "Demandas de todos os projetos e com quem estão"}
+  - {path: "brief", summary: "O que mudou e o que esperam de você nesta demanda"}
+  - {path: "demand", summary: "Detalhes, árvore, por que está com quem e triagem"}
+  - {path: "proposals", summary: "Propostas abertas: aceitar ou recusar"}
+  - {path: "suggest", summary: "Propõe mudança na seção de outro papel", kind: write}
+  - {path: "return", summary: "Devolve a demanda com a pergunta", kind: write}
+  - {path: "problem", summary: "Registra um problema e indica o dono", kind: write}
+  - {path: "meeting", summary: "Reunião de refinamento: notas, gravação e revisão", kind: write}
+  - {path: "join", summary: "Entra no time sem precisar saber Git", kind: write}
+  - {path: "role", summary: "Mostra seus papéis no time"}

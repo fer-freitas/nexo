@@ -23,75 +23,35 @@ class Flag:
     commands: tuple[str, ...] = ()  # comandos da CLI que dependem da flag (prefixo do caminho)
     default: bool = True
     where: str = "cli"  # cli | central | ambos
+    stage: str = "ga"  # experimental | beta | ga | deprecated
+    module: str = ""
+    remove_after: str = ""
+    squad_managed: bool = False
 
 
-CATALOG: tuple[Flag, ...] = (
-    # planejamento e conhecimento
-    Flag("planning", "Planejamento com agente (ingestão, refinamento, backlog)", "Planejamento", ("plan",)),
-    Flag("templates", "Templates de artefatos e documentos", "Planejamento", ("template",)),
-    Flag(
-        "discovery",
-        "Discovery de produto do PM (hipóteses, evidências e decisão)",
-        "Planejamento",
-        ("plan discovery", "plan decide"),
-    ),
-    Flag(
-        "role_flow",
-        "Fluxo por papéis: sessão conjunta, pacote e aprovação de cada papel",
-        "Planejamento",
-        ("plan session", "plan package", "plan reject", "plan inbox", "plan roles"),
-    ),
-    Flag("discover", "Descoberta de código existente (mapa, baseline, as-is)", "Planejamento", ("discover",)),
-    # execução
-    Flag("run_task", "Execução de tarefa por agente", "Execução", ("run task",)),
-    Flag("run_story", "Execução de história ponta a ponta", "Execução", ("run story",)),
-    Flag("run_feature", "Feature inteira desassistida", "Execução", ("run feature",)),
-    Flag("runner", "Runner remoto por fila", "Execução", ("runner",)),
-    Flag("handoff", "Troca automática de rota quando a cota acaba ou a rota falha", "Execução"),
-    Flag("watch", "Retomada automática (nexo cost budget watch)", "Execução", ("budget watch",)),
-    Flag("pr_publish", "Push da branch e abertura de PR das histórias", "Execução"),
-    Flag("pr_reaction", "Reação ao CI e aos pedidos de mudança no PR", "Execução", ("pr sync",)),
-    Flag("auto_merge", "Merge automático no nível de autonomia L3", "Execução"),
-    Flag("autonomy", "Autonomia conquistada (consulta e pedido de mudança)", "Execução", ("autonomy",)),
-    Flag("clarification_teams", "Perguntas do agente pelo Teams com resposta pelo central", "Execução"),
-    Flag("approvals_teams", "Aprovação dos portões pelo Teams (formulário no central)", "Execução"),
-    Flag("approvals_external", "Aprovação externa (ITSM/HTTP)", "Execução", ("approvals",)),
-    # integrações e qualidade
-    Flag("ask", "Perguntas sobre o código e o cérebro", "Conhecimento", ("ask",)),
-    Flag("ready", "Definition of Ready e teste de performance pelo refinamento", "Planejamento", ("ready", "perf")),
-    Flag("writer", "Agente writer: documentação viva e conhecimento no cérebro", "Conhecimento", ("docs",)),
-    Flag("graph", "Índice em grafo do código e do cérebro (impacto e contexto)", "Conhecimento", ("graph",)),
-    Flag("guard", "Guarda do Nexo nas sessões de IA fora do Nexo", "Segurança", ("guard install",)),
-    Flag("pr_review", "Revisão de PRs feitos por humanos", "Qualidade", ("review",)),
-    Flag("evidence", "Pacote de evidências por release", "Qualidade", ("evidence",)),
-    Flag("tracker_sync", "Sincronização com o tracker (Azure Boards, GitHub, Jira)", "Integrações", ("tracker",)),
-    Flag("quality_cli", "Pipeline de qualidade avulso e geração de CI", "Qualidade", ("quality",)),
-    Flag(
-        "extensions",
-        "Skills, hooks e tools de extensão (instalar e gerenciar)",
-        "Qualidade",
-        ("skill", "tool", "hook add", "hook remove", "hook list"),
-    ),
-    Flag("eval", "Avaliação de rotas, skills e portão de regressão", "Qualidade", ("eval",)),
-    Flag("monitor", "Monitor sintético das CLIs", "Qualidade", ("monitor",)),
-    # conhecimento, custo e métricas
-    Flag("learning", "Aprendizado contínuo (lições e curadoria)", "Conhecimento", ("learn",)),
-    Flag("finops_reports", "Relatórios de custo, estimativa e fechamento", "FinOps", ("cost", "estimate")),
-    Flag("metrics", "Métricas locais e linha de base", "FinOps", ("metrics", "baseline")),
-    Flag("external_usage", "Consumo de IA fora do Nexo (leitura local e envio agregado)", "FinOps", ("usage",)),
-    Flag("gates_calibrate", "Calibração dos limiares dos portões", "FinOps", ("gates",)),
-    Flag("insights", "Insights do central (motor e consulta)", "Insights", ("insights",), where="ambos"),
-    # observabilidade
-    Flag("traces", "Traces OpenTelemetry para o APM", "Observabilidade"),
-    Flag("transcripts", "Replay redigido das sessões do agente", "Observabilidade"),
-    # central
-    Flag("dashboard", "Dashboard unificado", "Central", where="central"),
-    Flag("weekly_summary", "Resumo semanal por squad no Teams", "Central", where="central"),
-    Flag("finops_report", "Relatório mensal de FinOps", "Central", where="central"),
-    Flag("systemic_issues", "Issues sistêmicas no nexo-brain", "Central", where="central"),
-    Flag("realtime_alerts", "Alertas de custo e loop em tempo real", "Central", where="central"),
-    Flag("bi_export", "Export para BI (CSV/Parquet)", "Central", where="central"),
-)
+def _catalog() -> tuple[Flag, ...]:
+    """O catálogo vem dos manifestos dos módulos: módulo novo traz as próprias flags, sem tabela central."""
+    from nexo.kernel import modules
+
+    return tuple(
+        Flag(
+            f.key,
+            f.title,
+            f.area or m.title,
+            tuple(f.commands),
+            f.default,
+            f.where,
+            f.stage,
+            m.id,
+            f.remove_after,
+            f.squad_managed,
+        )
+        for m in modules.builtin()
+        for f in m.flags
+    )
+
+
+CATALOG: tuple[Flag, ...] = _catalog()
 BY_KEY = {f.key: f for f in CATALOG}
 # comandos sempre disponíveis: gestão do próprio Nexo, segurança, governança e ação humana em portões pendentes
 CORE_COMMANDS = frozenset(
@@ -129,6 +89,7 @@ class FlagSource:
     name: str
     global_: dict[str, bool] = field(default_factory=dict)
     squads: dict[str, dict[str, bool]] = field(default_factory=dict)
+    projects: dict[str, dict[str, bool]] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -150,16 +111,28 @@ def validate(data: dict[str, Any], where: str) -> list[str]:
     return problems
 
 
-def resolve(key: str, squad: str, sources: list[FlagSource]) -> Decision:
+def resolve(
+    key: str, squad: str, sources: list[FlagSource], project: str = "", local_off: frozenset[str] = frozenset()
+) -> Decision:
+    """Precedência: central (projeto, time, global) → cérebro (projeto, time, global) → padrão. Local só desliga."""
     if key not in BY_KEY:
         raise KeyError(f"flag desconhecida: {key}")
+    decision = Decision(key, BY_KEY[key].default, "padrão", "padrão")
     for src in sources:  # ordem: central, cérebro
+        by_project = src.projects.get(project, {}) if project else {}
         by_squad = src.squads.get(squad, {}) if squad else {}
+        if key in by_project:
+            decision = Decision(key, bool(by_project[key]), f"{src.name}:projeto", "projeto")
+            break
         if key in by_squad:
-            return Decision(key, bool(by_squad[key]), f"{src.name}:squad", "squad")
+            decision = Decision(key, bool(by_squad[key]), f"{src.name}:squad", "squad")
+            break
         if key in src.global_:
-            return Decision(key, bool(src.global_[key]), src.name, "global")
-    return Decision(key, BY_KEY[key].default, "padrão", "padrão")
+            decision = Decision(key, bool(src.global_[key]), src.name, "global")
+            break
+    if decision.enabled and key in local_off:
+        return Decision(key, False, "local", "local")
+    return decision
 
 
 # comandos fundidos — o caminho novo é governado pela mesma flag do caminho antigo

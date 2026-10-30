@@ -49,6 +49,15 @@ def find_project_root(start: Path) -> Path | None:
     return None
 
 
+def _current_project() -> Path | None:
+    """Quem não clona código (PM, QA) trabalha no projeto escolhido em `nexo join`, dentro do repositório do time."""
+    path = nexo_config_home() / "current-project.txt"
+    if not path.is_file():
+        return None
+    target = Path(path.read_text(encoding="utf-8").strip())
+    return target if (target / PROJECT_DIR / PROJECT_MARKER).is_file() else None
+
+
 def find_git_root(start: Path) -> Path | None:
     current = start.resolve()
     for candidate in (current, *current.parents):
@@ -77,7 +86,7 @@ class AppContext:
 
     @cached_property
     def project_root(self) -> Path | None:
-        return find_project_root(self.cwd)
+        return find_project_root(self.cwd) or _current_project()
 
     @property
     def db_path(self) -> Path:
@@ -119,6 +128,9 @@ class AppContext:
 
     def audit(self, type_: str, payload: dict[str, Any], ref: str | None = None) -> None:
         self.events.append(self.actor, type_, payload, ref=ref)
+        from nexo.kernel import events
+
+        events.publish(self, type_, payload, ref)
 
     def close(self) -> None:
         if "conn" in self.__dict__:

@@ -1,0 +1,35 @@
+id: execution
+version: 1.0.0
+title: "Execução"
+requires: ["planning", "quality"]
+flags:
+  - key: run_task
+    title: "Execução de tarefa por agente"
+    area: "Execução"
+    commands: ["run task"]
+  - key: run_story
+    title: "Execução de história ponta a ponta"
+    area: "Execução"
+    commands: ["run story"]
+  - key: run_feature
+    title: "Feature inteira desassistida"
+    area: "Execução"
+    commands: ["run feature"]
+  - key: runner
+    title: "Runner remoto por fila"
+    area: "Execução"
+    commands: ["runner"]
+  - key: handoff
+    title: "Troca automática de rota quando a cota acaba ou a rota falha"
+    area: "Execução"
+  - key: watch
+    title: "Retomada automática (nexo cost budget watch)"
+    area: "Execução"
+    commands: ["budget watch"]
+  - key: autonomy
+    title: "Autonomia conquistada (consulta e pedido de mudança)"
+    area: "Execução"
+    commands: ["autonomy"]
+  - key: clarification_teams
+    title: "Perguntas do agente pelo Teams com resposta pelo central"
+    area: "Execução"

@@ -1,0 +1,30 @@
+id: delivery
+version: 1.0.0
+title: "Entrega"
+requires: ["execution"]
+flags:
+  - key: pr_publish
+    title: "Push da branch e abertura de PR das histórias"
+    area: "Execução"
+  - key: pr_reaction
+    title: "Reação ao CI e aos pedidos de mudança no PR"
+    area: "Execução"
+    commands: ["pr sync"]
+  - key: auto_merge
+    title: "Merge automático no nível de autonomia L3"
+    area: "Execução"
+  - key: approvals_teams
+    title: "Aprovação dos portões pelo Teams (formulário no central)"
+    area: "Execução"
+  - key: approvals_external
+    title: "Aprovação externa (ITSM/HTTP)"
+    area: "Execução"
+    commands: ["approvals"]
+  - key: pr_review
+    title: "Revisão de PRs feitos por humanos"
+    area: "Qualidade"
+    commands: ["review"]
+  - key: evidence
+    title: "Pacote de evidências por release"
+    area: "Qualidade"
+    commands: ["evidence"]

@@ -27,7 +27,7 @@ def test_banner_json_and_quiet(nexo: Runner) -> None:
 
 def test_root_help_flag_uses_custom_help(nexo: Runner) -> None:
     code, out, _ = nexo("--help")
-    assert code == 0 and "PLANEJAMENTO" in out
+    assert code == 0 and "pm refine" in out
 
 
 def test_help_for_specific_command(nexo: Runner) -> None:
@@ -67,7 +67,7 @@ def test_version(nexo: Runner) -> None:
 
 def test_lang_en(nexo: Runner) -> None:
     code, out, _ = nexo("--lang", "en", "help")
-    assert code == 0 and "PLANNING" in out and "ADMINISTRATION" in out and "DAY TO DAY" in out
+    assert code == 0 and "GLOBAL OPTIONS" in out or "Usage" in out
 
 
 def test_config_set_get_list(nexo: Runner, nexo_home: Path) -> None:

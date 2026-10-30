@@ -156,37 +156,23 @@ def test_role_flow_end_to_end(  # type: ignore[no-untyped-def]
     assert code == 0, err
     assert not view["joint_pending"] and parts(view) == dict.fromkeys(r.PARTS, "pendente")
 
-    # 6. cada papel aprova a sua parte; o dev vê o que espera por ele
-    assert call(nexo, "plan", "inbox")[1]["items"] == [
-        {
-            "feature": "F-1",
-            "action": "aprovar plano de execução (pendente)",
-            "command": "nexo plan approve F-1 --part plano",
-        }
-    ]
+    # 6. cada papel aprova a sua parte; testes e plano são aprovados depois, por história
+    assert call(nexo, "plan", "inbox")[1]["items"] == []
     code, _, err = call(nexo, "plan", "approve", "F-1", "--part", "design")
     assert code != 0 and "tech lead" in err
-    assert call(nexo, "plan", "approve", "F-1", "--part", "plano")[0] == 0
     as_(monkeypatch, "ana")
     code, view, _ = call(nexo, "plan", "approve", "F-1", "--part", "requisitos")
-    assert parts(view) == {"requisitos": "aprovada", "design": "pendente", "plano": "aprovada"}
+    assert parts(view) == {"requisitos": "aprovada", "design": "pendente"}
 
-    # 7. tech lead rejeita o design: a IA refaz com o motivo; requisitos seguem aprovados, plano fica desatualizado
+    # 7. tech lead rejeita o design: a IA refaz com o motivo; requisitos seguem aprovados
     as_(monkeypatch, "bruno")
     code, view, err = call(nexo, "plan", "reject", "F-1", "--part", "design", "--reason", "p99 e rota atrás do gateway")
     assert code == 0, err
-    assert parts(view) == {"requisitos": "aprovada", "design": "pendente", "plano": "desatualizada"}
+    assert parts(view) == {"requisitos": "aprovada", "design": "pendente"}
     assert "gateway" in (folder / "spec.yaml").read_text(encoding="utf-8")
-    call(nexo, "plan", "approve", "F-1", "--part", "design")
 
-    # 8. segregação: quem aprovou requisitos não aprova o plano, mesmo tendo o papel de dev
-    as_(monkeypatch, "ana")
-    code, _, err = call(nexo, "plan", "approve", "F-1", "--part", "plano")
-    assert code != 0 and "segregação" in err
-
-    # 9. terceira aprovação: backlog, tarefas e documentos gerados; estado Pronto; dev avisado com o SDD
-    as_(monkeypatch, "caio")
-    code, view, err = call(nexo, "plan", "approve", "F-1", "--part", "plano")
+    # 8. última aprovação: backlog, tarefas e documentos gerados; estado Pronto
+    code, view, err = call(nexo, "plan", "approve", "F-1", "--part", "design")
     assert code == 0, err
     assert view["state"] == "Pronto" and parts(view) == dict.fromkeys(r.PARTS, "aprovada")
     assert (folder / "backlog.yaml").is_file() and (project / ".nexo" / "tasks" / "T-1-2.yaml").is_file()
@@ -196,7 +182,7 @@ def test_role_flow_end_to_end(  # type: ignore[no-untyped-def]
         for e in logs
         if e["type"] == "gate.decision" and str(e["payload"].get("gate", "")).startswith("role:")
     ]
-    assert {(g["gate"], g["decision"]) for g in gates} >= {("role:design", "rejected"), ("role:plano", "approved")}
+    assert {(g["gate"], g["decision"]) for g in gates} >= {("role:design", "rejected"), ("role:design", "approved")}
     sent = [e["payload"]["title"] for e in logs if e["type"] == "notify" and e["payload"]["event"] == "planning"]
     assert any("pronta para desenvolvimento" in t for t in sent) and any("Pacote" in t for t in sent)
     final = next(
@@ -219,7 +205,6 @@ def test_small_feature_skips_joint_session_and_drop(  # type: ignore[no-untyped-
     code, view, err = call(nexo, "plan", "package", "F-1")
     assert code == 0 and not view["joint_pending"] and view["joint_reasons"] == [], err
     assert call(nexo, "plan", "approve", "F-1", "--part", "requisitos")[0] == 0
-    assert call(nexo, "plan", "approve", "F-1", "--part", "plano")[0] == 0  # allow_same_person
     # discovery descartado vira Cancelado
     code, disc, _ = call(nexo, "plan", "discovery", "ideia sem dono")
     code, out, err = call(nexo, "plan", "decide", disc["feature"], "drop", "--reason", "não compensa agora")
@@ -277,7 +262,7 @@ def test_discovery_gaps_and_status() -> None:
         ],
     )
     st = {s.part: s.status for s in r.part_status(rec, {"requisitos": "d1", "design": "d2", "plano": "d3"})}
-    assert st == {"requisitos": "aprovada", "design": "rejeitada", "plano": "pendente"}
+    assert st == {"requisitos": "aprovada", "design": "rejeitada"}
     st = {s.part: s.status for s in r.part_status(rec, {"requisitos": "zz", "design": "novo", "plano": "d3"})}
     assert st["requisitos"] == "desatualizada" and st["design"] == "pendente"
     assert not rec.joint_done()  # faltou o tech lead

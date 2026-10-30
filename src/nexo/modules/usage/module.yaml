@@ -1,0 +1,8 @@
+id: usage
+version: 1.0.0
+title: "Consumo das CLIs"
+flags:
+  - key: external_usage
+    title: "Consumo de IA fora do Nexo (leitura local e envio agregado)"
+    area: "FinOps"
+    commands: ["usage"]

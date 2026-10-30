@@ -183,7 +183,7 @@ def test_feature_flags_filter_by_area_and_sort(people: Any) -> None:
     others = [f.key for f in CATALOG if f.area != "FinOps"]
     assert all(k in page for k in finops) and not any(f"<code class=id>{k}</code>" in page for k in others)
     page = people.get("/dash/flags?sort=key&dir=desc").text
-    shown = re.findall(r"<td><code class=id>([a-z_]+)</code>", page)
+    shown = re.findall(r"<td><code class=id>([a-z_.]+)</code>", page)
     assert shown == sorted((f.key for f in CATALOG), reverse=True) and "▼" in page
 
 

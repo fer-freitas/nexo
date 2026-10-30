@@ -1,0 +1,16 @@
+id: finops
+version: 1.0.0
+title: "Custo"
+flags:
+  - key: finops_reports
+    title: "Relatórios de custo, estimativa e fechamento"
+    area: "FinOps"
+    commands: ["cost", "estimate"]
+  - key: metrics
+    title: "Métricas locais e linha de base"
+    area: "FinOps"
+    commands: ["metrics", "baseline"]
+  - key: gates_calibrate
+    title: "Calibração dos limiares dos portões"
+    area: "FinOps"
+    commands: ["gates"]
