@@ -482,8 +482,8 @@ def render_login(message: str = "", token_login: bool = True, next_url: str = "/
         "Entrar",
         None,
         "",
-        f'<div class=login><a class=brand href="/dash"><i></i>{e(name)}</a><h1>Entrar no dashboard</h1>{msg}{form}'
-        "<p class=note>O token pessoal é criado pelo administrador do coletor.</p></div>",
+        f'<div class=login><a class=brand href="/dash"><i></i>{e(name)}</a><h1>Entrar no portal</h1>{msg}{form}'
+        "<p class=note>Quem administra o portal cria o seu token.</p></div>",
     )
 
 

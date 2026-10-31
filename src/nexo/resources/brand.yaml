@@ -10,7 +10,8 @@
 # Chaves ausentes herdam daqui. Cores em hexadecimal (#RRGGBB).
 #
 # Papéis das cores:
-#   accent     destaque da marca (links, item ativo, barras dos gráficos)
+#   brand/on_brand  o laranja da marca e o texto sobre ele (item ativo, destaques, gráficos)
+#   accent     texto na cor da marca (links), legível sobre o fundo
 #   good/warn/bad  estado (bom, atenção, problema); não use a cor da marca para estado
 #   *_soft     fundo claro do selo de cada cor
 #   bg/surface/surface_2/line  fundo da página, cartões, faixas e linhas
@@ -19,17 +20,18 @@
 name: Nexo
 
 fonts:
-  sans: '"Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif'
-  mono: 'ui-monospace, Consolas, "SF Mono", Menlo, monospace'
+  sans: '"Segoe UI Variable Text", "Segoe UI", -apple-system, "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif'
+  title: '"Segoe UI Variable Display", "Segoe UI", -apple-system, "SF Pro Display", Roboto, "Helvetica Neue", Arial, sans-serif'
+  mono: '"Cascadia Code", Consolas, "SF Mono", Menlo, ui-monospace, monospace'
 
 light:
-  bg: "#F4F4F2"
-  surface: "#FFFFFF"
-  surface_2: "#FFF1E5"
-  line: "#C9C5BC"
-  text: "#101828"
-  muted: "#3F4859"
-  faint: "#5A6374"
+  bg: "#FFFFFF"
+  surface: "#F5F6FA"
+  surface_2: "#FFFFFF"
+  line: "#C4CAD6"
+  text: "#12213F"
+  muted: "#47516A"
+  faint: "#5F687E"
   accent: "#A84A00"
   accent_soft: "#FFE3CC"
   on_accent: "#FFFFFF"
@@ -39,6 +41,8 @@ light:
   warn_soft: "#FBEFD5"
   bad: "#A1231D"
   bad_soft: "#FBE3E1"
+  brand: "#EC7000"
+  on_brand: "#12213F"
 
 dark:
   bg: "#141619"
@@ -57,6 +61,8 @@ dark:
   warn_soft: "#3B2D0E"
   bad: "#FF8F86"
   bad_soft: "#431A17"
+  brand: "#EC7000"
+  on_brand: "#12213F"
 
 # Console: cores que funcionam em terminal claro e escuro (o terminal não diz qual é o fundo).
 terminal:

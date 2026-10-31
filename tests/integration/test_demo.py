@@ -75,6 +75,8 @@ def test_seed_fills_the_portal_pages(tmp_path: Path, monkeypatch: pytest.MonkeyP
         assert got.status_code == 200, page
     assert "R$" in client.get("/dash/finops").text
     assert "sq-pagamentos" in client.get("/dash/squad").text
+    assert "US-101-1-PAG" in client.get("/dash/board").text, "o board da demonstração não pode vir vazio"
+    assert client.get("/dash/executive").status_code == 200
     collector_app._dbs.clear()
 
 

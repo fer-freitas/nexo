@@ -24,6 +24,8 @@ THEME_KEYS = (
     "accent",
     "accent_soft",
     "on_accent",
+    "brand",
+    "on_brand",
     "good",
     "good_soft",
     "warn",
@@ -33,7 +35,7 @@ THEME_KEYS = (
 )
 TERMINAL_KEYS = ("accent", "good", "warn", "bad")
 SECTIONS = {"name", "fonts", "light", "dark", "terminal"}
-FONT_KEYS = ("sans", "mono")
+FONT_KEYS = ("sans", "title", "mono")
 
 
 @dataclass(frozen=True)
@@ -83,7 +85,7 @@ def _tokens(theme: dict[str, str]) -> str:
 
 def css(brand: Brand) -> str:
     """Variáveis CSS nos três estados do tema: claro (padrão), escuro pelo sistema e escuro/claro escolhido."""
-    fonts = f"--sans:{brand.fonts['sans']};--mono:{brand.fonts['mono']}"
+    fonts = f"--sans:{brand.fonts['sans']};--title:{brand.fonts['title']};--mono:{brand.fonts['mono']}"
     dark = _tokens(brand.dark) + ";color-scheme:dark"
     return (
         f":root{{{_tokens(brand.light)};{fonts};color-scheme:light}}"

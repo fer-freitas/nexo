@@ -70,7 +70,7 @@ def _contrast(a: str, b: str) -> float:
 TEXT_ON = [
     ("text", "bg"), ("text", "surface"), ("text", "surface_2"), ("muted", "bg"), ("muted", "surface"),
     ("muted", "surface_2"), ("faint", "bg"), ("faint", "surface"), ("accent", "bg"), ("accent", "surface"),
-    ("accent", "surface_2"), ("accent", "accent_soft"), ("on_accent", "accent"), ("good", "good_soft"),
+    ("accent", "surface_2"), ("accent", "accent_soft"), ("on_accent", "accent"), ("on_brand", "brand"), ("good", "good_soft"),
     ("warn", "warn_soft"), ("bad", "bad_soft"), ("good", "surface"), ("warn", "surface"), ("bad", "surface"),
 ]  # fmt: skip
 

@@ -59,99 +59,116 @@ def _rec(kind: str, type_: str, payload: dict[str, Any], at: datetime) -> dict[s
     }
 
 
-def batch(squad: str, project: str, days: int = 20, stories_per_day: int = 1) -> dict[str, Any]:
-    """Um mês curto de trabalho fictício. Os números variam por squad só para o painel ter o que mostrar."""
+def _story_events(story: str, day: int, weight: int, at: datetime) -> list[dict[str, Any]]:
+    tool = ("claude", "devin", "copilot")[day % 3]
+    cost = round(4.0 + weight * 1.7 + day % 5, 2)
+    human = day % 4 == 0
+    waiting = day % 9 == 0
+    stamp = at.isoformat(timespec="milliseconds")
+    step = {
+        "target": story,
+        "story": story,
+        "role": "developer",
+        "tool": tool,
+        "model": "sonnet",
+        "started_at": stamp,
+        "seconds": 40.0 + day,
+        "outcome": "success",
+        "usage_brl": cost,
+        "api_equiv_usd": round(cost / 5.4, 4),
+        "acu": 2.0 if tool == "devin" else None,
+        "brain_version": "demo",
+    }
+    snapshot = {
+        "story": story,
+        "feature": f"F-{day + 1}",
+        "stack": "python",
+        "points": 1 + day % 3,
+        "state": "AguardandoHumano" if waiting else "Concluido",
+        "human_gate": human,
+        "escalated": False,
+        "bugs": 1 if day % 5 == 0 else 0,
+        "attempts": 1 + day % 2,
+        "spec_returns": 0,
+        "clarifications": day % 2,
+        "handoffs": 0,
+        "cost_brl": cost,
+        "cap_brl": 45.0,
+        "estimate_brl": cost + 1,
+        "started_at": (at - timedelta(hours=6)).isoformat(timespec="milliseconds"),
+        "done_at": None if waiting else stamp,
+        "waiting_human_hours": 3.0 if human else 0.0,
+    }
+    gate = {
+        "gate": "code",
+        "story": story,
+        "decision": "human" if human else "auto",
+        "score": 0.78 if human else 0.96,
+        "threshold": 0.9,
+    }
+    quality = {
+        "story": story,
+        "stack": "python",
+        "stages": [["unit", "passed"], ["secrets", "passed"]],
+        "failed": 0,
+        "coverage": 78.0 + weight * 4,
+        "findings": {"high": 1 if day % 7 == 0 else 0},
+    }
+    return [
+        _rec("step", "step", step, at),
+        _rec("story", "story", snapshot, at),
+        _rec("event", "gate.decision", gate, at),
+        _rec("event", "quality.run", quality, at),
+    ]
+
+
+DEMANDS = (
+    ("F-101", "feature", "technical", "Simulador de parcelas", 0, "tl:demo.lead"),
+    ("US-101-1", "story", "build", "Mostrar parcelas no extrato", 0, "dev:demo.bia"),
+    ("US-101-2", "story", "qa", "Validar arredondamento", 1, "qa:demo.qa"),
+    ("IDEA-12", "idea", "split", "Aviso de limite por aplicativo", 0, "pm:demo.pm"),
+    ("BUG-101-1", "bug", "build", "Parcela zero aceita no simulador", 1, "dev:demo.bia"),
+)
+
+
+def _demand_events(squad: str, at: datetime) -> list[dict[str, Any]]:
+    prefix = squad.removeprefix("sq-")[:3].upper()
+    return [
+        _rec(
+            "event",
+            "demand.created",
+            {
+                "demand": f"{demand}-{prefix}",
+                "demand_type": kind,
+                "stage": stage,
+                "title": title,
+                "blocked": blocked,
+                "holders": holder,
+                "origin": "manual",
+            },
+            at,
+        )
+        for demand, kind, stage, title, blocked, holder in DEMANDS
+    ]
+
+
+def batch(squad: str, project: str, months: int = 6, per_month: int = 6) -> dict[str, Any]:
+    """Seis meses de trabalho fictício, com variação por squad só para o painel ter o que mostrar."""
     now = datetime.now(UTC)
-    # dentro do mês atual, para as páginas do mês não ficarem zeradas no dia 1º
-    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    reference = max(now, month_start + timedelta(days=days + 1))
+    reference = now
     weight = 1 + sum(map(ord, squad)) % 3
     events: list[dict[str, Any]] = []
-    for day in range(days):
-        at = reference - timedelta(days=day)
-        at = max(at, month_start + timedelta(hours=1))
-        story = f"US-{day + 1}-1"
-        tool = ("claude", "devin", "copilot")[day % 3]
-        cost = round(4.0 + weight * 1.7 + day % 5, 2)
-        events.append(
-            _rec(
-                "step",
-                "step",
-                {
-                    "target": story,
-                    "story": story,
-                    "role": "developer",
-                    "tool": tool,
-                    "model": "sonnet",
-                    "started_at": at.isoformat(timespec="milliseconds"),
-                    "seconds": 40.0 + day,
-                    "outcome": "success",
-                    "usage_brl": cost,
-                    "api_equiv_usd": round(cost / 5.4, 4),
-                    "acu": 2.0 if tool == "devin" else None,
-                    "brain_version": "demo",
-                },
-                at,
-            )
-        )
-        done = day % 4 != 0
-        events.append(
-            _rec(
-                "story",
-                "story",
-                {
-                    "story": story,
-                    "feature": f"F-{day + 1}",
-                    "stack": "python",
-                    "points": 1 + day % 3,
-                    "state": "Concluido" if done else "AguardandoHumano",
-                    "human_gate": not done,
-                    "escalated": False,
-                    "bugs": day % 3 == 0,
-                    "attempts": 1 + day % 2,
-                    "spec_returns": 0,
-                    "clarifications": day % 2,
-                    "handoffs": 0,
-                    "cost_brl": cost,
-                    "cap_brl": 45.0,
-                    "estimate_brl": cost + 1,
-                    "started_at": (at - timedelta(hours=6)).isoformat(timespec="milliseconds"),
-                    "done_at": at.isoformat(timespec="milliseconds") if done else None,
-                    "waiting_human_hours": 0.0 if done else 3.0,
-                },
-                at,
-            )
-        )
-        decision = "auto" if done else "human"
-        events.append(
-            _rec(
-                "event",
-                "gate.decision",
-                {
-                    "gate": "code",
-                    "story": story,
-                    "decision": decision,
-                    "score": 0.96 if done else 0.78,
-                    "threshold": 0.9,
-                },
-                at,
-            )
-        )
-        events.append(
-            _rec(
-                "event",
-                "quality.run",
-                {
-                    "story": story,
-                    "stack": "python",
-                    "stages": [["unit", "passed"], ["secrets", "passed"]],
-                    "failed": 0,
-                    "coverage": 78.0 + weight * 4,
-                    "findings": {"high": day % 7 == 0},
-                },
-                at,
-            )
-        )
+    first_of_month = now.replace(day=1, hour=9, minute=0, second=0, microsecond=0)
+    for back in range(months):
+        start = (first_of_month - timedelta(days=30 * back)).replace(day=1)
+        for n in range(per_month + (months - back)):
+            at = start + timedelta(days=(n * 3) % 27, hours=n)
+            if at > now:
+                at = now - timedelta(hours=n + 1)
+            day = back * 7 + n
+            story = f"US-{back + 1}-{n + 1}"
+            events += _story_events(story, day, weight, at)
+    events += _demand_events(squad, reference)
     events.append(_rec("event", "policy.violation", {"rule": "deny_command", "task": "T-1-1"}, reference))
     return {
         "contract": CONTRACT,
@@ -165,8 +182,13 @@ def batch(squad: str, project: str, days: int = 20, stories_per_day: int = 1) ->
 def seed(post: Any, token_of: dict[str, str]) -> None:
     """`post(método, caminho, corpo, token)`. Recebe a chamada para funcionar com o servidor e com o teste."""
     post("PUT", "/v2/admin/directory", directory(), token_of["admin"])
+    month = datetime.now(UTC).strftime("%Y-%m")
     for squad, (dev, project) in SQUADS.items():
-        post("POST", "/v2/events", batch(squad, project), token_of[dev])
+        whole = batch(squad, project)
+        events = whole["events"]
+        for i in range(0, len(events), 80):  # cada envio tem limite de tamanho
+            post("POST", "/v2/events", {**whole, "events": events[i : i + 80]}, token_of[dev])
+        post("PUT", f"/v1/budgets/{dev}", {"month": month, "limit_brl": 400.0}, token_of["admin"])
 
 
 def free_port() -> int:
