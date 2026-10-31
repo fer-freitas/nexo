@@ -78,3 +78,10 @@ def test_placar_counts_every_feature() -> None:
     text = (ROOT / "docs" / "site" / "features.html").read_text(encoding="utf-8")
     rows = re.findall(r'<td><span class="selo (real|sim|falta)">', text)
     assert "{{" not in text and f"{rows.count('real')} itens provados" in text
+
+
+@pytest.mark.parametrize("page", PAGES, ids=lambda p: p.name)
+def test_docs_are_written_from_inside_the_company(page: Path) -> None:
+    text = re.sub(r"<[^>]+>", " ", page.read_text(encoding="utf-8"))
+    found = re.findall(r"(?i)\bmac ?os\b|\bmac\b|máquina windows|windows da empresa|máquina da empresa|conta aws", text)
+    assert found == []

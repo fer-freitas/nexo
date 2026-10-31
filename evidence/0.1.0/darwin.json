@@ -16,7 +16,7 @@
     {
       "step": "formata\u00e7\u00e3o",
       "ok": true,
-      "seconds": 0.1
+      "seconds": 0.0
     },
     {
       "step": "camadas",
@@ -26,22 +26,22 @@
     {
       "step": "arquitetura",
       "ok": true,
-      "seconds": 13.7
+      "seconds": 14.5
     },
     {
       "step": "tipos",
       "ok": true,
-      "seconds": 0.2
+      "seconds": 0.5
     },
     {
       "step": "testes",
       "ok": true,
-      "seconds": 72.2
+      "seconds": 79.7
     },
     {
       "step": "gitleaks",
       "ok": true,
-      "seconds": 0.3
+      "seconds": 0.4
     },
     {
       "step": "pip-audit",

@@ -1,9 +1,33 @@
 <section class="capa">
 <div class="capa-texto">
-<h1>Do pedido ao PR, com a IA dentro das regras da empresa.</h1>
-<p>O Nexo é uma ferramenta de linha de comando para PM, QA, tech lead e dev. Cada demanda sempre diz com quem está. Quem decide o que passa são regras fixas, não a IA.</p>
+<h1>Do pedido ao PR, com a IA dentro das regras.</h1>
+<p>O Nexo acompanha cada demanda e mostra com quem ela está. A IA constrói, e regras fixas decidem o que passa.</p>
 </div>
-<figure class="terminal" aria-label="Exemplo de saída do comando nexo pm">
+<svg class="trilho-capa" viewBox="0 0 560 500" role="img" aria-label="O caminho de uma demanda: ideia, requisitos, desenho, testes e código, portão e entrega.">
+<path class="linha" d="M44 452 C150 452 150 366 238 352 C330 338 372 372 446 330 C530 282 500 214 410 208 C318 202 268 250 180 214 C104 183 92 96 178 68 C256 44 370 44 516 44"/>
+<g class="parada"><circle cx="44" cy="452" r="11"/><text x="44" y="486" text-anchor="middle">Ideia</text></g>
+<g class="parada"><circle cx="238" cy="352" r="11"/><text x="238" y="394" text-anchor="middle">Requisitos</text></g>
+<g class="parada"><circle cx="478" cy="290" r="11"/><text x="458" y="296" text-anchor="end">Desenho</text></g>
+<g class="parada"><circle cx="268" cy="228" r="11"/><text x="268" y="196" text-anchor="middle">Testes e código</text></g>
+<g class="parada portao-capa"><path d="M124 108 L152 136 L124 164 L96 136z"/><text x="172" y="143">Portão</text></g>
+<g class="parada"><circle cx="516" cy="44" r="15"/><circle class="miolo" cx="516" cy="44" r="6"/><text x="516" y="90" text-anchor="middle">Entrega</text></g>
+</svg>
+</section>
+<h2>Por onde começar</h2>
+<ul class="caminhos">
+<li><a href="usuarios.html#se-voce-e-pm"><strong>Sou PM</strong><span>Registrar ideias, responder dúvidas e aprovar requisitos</span></a></li>
+<li><a href="usuarios.html#se-voce-e-tech-lead"><strong>Sou tech lead</strong><span>Definir o desenho, indicar responsáveis e entender um portão</span></a></li>
+<li><a href="usuarios.html#se-voce-e-qa"><strong>Sou QA</strong><span>Planejar testes, registrar bugs e validar a entrega</span></a></li>
+<li><a href="usuarios.html#se-voce-e-dev"><strong>Sou dev</strong><span>Executar com a IA, avisar de um problema e retomar</span></a></li>
+<li><a href="executivo.html"><strong>Preciso decidir</strong><span>O problema, os controles e como medir o retorno</span></a></li>
+<li><a href="arquitetura.html"><strong>Vou operar ou revisar</strong><span>As peças, por onde passam os dados e as decisões técnicas</span></a></li>
+</ul>
+<section class="dupla">
+<div>
+<h2>Digite o seu papel</h2>
+<p>O Nexo mostra o que está com você, do mais antigo para o mais novo. Se um portão pedir uma decisão, ele explica o motivo e o que fazer.</p>
+</div>
+<figure class="terminal" aria-label="Exemplo de saída dos comandos nexo pm e nexo tl gate">
 <pre><code><span class="prompt">$</span> nexo pm
 Com você (PM), do mais antigo para o mais novo:
   1. F-1  Endpoint de versão
@@ -16,18 +40,12 @@ US-1-1: aguarda decisão humana
   agora: nexo approve US-1-1</code></pre>
 </figure>
 </section>
-<div class="aviso"><strong>Ainda não foi liberado às pessoas.</strong> O código está pronto e validado em macOS, mas falta provar no Windows da empresa e na AWS. Veja o que já foi provado em <a href="features.html">Features</a>.</div>
-<h2>Por onde começar</h2>
-<ul class="caminhos">
-<li><a href="usuarios.html#se-voce-e-pm"><strong>Sou PM</strong><span>Registrar ideias, responder dúvidas e aprovar requisitos</span></a></li>
-<li><a href="usuarios.html#se-voce-e-tech-lead"><strong>Sou tech lead</strong><span>Definir o desenho, indicar responsáveis e entender um portão</span></a></li>
-<li><a href="usuarios.html#se-voce-e-qa"><strong>Sou QA</strong><span>Planejar testes, registrar bugs e validar a entrega</span></a></li>
-<li><a href="usuarios.html#se-voce-e-dev"><strong>Sou dev</strong><span>Executar com a IA, avisar de um problema e retomar</span></a></li>
-<li><a href="executivo.html"><strong>Preciso decidir</strong><span>O problema, os controles, como medir e o que pedimos</span></a></li>
-<li><a href="arquitetura.html"><strong>Vou operar ou revisar</strong><span>As peças, por onde passam os dados e as decisões técnicas</span></a></li>
-</ul>
+<section class="dupla">
+<div>
 <h2>Experimente em dois minutos</h2>
-<p>A demonstração usa dados fictícios, não gasta tokens e não mexe nas suas configurações.</p>
+<p>A demonstração usa dados fictícios, não gasta tokens e não mexe nas suas configurações. Quando quiser ver mais, <a href="features.html">Features</a> mostra o estado de cada item.</p>
+</div>
 <pre><code>nexo setup       # confere e instala o que falta
 nexo demo cli    # repositório de exemplo, com agente simulado
-nexo demo site   # portal em 127.0.0.1, com um login por perfil</code></pre>
+nexo demo site   # portal local, com um login por perfil</code></pre>
+</section>
