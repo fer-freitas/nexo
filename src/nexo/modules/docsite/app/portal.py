@@ -270,7 +270,7 @@ const config = {{
         {{ to: '/decisoes', label: 'Decisões', position: 'left' }},
       ],
     }},
-    colorMode: {{ respectPrefersColorScheme: true }},
+    colorMode: {{ defaultMode: "light", disableSwitch: true, respectPrefersColorScheme: false }},
     footer: {{ style: 'dark', copyright: 'Gerado pelo Nexo dos repositórios do projeto e do cérebro.' }},
   }},
 }};

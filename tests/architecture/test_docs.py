@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -89,3 +90,27 @@ def test_docs_are_written_from_inside_the_company() -> None:
     readable = [*PAGES, *sorted((ROOT / "docs").glob("*.md")), ROOT / "README.md"]
     found = {p.name: forbidden.findall(re.sub(r"<[^>]+>", " ", p.read_text(encoding="utf-8"))) for p in readable}
     assert {k: v for k, v in found.items() if v} == {}
+
+
+def test_commands_and_options_in_the_faq_are_real() -> None:
+    """Quem copia um comando do FAQ não pode cair em opção que não existe."""
+    text = (ROOT / "docs" / "site" / "faq.html").read_text(encoding="utf-8")
+    assert text.count("<details") >= 50, "o FAQ precisa continuar robusto"
+    root = typer.main.get_command(app)
+    wrong = []
+    for block in re.findall(r"<pre><code>(.*?)</code></pre>", text, re.S):
+        for line in html.unescape(block).split("\n"):
+            line = line.split("  #")[0].strip()
+            if not line.startswith("nexo "):
+                continue
+            words = shlex.split(line)[1:]
+            args = surface.translate(words)
+            node = root
+            used = 0
+            while getattr(node, "commands", None) and used < len(args) and args[used] in node.commands:
+                node = node.commands[args[used]]
+                used += 1
+            valid = {o for p in getattr(node, "params", []) for o in p.opts} | {"--tool", "--json", "--help"}
+            if not used or [w for w in words if w.startswith("--") and w not in valid]:
+                wrong.append(line)
+    assert wrong == []

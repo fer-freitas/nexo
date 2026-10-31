@@ -37,6 +37,30 @@ def test_walkthrough_runs_as_printed_without_tokens(tmp_path: Path) -> None:
     assert "aprovado sozinho" in results["nexo tl gate US-1-1"] or "decisão humana" in results["nexo tl gate US-1-1"]
 
 
+def test_demo_never_touches_the_real_tool_settings(tmp_path: Path) -> None:
+    """A demonstração promete não mexer em nada: a guarda real do Claude Code não pode ser instalada por ela."""
+    home = tmp_path / "pessoa"
+    (home / ".claude").mkdir(parents=True)
+    settings = home / ".claude" / "settings.json"
+    settings.write_text("{}", encoding="utf-8")
+    env = {**cli_demo.env_for(tmp_path / "d"), "HOME": str(home), "USERPROFILE": str(home)}
+    env.pop("CLAUDE_CONFIG_DIR", None)
+    data = cli_demo.prepare(tmp_path / "d")
+    for args in (["pm"], ["console"], ["board"]):
+        subprocess.run(
+            [sys.executable, "-m", "nexo", *args],
+            cwd=data["project"],
+            env=env,
+            input="sair\n",
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=False,
+        )
+    assert settings.read_text(encoding="utf-8") == "{}"
+    assert not list(home.rglob("*.nexo-bak"))
+
+
 def test_refuses_a_folder_with_files(tmp_path: Path) -> None:
     (tmp_path / "x").write_text("x", encoding="utf-8")
     with pytest.raises(Exception, match="não está vazia"):

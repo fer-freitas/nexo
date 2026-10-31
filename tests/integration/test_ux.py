@@ -30,7 +30,7 @@ def test_dashboard_uses_the_org_brand(people: Any, tmp_path: Path, monkeypatch: 
     dump_yaml(path, ACME)
     monkeypatch.setenv("NX_BRAND", str(path))
     page = people.get("/dash/executive").text
-    assert "--accent:#C2185B" in page and "--accent:#F06292" in page and "Acme Dev" in page
+    assert "--accent:#C2185B" in page and "Acme Dev" in page
     dump_yaml(path, {"light": {"accent": "rosa"}})  # marca inválida: o dashboard segue com o padrão
     collector_brand._load.cache_clear()
     assert "--accent:#A84A00" in people.get("/dash/executive").text

@@ -170,7 +170,7 @@ const config = {{
         {{ to: '/codigo', label: 'Código', position: 'left' }},
       ],
     }},
-    colorMode: {{ respectPrefersColorScheme: true }},
+    colorMode: {{ defaultMode: "light", disableSwitch: true, respectPrefersColorScheme: false }},
     footer: {{ style: 'dark', copyright: 'Gerado pelo Nexo a partir do repositório e do cérebro da org.' }},
   }},
 }};

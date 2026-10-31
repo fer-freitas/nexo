@@ -99,6 +99,7 @@ def prepare(folder: Path | None = None) -> dict[str, Any]:
         {
             "identity": {"mode": "os"},
             "gates": {"allow_self_approval": True},
+            "guard": {"auto": False},
             "planning": {"role_flow": {"enabled": True, "joint_session": "never", "allow_same_person": True}},
         },
     )

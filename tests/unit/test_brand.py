@@ -25,8 +25,7 @@ def test_default_brand_has_every_token_for_both_themes() -> None:
     assert b.light["accent"] == "#A84A00" and b.dark["accent"] == "#FF9F47"
     css = brand.css(b)
     assert "--accent:#A84A00" in css and "--surface-2:" in css and "--sans:" in css
-    assert ':root:not([data-theme="light"])' in css and ':root[data-theme="dark"]' in css  # três estados do tema
-    assert css.count(";color-scheme:dark") == 2
+    assert "color-scheme:light" in css and "color-scheme:dark" not in css and "prefers-color-scheme" not in css
 
 
 def test_org_overrides_only_what_changes() -> None:

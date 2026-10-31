@@ -119,6 +119,17 @@ td:first-child { font-weight: 500; }
 .passo:first-child { margin-top: 0; }
 .passo::before { content: counter(passo); position: absolute; left: -55px; top: -3px; width: 34px; height: 34px; border-radius: 50%; background: var(--laranja); color: var(--azul); font: 600 16px/34px var(--titulo); text-align: center; }
 
+/* Perguntas frequentes: abre e fecha sem JavaScript, e a busca do navegador encontra o texto */
+.faq { border-top: 1px solid var(--linha); margin-top: 14px; }
+.faq details { border-bottom: 1px solid var(--linha); }
+.faq summary { list-style: none; cursor: pointer; padding: 15px 44px 15px 0; font: 500 19px/1.35 var(--titulo); letter-spacing: -.008em; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; position: absolute; right: 10px; top: 21px; width: 10px; height: 10px; border-right: 2.5px solid var(--laranja-texto); border-bottom: 2.5px solid var(--laranja-texto); transform: rotate(45deg); transition: transform .15s; }
+.faq details[open] summary::after { transform: rotate(-135deg); top: 26px; }
+.faq summary:hover { color: var(--laranja-texto); }
+.resposta { padding: 0 0 18px; }
+.resposta p:last-child, .resposta pre:last-child { margin-bottom: 0; }
+
 /* Desenhos */
 figure { margin: 20px 0 28px; }
 figure.largo { overflow-x: auto; }
@@ -169,4 +180,5 @@ svg .z-local { fill: var(--laranja-suave); }
   .capa, .decisao, pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   figure.largo svg { min-width: 0; }
   .linha { animation: none; stroke-dashoffset: 0; }
+  .faq details > * { display: block; }
 }

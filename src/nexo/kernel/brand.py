@@ -84,14 +84,9 @@ def _tokens(theme: dict[str, str]) -> str:
 
 
 def css(brand: Brand) -> str:
-    """Variáveis CSS nos três estados do tema: claro (padrão), escuro pelo sistema e escuro/claro escolhido."""
+    """Variáveis CSS. O portal tem um tema só, o claro, mesmo com o sistema da pessoa em modo escuro."""
     fonts = f"--sans:{brand.fonts['sans']};--title:{brand.fonts['title']};--mono:{brand.fonts['mono']}"
-    dark = _tokens(brand.dark) + ";color-scheme:dark"
-    return (
-        f":root{{{_tokens(brand.light)};{fonts};color-scheme:light}}"
-        f'@media (prefers-color-scheme:dark){{:root:not([data-theme="light"]){{{dark}}}}}'
-        f':root[data-theme="dark"]{{{dark}}}'
-    )
+    return f":root{{{_tokens(brand.light)};{fonts};color-scheme:light}}"
 
 
 def terminal_styles(brand: Brand) -> dict[str, str]:

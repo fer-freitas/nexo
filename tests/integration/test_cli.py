@@ -267,3 +267,11 @@ def test_docs_site_generates_the_site_and_never_a_workflow(project: Path, nexo: 
     assert code == 0, err + out
     assert (project / "docs-site" / "package.json").is_file() and (project / "docs-site" / "docs").is_dir()
     assert not (project / ".github" / "workflows").exists(), "nada do Nexo cria workflow do GitHub Actions"
+
+
+def test_help_works_for_commands_outside_the_catalog(nexo: Runner) -> None:
+    code, out, _ = nexo("brain", "pull", "--help")
+    assert code == 0 and "nexo brain pull" in out
+    code, out, _ = nexo("help", "squad")
+    assert code == 0 and "nexo squad" in out
+    assert nexo("help", "nao", "existe")[0] != 0

@@ -230,7 +230,7 @@ class SelfTest:
         # responsável único (decisão da org): quem pede também aprova o portão
         # sem GitHub, a identidade é a do sistema: o autoteste não pode exigir um login que não vai usar
         identity = "" if self.github else "identity:\n  mode: os\n"
-        org.write_text(f"gates:\n  allow_self_approval: true\n{identity}", encoding="utf-8")
+        org.write_text(f"gates:\n  allow_self_approval: true\nguard:\n  auto: false\n{identity}", encoding="utf-8")
         self.git("init", "-q", "-b", "main")
         self.git("add", "-A")
         self.git("commit", "-q", "-m", "projeto de exemplo")

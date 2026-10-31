@@ -25,6 +25,27 @@ from nexo.modules.setup.app import doctor, selfmanage
 from nexo.modules.setup.app import project as platform_project
 
 
+def _print_real_help(context: typer.Context, words: list[str]) -> bool:
+    """Todo comando tem ajuda, mesmo fora do catálogo: ela sai da própria definição dele."""
+    node: Any = context.parent.command if context.parent else None
+    for word in words:
+        commands = getattr(node, "commands", None)
+        node = commands.get(word) if commands else None
+        if node is None:
+            return False
+    console.print(f"nexo {' '.join(words)}", style="nexo.title", markup=False, highlight=False)
+    if getattr(node, "help", None):
+        console.print(f"  {str(node.help).strip()}", markup=False, highlight=False)
+    for name in sorted(getattr(node, "commands", None) or {}):
+        console.print(f"  nexo {' '.join(words)} {name}", markup=False, highlight=False)
+    for param in getattr(node, "params", []):
+        if param.param_type_name == "argument":
+            console.print(f"  <{param.name}>", markup=False, highlight=False)
+        elif param.opts:
+            console.print(f"  {param.opts[0]}  {getattr(param, 'help', '') or ''}", markup=False, highlight=False)
+    return True
+
+
 @app.command("help", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def help_cmd(context: typer.Context) -> None:
     words = list(context.args)
@@ -51,6 +72,8 @@ def help_cmd(context: typer.Context) -> None:
                 console.print(f"  equivale a: nexo {c.target}", style="nexo.muted", markup=False, highlight=False)
         return
     specs = [s for s in COMMANDS if s.path == asked or s.path.startswith(asked + " ")]
+    if not specs and _print_real_help(context, words):
+        return
     if not specs:
         err_console.print(t("help.unknown", name=" ".join(words)))
         raise typer.Exit(ExitCode.USAGE)

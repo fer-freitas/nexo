@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Perguntas frequentes: Nexo</title><link rel="stylesheet" href="estilo.css"></head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<div class="pagina">
+<aside class="lateral"><a class="marca" href="index.html">Nexo</a><nav aria-label="Documentação"><p class="grupo">Entender</p><ul><li><a href="index.html">Início</a></li><li><a href="funcional.html">Como funciona</a></li><li><a href="arquitetura.html">Arquitetura</a></li></ul><p class="grupo">Acompanhar</p><ul><li><a href="features.html">Features</a></li></ul><p class="grupo">Decidir</p><ul><li><a href="executivo.html">Para executivos</a></li></ul><p class="grupo">Usar</p><ul><li><a href="usuarios.html">Guia do usuário</a></li><li><a href="faq.html" aria-current="page">Perguntas frequentes</a><ul class="indice"><li><a href="#instalacao">Instalação</a></li><li><a href="#primeiros-passos">Primeiros passos</a></li><li><a href="#cerebro">Cérebro</a></li><li><a href="#contexto-do-projeto">Contexto do projeto</a></li><li><a href="#demandas-e-fluxo">Demandas e fluxo</a></li><li><a href="#ia-e-execucao">IA e execução</a></li><li><a href="#portao-e-qualidade">Portão e qualidade</a></li><li><a href="#portal-custo-e-dados-de-uso">Portal, custo e dados de uso</a></li><li><a href="#linhagem-e-integracoes">Linhagem e integrações</a></li><li><a href="#quando-algo-da-errado">Quando algo dá errado</a></li></ul></li></ul></nav></aside>
+<main class="conteudo" id="conteudo">
+<h1>Perguntas frequentes</h1>
+<p class="lead">As dúvidas mais comuns, com o comando para resolver. Procure pelo Ctrl+F do navegador, ou use o índice ao lado.</p>
+<h2 id="instalacao">Instalação</h2>
+<div class="faq">
+<details id="como-eu-instalo-o-nexo"><summary>Como eu instalo o Nexo?</summary><div class="resposta"><p>Com o pacote do time do Nexo, rode o instalador e depois o setup. Ele não exige Python na máquina nem administrador.</p><pre><code>nexo install
+nexo setup</code></pre><p>Se você vai mexer no próprio Nexo, instale pelo código-fonte: <code>python -m venv .venv</code> e <code>pip install -e ".[dev]"</code>, dentro da pasta do repositório.</p></div></details>
+<details id="o-que-o-nexo-setup-instala"><summary>O que o nexo setup instala?</summary><div class="resposta"><p>Ele confere e instala o que falta: Git, o gitleaks, as ferramentas exigidas pela stack do repositório e as de segurança. Pergunta antes de cada instalação, e ao final pede o seu squad.</p><pre><code>nexo setup --check    # só mostra o que falta
+nexo setup            # instala, perguntando antes
+nexo setup --yes      # instala sem perguntar</code></pre></div></details>
+<details id="como-instalo-uma-ferramenta-de-ia-pelo-setup"><summary>Como instalo uma ferramenta de IA pelo setup?</summary><div class="resposta"><p>Indique qual delas com <code>--agent</code>. Se não houver instalador disponível na máquina, o setup avisa, e você instala pelo procedimento da ferramenta.</p><pre><code>nexo setup --agent claude
+nexo login claude</code></pre></div></details>
+<details id="como-sei-se-esta-tudo-certo"><summary>Como sei se está tudo certo?</summary><div class="resposta"><p>O <code>nexo doctor</code> mostra o que está pronto e o que falta nesta máquina: ferramentas, cérebro, squad, identidade e o que cada item pede para você fazer.</p><pre><code>nexo doctor</code></pre></div></details>
+<details id="como-atualizo"><summary>Como atualizo?</summary><div class="resposta"><p>O Nexo baixa a versão nova e confere a assinatura dela antes de instalar.</p><pre><code>nexo update</code></pre></div></details>
+<details id="como-desinstalo"><summary>Como desinstalo?</summary><div class="resposta"><p>O comando remove o Nexo. Com <code>--purge</code>, também apaga os dados dele nesta máquina.</p><pre><code>nexo uninstall
+nexo uninstall --purge</code></pre></div></details>
+<details id="posso-experimentar-sem-risco"><summary>Posso experimentar sem risco?</summary><div class="resposta"><p>Sim. Os dois comandos abaixo usam dados fictícios, não gastam tokens e não mexem nas suas configurações.</p><pre><code>nexo demo cli
+nexo demo site</code></pre></div></details>
+</div>
+<h2 id="primeiros-passos">Primeiros passos</h2>
+<div class="faq">
+<details id="como-entro-no-meu-time"><summary>Como entro no meu time?</summary><div class="resposta"><p>Peça ao tech lead o endereço do repositório do time e rode o comando abaixo. Não precisa saber Git: depois disso, o Nexo sincroniza sozinho.</p><pre><code>nexo join nome-do-time --repo endereço-do-repositório</code></pre></div></details>
+<details id="como-informo-o-meu-squad"><summary>Como informo o meu squad?</summary><div class="resposta"><p>Custo, métricas e flags por squad dependem disso. O valor vale para você em todos os repositórios.</p><pre><code>nexo squad set sq-seu-squad
+nexo squad          # mostra o atual e de onde vem
+nexo squad list     # os que o Nexo conhece</code></pre><p>Com <code>--project</code>, vira o padrão do repositório para quem ainda não informou.</p></div></details>
+<details id="como-preparo-um-repositorio"><summary>Como preparo um repositório?</summary><div class="resposta"><p>Quem cuida do repositório faz isto uma vez.</p><pre><code>nexo init
+nexo team link nome-do-time --repo endereço-do-repositório
+nexo context init</code></pre></div></details>
+<details id="como-faco-login"><summary>Como faço login?</summary><div class="resposta"><p>As credenciais ficam no cofre do sistema, nunca em arquivo. As ferramentas de IA abrem o login delas no navegador.</p><pre><code>nexo login github
+nexo login claude</code></pre></div></details>
+<details id="como-descubro-o-que-esta-comigo"><summary>Como descubro o que está comigo?</summary><div class="resposta"><p>Digite só o seu papel. A lista vem do mais antigo para o mais novo, e <code>nexo brief</code> explica o que fazer em cada demanda.</p><pre><code>nexo pm
+nexo brief F-1
+nexo board --mine</code></pre></div></details>
+<details id="qual-e-a-diferenca-entre-o-console-e-os-comandos"><summary>Qual é a diferença entre o console e os comandos?</summary><div class="resposta"><p>Digitar só <code>nexo</code> abre o console: ele mostra os próximos passos, e você escolhe pelo número ou escreve do seu jeito. Os comandos fazem a mesma coisa, de forma direta.</p></div></details>
+</div>
+<h2 id="cerebro">Cérebro</h2>
+<div class="faq">
+<details id="o-que-e-o-cerebro"><summary>O que é o cérebro?</summary><div class="resposta"><p>É o repositório de conhecimento da empresa: skills, padrões, lições, política e o contexto dos projetos. A IA consulta a versão assinada, e toda mudança entra por PR.</p></div></details>
+<details id="como-conecto-no-cerebro"><summary>Como conecto no cérebro?</summary><div class="resposta"><p>Informe o endereço do repositório e a chave pública que o time do cérebro divulga, faça login no GitHub e baixe a versão assinada.</p><pre><code>nexo config set brain.repo endereço-do-nexo-brain
+nexo config set brain.trusted_keys "[chave-publica]"
+nexo login github
+nexo brain pull
+nexo brain status</code></pre><p>Se o Nexo veio pré-configurado pela empresa, só o <code>nexo brain pull</code> basta.</p></div></details>
+<details id="como-mantenho-o-cerebro-atualizado"><summary>Como mantenho o cérebro atualizado?</summary><div class="resposta"><p>Ele atualiza sozinho em segundo plano. Para forçar, rode o comando abaixo.</p><pre><code>nexo brain pull</code></pre></div></details>
+<details id="o-pull-recusou-o-cerebro-o-que-faco"><summary>O pull recusou o cérebro. O que faço?</summary><div class="resposta"><p>A assinatura não bateu com a chave confiável, ou a chave foi revogada. Confira a chave com o time do cérebro. Até resolver, o Nexo segue com a última versão verificada.</p><pre><code>nexo brain status</code></pre></div></details>
+<details id="como-procuro-algo-no-cerebro"><summary>Como procuro algo no cérebro?</summary><div class="resposta"><p>A busca cobre skills, padrões e lições. Para ver o que se liga a uma nota, use <code>neighbors</code>.</p><pre><code>nexo brain search "termo"
+nexo brain neighbors id-da-nota
+nexo brain path id-a id-b</code></pre></div></details>
+<details id="como-proponho-uma-licao-ou-um-padrao"><summary>Como proponho uma lição ou um padrão?</summary><div class="resposta"><p>Escreva a nota em um arquivo e proponha. Com um clone de trabalho do cérebro, o Nexo prepara o branch do PR. Sem clone, abre uma proposta para o time do cérebro.</p><pre><code>nexo brain propose nota.md --clone pasta-do-clone --target lessons/nota.md</code></pre><p>Texto com segredo ou dado pessoal é recusado.</p></div></details>
+<details id="como-abro-o-cerebro-no-obsidian"><summary>Como abro o cérebro no Obsidian?</summary><div class="resposta"><p>Clone o repositório <code>nexo-brain</code> e abra a pasta como um vault. Os links e o grafo funcionam, e os arquivos do Obsidian ficam fora da assinatura.</p></div></details>
+<details id="como-confiro-um-pr-do-cerebro"><summary>Como confiro um PR do cérebro?</summary><div class="resposta"><p>O revisor roda o mesmo lint que a assinatura exige, sem mexer na pasta de trabalho.</p><pre><code>nexo brain review 123 --path pasta-do-clone</code></pre></div></details>
+</div>
+<h2 id="contexto-do-projeto">Contexto do projeto</h2>
+<div class="faq">
+<details id="qual-e-a-diferenca-entre-projeto-e-repositorio"><summary>Qual é a diferença entre projeto e repositório?</summary><div class="resposta"><p>Projeto é o conjunto maior, que pode ter vários repositórios, chamados de partes. Repositório é cada pasta de código.</p></div></details>
+<details id="como-conto-a-ia-sobre-o-meu-projeto"><summary>Como conto à IA sobre o meu projeto?</summary><div class="resposta"><p>O comando faz poucas perguntas e grava o contexto do repositório em <code>.nexo/contexto.md</code>.</p><pre><code>nexo context init
+nexo context</code></pre></div></details>
+<details id="como-enriqueco-o-contexto"><summary>Como enriqueço o contexto?</summary><div class="resposta"><p>Inclua direto uma regra ou um termo, ou peça sugestões à IA a partir de um documento. O que ela sugere só entra se você aceitar.</p><pre><code>nexo context add "Não mexer no legado de boletos"
+nexo context term "PMO" "escritório de projetos"
+nexo context enrich --from regras.md</code></pre></div></details>
+<details id="como-levo-o-projeto-para-outros-squads"><summary>Como levo o projeto para outros squads?</summary><div class="resposta"><p>O rascunho fica na sua máquina até ser proposto ao cérebro.</p><pre><code>nexo context propose id-do-projeto</code></pre></div></details>
+</div>
+<h2 id="demandas-e-fluxo">Demandas e fluxo</h2>
+<div class="faq">
+<details id="como-registro-uma-ideia"><summary>Como registro uma ideia?</summary><div class="resposta"><p>Não usa IA e já gera o ID. Depois, a PM decide se segue e divide em features.</p><pre><code>nexo pm idea "Simulador de parcelas"
+nexo pm decide IDEA-1 build --reason "motivo"
+nexo pm split IDEA-1 --feature "Simulador"</code></pre></div></details>
+<details id="por-que-a-minha-historia-nao-roda"><summary>Por que a minha história não roda?</summary><div class="resposta"><p>Faltam aprovações: QA e dev precisam aprovar a parte de cada um. O <code>nexo brief</code> mostra quem falta.</p><pre><code>nexo brief US-1-1
+nexo qa approve US-1-1
+nexo dev approve US-1-1</code></pre></div></details>
+<details id="como-troco-o-responsavel"><summary>Como troco o responsável?</summary><div class="resposta"><p>O tech lead indica por feature ou por história, e a troca fica registrada com o motivo.</p><pre><code>nexo tl assign F-1 --dev pessoa --qa pessoa
+nexo tl reassign US-1-1 --dev pessoa --reason "motivo"</code></pre></div></details>
+<details id="encontrei-um-problema-no-meio-e-agora"><summary>Encontrei um problema no meio. E agora?</summary><div class="resposta"><p>Abra o problema, sem precisar saber a quem recorrer. O Nexo calcula o dono da parte afetada. Depois da decisão, a IA refaz só o que foi afetado.</p><pre><code>nexo dev problem US-1-1
+nexo dev resume US-1-1</code></pre></div></details>
+<details id="como-registro-um-bug"><summary>Como registro um bug?</summary><div class="resposta"><p>O bug nasce ligado à história e volta para o dev.</p><pre><code>nexo qa bug US-1-1 "descrição"
+nexo qa verify BUG-1</code></pre></div></details>
+<details id="como-acompanho-reunioes-de-refinamento"><summary>Como acompanho reuniões de refinamento?</summary><div class="resposta"><p>Abra a reunião, registre notas com prefixos, e cada dono revisa o que for dele ao fechar.</p><pre><code>nexo meeting start F-1 --type funcional --with pessoa
+nexo meeting note "critério: parcela mínima de R$ 10"
+nexo meeting close</code></pre></div></details>
+</div>
+<h2 id="ia-e-execucao">IA e execução</h2>
+<div class="faq">
+<details id="quais-ferramentas-de-ia-o-nexo-usa"><summary>Quais ferramentas de IA o Nexo usa?</summary><div class="resposta"><p>Claude Code, Devin e Copilot. O Nexo escolhe a rota pelo custo e pela qualidade para cada tipo de tarefa. Para forçar uma, use <code>--tool</code>.</p><pre><code>nexo dev run US-1-1 --tool claude</code></pre></div></details>
+<details id="o-que-acontece-quando-a-cota-acaba"><summary>O que acontece quando a cota acaba?</summary><div class="resposta"><p>A tarefa continua em outra ferramenta permitida, com o contexto. Se não houver nenhuma, ela fica bloqueada até a cota voltar, e <code>nexo dev resume</code> retoma.</p></div></details>
+<details id="por-que-apareceu-guarda-nao-comprovada"><summary>Por que apareceu "guarda não comprovada"?</summary><div class="resposta"><p>A ferramenta ainda não teve o bloqueio provado, então não recebe dados <code>confidential</code> nem <code>restricted</code>. Use outra ferramenta, ou uma tarefa de classe permitida.</p><pre><code>nexo doctor</code></pre></div></details>
+<details id="como-digo-a-classe-de-dados-do-repositorio"><summary>Como digo a classe de dados do repositório?</summary><div class="resposta"><p>Ela define o que pode ir para cada fornecedor.</p><pre><code>nexo config set data_class internal --project</code></pre></div></details>
+<details id="posso-testar-algo-sem-criar-demanda"><summary>Posso testar algo sem criar demanda?</summary><div class="resposta"><p>Sim. O teste livre não abre PR nem aprova nada, e dá para promovê-lo a demanda depois.</p><pre><code>nexo try "pedido"
+nexo try list
+nexo try promote TRY-1</code></pre></div></details>
+<details id="como-pergunto-sobre-o-codigo"><summary>Como pergunto sobre o código?</summary><div class="resposta"><p>A resposta vem com as fontes.</p><pre><code>nexo ask "Onde calculamos a parcela?"</code></pre></div></details>
+<details id="como-uso-os-comandos-dentro-do-claude-ou-do-copilot"><summary>Como uso os comandos dentro do Claude ou do Copilot?</summary><div class="resposta"><p>O comando cria atalhos como <code>/nexo-pm-refine</code> no repositório, que chamam o Nexo com as mesmas regras.</p><pre><code>nexo pack expose
+nexo pack expose --for copilot</code></pre></div></details>
+<details id="o-que-e-a-guarda"><summary>O que é a guarda?</summary><div class="resposta"><p>Ela leva a política do Nexo para sessões do Claude Code abertas fora dele. Fica instalada na configuração do Claude da sua máquina, e dá para conferir ou remover.</p><pre><code>nexo guard status
+nexo guard uninstall</code></pre></div></details>
+</div>
+<h2 id="portao-e-qualidade">Portão e qualidade</h2>
+<div class="faq">
+<details id="como-sei-por-que-o-portao-pediu-uma-decisao"><summary>Como sei por que o portão pediu uma decisão?</summary><div class="resposta"><p>O comando mostra o que reprovou, o que pede uma pessoa e o que fazer agora.</p><pre><code>nexo tl gate US-1-1</code></pre></div></details>
+<details id="como-aprovo-ou-reprovo"><summary>Como aprovo ou reprovo?</summary><div class="resposta"><p>Reprovar exige motivo e devolve a história com um bug ligado.</p><pre><code>nexo approve US-1-1
+nexo reject US-1-1 --reason "motivo"</code></pre></div></details>
+<details id="por-que-a-ia-nao-pode-mudar-os-testes"><summary>Por que a IA não pode mudar os testes?</summary><div class="resposta"><p>Os testes de aceite são escritos antes e ficam travados. Se a implementação os alterar, o portão reprova.</p></div></details>
+<details id="quando-o-portao-pede-uma-pessoa"><summary>Quando o portão pede uma pessoa?</summary><div class="resposta"><p>Em área sensível, como pagamentos e autenticação, sem revisão por outro fornecedor, ou com confiança abaixo do limite.</p></div></details>
+<details id="como-rodo-a-qualidade-na-minha-maquina"><summary>Como rodo a qualidade na minha máquina?</summary><div class="resposta"><p>São as mesmas etapas que a história passa, conforme a stack do repositório.</p><pre><code>nexo qa run</code></pre></div></details>
+</div>
+<h2 id="portal-custo-e-dados-de-uso">Portal, custo e dados de uso</h2>
+<div class="faq">
+<details id="como-entro-no-portal"><summary>Como entro no portal?</summary><div class="resposta"><p>Pelo endereço que o time do Nexo divulga, com o token que quem administra o portal cria para você. Cada pessoa vê o que o perfil dela permite.</p></div></details>
+<details id="como-ligo-a-minha-maquina-ao-portal"><summary>Como ligo a minha máquina ao portal?</summary><div class="resposta"><p>Informe o endereço, ligue o envio e aprove o pareamento no navegador, sem colar token.</p><pre><code>nexo config set telemetry.url endereço-do-central
+nexo config set telemetry.enabled true
+nexo central pair
+nexo central status</code></pre></div></details>
+<details id="o-que-sai-da-minha-maquina"><summary>O que sai da minha máquina?</summary><div class="resposta"><p>Ferramenta, modelo, tokens, custo e etapas. Prompts, respostas, código e caminhos não saem. O comando abaixo mostra exatamente o que foi e o que vai ser enviado.</p><pre><code>nexo telemetry show --pending</code></pre></div></details>
+<details id="e-se-o-portal-estiver-fora-do-ar"><summary>E se o portal estiver fora do ar?</summary><div class="resposta"><p>O trabalho segue normalmente. Os eventos esperam na fila e são enviados depois, sem duplicar.</p></div></details>
+<details id="quanto-estou-gastando"><summary>Quanto estou gastando?</summary><div class="resposta"><p>O custo sai em reais, por pessoa, história e projeto. Quem gere o orçamento pode definir um teto.</p><pre><code>nexo cost
+nexo cost usage
+nexo cost budget set</code></pre></div></details>
+<details id="como-desligo-uma-funcionalidade"><summary>Como desligo uma funcionalidade?</summary><div class="resposta"><p>Pelo portal, em Feature flags, ou pela CLI. Sempre com motivo, e os controles de segurança não têm flag.</p><pre><code>nexo flags list
+nexo flags explain chave
+nexo flags set chave off --reason "motivo"</code></pre></div></details>
+<details id="um-comando-diz-que-esta-desligado-por-que"><summary>Um comando diz que está desligado. Por quê?</summary><div class="resposta"><p>Alguma flag o desligou. O <code>explain</code> mostra quem desligou e de onde vem o valor.</p><pre><code>nexo flags explain chave</code></pre></div></details>
+</div>
+<h2 id="linhagem-e-integracoes">Linhagem e integrações</h2>
+<div class="faq">
+<details id="como-ligo-a-linhagem"><summary>Como ligo a linhagem?</summary><div class="resposta"><p>O agente roda a cada 30 minutos, com a máquina ligada, sem tocar na sua pasta de trabalho.</p><pre><code>nexo lineage agent install
+nexo lineage agent status</code></pre></div></details>
+<details id="como-vejo-quem-consome-o-meu-componente"><summary>Como vejo quem consome o meu componente?</summary><div class="resposta"><p>A resposta traz o estado de cada ligação. <code>coverage</code> mostra o que falta para o mapa ficar completo.</p><pre><code>nexo lineage show nome-do-componente
+nexo lineage impact kafka:nome-do-topico
+nexo lineage coverage</code></pre></div></details>
+<details id="como-conecto-um-mcp"><summary>Como conecto um MCP?</summary><div class="resposta"><p>Busque, ligue no projeto, prepare a aprovação no cérebro, faça login e prove com uma chamada real. Sem aprovação, ele não entra nas execuções.</p><pre><code>nexo mcp search postgres
+nexo mcp add id-do-mcp
+nexo mcp approve id-do-mcp --brain pasta-do-clone
+nexo login mcp_id-do-mcp
+nexo mcp test id-do-mcp</code></pre></div></details>
+<details id="como-envio-demandas-para-o-github-issues"><summary>Como envio demandas para o GitHub Issues?</summary><div class="resposta"><p>Configure a ferramenta de gestão e sincronize. Reenviar não duplica.</p><pre><code>nexo tracker sync
+nexo board --sync</code></pre></div></details>
+<details id="como-testo-os-avisos-no-slack-ou-no-teams"><summary>Como testo os avisos no Slack ou no Teams?</summary><div class="resposta"><p>A mensagem de teste mostra o resultado de cada canal ligado.</p><pre><code>nexo notify test</code></pre></div></details>
+</div>
+<h2 id="quando-algo-da-errado">Quando algo dá errado</h2>
+<div class="faq">
+<details id="por-onde-comeco"><summary>Por onde começo?</summary><div class="resposta"><p>O <code>nexo doctor</code> aponta quase tudo. Para o histórico de uma demanda, use <code>nexo logs</code>.</p><pre><code>nexo doctor
+nexo logs US-1-1</code></pre></div></details>
+<details id="apareceu-falta-instalar-antes-de-executar"><summary>Apareceu "falta instalar antes de executar".</summary><div class="resposta"><p>Falta uma ferramenta sem a qual o portão não valida a entrega. Nada foi gasto.</p><pre><code>nexo setup</code></pre></div></details>
+<details id="apareceu-identidade-verificada-exigida"><summary>Apareceu "identidade verificada exigida".</summary><div class="resposta"><p>O Nexo precisa saber quem você é para registrar autoria e aprovações.</p><pre><code>nexo login github</code></pre></div></details>
+<details id="a-historia-escalou"><summary>A história escalou.</summary><div class="resposta"><p>O motivo está na linha do tempo. Depois de resolver, retome de onde parou.</p><pre><code>nexo logs US-1-1
+nexo dev resume US-1-1</code></pre></div></details>
+<details id="como-vejo-a-ajuda-de-um-comando"><summary>Como vejo a ajuda de um comando?</summary><div class="resposta"><p><code>--help</code> funciona em qualquer comando, e <code>nexo help</code> lista todos por papel.</p><pre><code>nexo help
+nexo pm refine --help</code></pre></div></details>
+</div>
+<p class="rodape">Nexo 0.1.0. Documento interno.</p>
+</main>
+</div>
+</body>
+</html>

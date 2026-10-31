@@ -13,7 +13,7 @@ GROUPS = (
     ("Entender", (("index", "Início"), ("funcional", "Como funciona"), ("arquitetura", "Arquitetura"))),
     ("Acompanhar", (("features", "Features"),)),
     ("Decidir", (("executivo", "Para executivos"),)),
-    ("Usar", (("usuarios", "Guia do usuário"),)),
+    ("Usar", (("usuarios", "Guia do usuário"), ("faq", "Perguntas frequentes"))),
 )
 
 

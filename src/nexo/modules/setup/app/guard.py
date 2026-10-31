@@ -88,6 +88,8 @@ def auto_install(ctx: AppContext) -> str:
     está nesta máquina. Devolve o que aconteceu: installed | present | disabled | no_claude | foreign | error."""
     if not flags.enabled(ctx, "guard"):
         return "disabled"
+    if os.environ.get("NX_FAKE_SCENARIO"):  # simulação e demonstração nunca tocam na configuração real da pessoa
+        return "disabled"
     if installed(ctx):
         return "present"
     if not bool((config.resolved(ctx).values.get("guard") or {}).get("auto", True)):
