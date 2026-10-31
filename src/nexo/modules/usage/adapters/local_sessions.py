@@ -168,7 +168,7 @@ def scan_devin(db: Path) -> list[SessionDay]:
         present = {str(c[1]) for c in conn.execute("PRAGMA table_info(sessions)")}
         cols = [c for c in ("id", "working_directory", "model", "last_activity_at", "metadata") if c in present]
         out: list[SessionDay] = []
-        for s in conn.execute(f"SELECT {', '.join(cols)} FROM sessions"):  # noqa: S608  # nosemgrep: colunas fixas
+        for s in conn.execute(f"SELECT {', '.join(cols)} FROM sessions"):  # noqa: S608  # nosemgrep -- colunas fixas
             one = _devin_one(conn, s)
             row = SessionDay(
                 "devin",

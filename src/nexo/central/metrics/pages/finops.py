@@ -37,7 +37,7 @@ def _chargeback(d: CollectorDB, scope: Scope, month: str) -> dict[str, Any]:
 def _outside_nexo(d: CollectorDB, scope: Scope, month: str, nexo_brl: dict[str, float]) -> dict[str, Any]:
     """IA usada direto nas ferramentas, fora do Nexo, e a parte do consumo total que passou pelo Nexo."""
     rows: list[dict[str, Any]] = []
-    if not scope.filters.project:  # uso fora do Nexo não pertence a um projeto do Nexo
+    if not scope.by_project:  # uso fora do Nexo não pertence a um projeto do Nexo
         where, params = scope.where(months=(month, month), stack=False)
         rows = d.query(
             "SELECT tool, COALESCE(SUM(sessions), 0) AS sessions, COALESCE(SUM(usage_brl), 0) AS brl,"
@@ -151,7 +151,7 @@ def finops(d: CollectorDB, scope: Scope, actor: str) -> dict[str, Any]:
     ]
     outside = _outside_nexo(d, scope, cur, usage)
     tables.append(outside)
-    if not scope.filters.project:  # licença e uso fora do Nexo não pertencem a um projeto
+    if not scope.by_project:  # licença e uso fora do Nexo não pertencem a um projeto
         tables.append(_chargeback(d, scope, cur))
     tables += _budget_people(d, scope, actor, "finops")
     if scope.principal.individual_squads("license") is None and licenses:

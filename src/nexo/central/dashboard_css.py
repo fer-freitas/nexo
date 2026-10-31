@@ -29,6 +29,13 @@ main{padding:32px 44px 64px 20px;display:flex;flex-direction:column;gap:24px;max
 .chip{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:999px;padding:5px 14px;
 font-size:14px;text-decoration:none;white-space:nowrap}.chip.on{border-color:var(--text);background:var(--text);color:var(--bg);
 font-weight:600}a.chip:hover{border-color:var(--text)}
+.squadbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:0 0 20px;font-size:14px}
+.picks{display:flex;flex-wrap:wrap;gap:6px;max-height:84px;overflow-y:auto;padding:2px}
+.pick{position:relative;cursor:pointer}.pick input{position:absolute;opacity:0;width:1px;height:1px}
+.pick span{display:block;border:1px solid var(--line);border-radius:999px;padding:5px 14px;white-space:nowrap}
+.pick:hover span{border-color:var(--text)}
+.pick input:checked+span{border-color:var(--text);background:var(--text);color:var(--bg);font-weight:600}
+.pick input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
 details.more{position:relative}details.more>summary{list-style:none;cursor:pointer;display:inline-block}
 details.more[open]{flex-basis:100%}
 details.more>summary::-webkit-details-marker{display:none}

@@ -19,7 +19,11 @@ def _vtuple(value: str) -> tuple[int, ...]:
 def fleet(d: CollectorDB, scope: Scope) -> dict[str, Any]:
     """Frota: versões de Nexo, cérebro e CLIs por dispositivo, deriva e pendências — sem nomes."""
     now = scope.now.timestamp()
-    rows = [r for r in d.query("SELECT * FROM fleet ORDER BY device_id") if scope.principal.sees_squad(r["squad"])]
+    rows = [
+        r
+        for r in d.query("SELECT * FROM fleet ORDER BY device_id")
+        if scope.principal.sees_squad(r["squad"]) and scope.has_squad(r["squad"])
+    ]
     lags = {
         str(r["device_id"]): float(r["lag_hours"] or 0) for r in d.query("SELECT device_id, lag_hours FROM device_lag")
     }

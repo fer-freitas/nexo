@@ -118,6 +118,13 @@ def options(d: CollectorDB, principal: Principal) -> dict[str, list[str]]:
     )
     return {
         "squad": squads,
+        "sigla": sorted(
+            {
+                str(r["sigla"])
+                for r in d.query("SELECT sigla, squad FROM dim_project")
+                if r["sigla"] and (allowed is None or (r["squad"] or "") in allowed)
+            }
+        ),
         "directorate": directorates,
         "stack": sorted({str(r["stack"]) for r in d.query("SELECT DISTINCT stack FROM fact_step") if r["stack"]}),
         "tool": sorted({str(r["tool"]) for r in d.query("SELECT DISTINCT tool FROM fact_step") if r["tool"]}),
@@ -126,10 +133,10 @@ def options(d: CollectorDB, principal: Principal) -> dict[str, list[str]]:
 
 
 def project_names(d: CollectorDB, principal: Principal | None = None) -> dict[str, str]:
-    """Hash do projeto → nome enviado pela CLI, só dos squads que a pessoa vê; sem nome fica o código curto."""
+    """Hash do projeto → sigla e nome enviados pela CLI, só dos squads que a pessoa vê; sem nome fica o código curto."""
     allowed = principal.squads if principal is not None else None
     return {
-        str(r["project"]): str(r["name"])
-        for r in d.query("SELECT project, name, squad FROM dim_project")
+        str(r["project"]): f"{r['sigla']} · {r['name']}" if r["sigla"] else str(r["name"])
+        for r in d.query("SELECT project, name, squad, sigla FROM dim_project")
         if allowed is None or (r["squad"] or "") in allowed
     }

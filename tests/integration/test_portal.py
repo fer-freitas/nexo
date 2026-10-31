@@ -189,3 +189,114 @@ def test_first_admin_only_once(central: Any) -> None:
     assert identity is not None and identity["dev"] == "gh:primeira"
     with pytest.raises(PermissionError):
         auth.first_admin("gh:segunda")
+
+
+def _batch(squad: str, project: str, story: str, **context: str) -> dict[str, Any]:
+    from nexo.kernel.monitoring.telemetry import CONTRACT
+    from tests.integration.test_dashboard import step, story_snap
+
+    return {
+        "contract": CONTRACT,
+        "device_id": "",
+        "project": project,
+        "context": {"squad": squad, "stack": "python", **context},
+        "events": [step(story), story_snap(story)],
+    }
+
+
+def _seed_two_squads(people: Any) -> None:
+    from tests.integration.test_dashboard import seed
+
+    seed(people)
+    a = _batch("sq-a", "repo-1", "US-A", project_name="custodia-web", project_sigla="CDT")
+    b = _batch("sq-b", "repo-2", "US-B", project_name="custodia-api", project_sigla="CDT")
+    c = _batch("sq-b", "repo-3", "US-C", project_name="cartoes", project_sigla="CRT")
+    assert people.post("/v2/events", json=a, headers=h("tok-bia")).status_code == 200
+    assert people.post("/v2/events", json=b, headers=h("tok-caio")).status_code == 200
+    assert people.post("/v2/events", json=c, headers=h("tok-caio")).status_code == 200
+
+
+def _stories(client: Any, query: str) -> set[str]:
+    rows = client.get(f"/v2/drill?source=story&{query}", headers=h("tok-dir")).json()["rows"]
+    return {str(r[1]) for r in rows}
+
+
+def test_squad_filter_takes_more_than_one_and_only_shows_for_who_sees_more_than_one(people: Any) -> None:
+    _seed_two_squads(people)
+    _session(people, "tok-dir")  # diretoria: vê os dois
+    page = people.get("/dash/squad").text
+    assert "class=squadbar" in page and 'value="sq-a"' in page and 'value="sq-b"' in page
+    both = people.get("/v2/pages/squad?squad=sq-a&squad=sq-b", headers=h("tok-dir")).json()
+    assert both["squads"] == ["sq-a", "sq-b"] and both["filters"]["squad"] == "sq-a,sq-b"
+    one = people.get("/dash/squad?squad=sq-a").text
+    assert 'value="sq-a" checked' in one and 'value="sq-b" checked' not in one
+    assert 'href="/dash/quality?squad=sq-a"' in one  # a escolha segue na navegação
+    people.get("/logout")
+    _session(people, "tok-caio")  # dev de um squad só: não tem o que escolher
+    assert "class=squadbar" not in people.get("/dash/squad").text
+
+
+def test_squad_filter_cannot_widen_what_the_person_sees(people: Any) -> None:
+    _seed_two_squads(people)
+    assert people.get("/v2/pages/squad?squad=sq-a&squad=sq-b", headers=h("tok-bia")).status_code == 403
+    _session(people, "tok-bia")
+    assert people.get("/dash/insights?squad=sq-b").status_code == 403
+
+
+def test_every_filtered_page_respects_the_squad_choice(people: Any) -> None:
+    from nexo.central.common import db
+
+    _seed_two_squads(people)
+    db().execute(
+        "INSERT INTO fact_demand (project, demand, squad, stage, title) VALUES"
+        " ('repo-1', 'D-A', 'sq-a', 'triage', 'demanda a'), ('repo-2', 'D-B', 'sq-b', 'triage', 'demanda b')"
+    )
+    for iid, squad in (("i-a", "sq-a"), ("i-b", "sq-b")):
+        db().execute(
+            "INSERT INTO insights (id, key, detector, scope_kind, scope, severity, title, evidence, action,"
+            " owner, state, squad, first_seen, last_seen, updated_at) VALUES"
+            " (?, ?, 'x', 'squad', ?, 'media', ?, '{}', 'f', 'o', 'aberto', ?, 1000000000.0, 1000000000.0, 1)",
+            (iid, iid, squad, f"alerta do {squad}", squad),
+        )
+    for device, squad in (("m1", "sq-a"), ("m2", "sq-b")):
+        db().execute(
+            "INSERT INTO fleet (device_id, squad, nexo, last_seen) VALUES (?,?,'1.0',?)", (device, squad, 9e12)
+        )
+    _session(people, "tok-admin")
+    board = people.get("/dash/board?squad=sq-a").text
+    assert "demanda a" in board and "demanda b" not in board
+    insights = people.get("/dash/insights?squad=sq-a").text
+    assert "alerta do sq-a" in insights and "alerta do sq-b" not in insights and "class=squadbar" in insights
+
+    def devices(query: str) -> int:
+        kpis = people.get(f"/v2/pages/fleet{query}", headers=h("tok-admin")).json()["kpis"]
+        return int(next(k["value"] for k in kpis if k["id"] == "devices"))
+
+    assert devices("") == 2 and devices("?squad=sq-a") == 1
+
+
+def test_sigla_shows_in_the_portal_and_filters_every_repository_of_the_project(people: Any) -> None:
+    _seed_two_squads(people)
+    _session(people, "tok-admin")
+    page = people.get("/dash/squad").text
+    assert "CDT · custodia-web" in page and '<option value="CDT"' in page
+    assert _stories(people, "sigla=CDT") >= {"US-A", "US-B"} and "US-C" not in _stories(people, "sigla=CDT")
+    assert _stories(people, "sigla=CRT") == {"US-C"}
+    assert _stories(people, "sigla=NAO") == set()
+
+
+def test_flag_panel_shows_machines_by_squad(people: Any) -> None:
+    import time
+
+    from nexo.central.common import db
+
+    d = db()
+    for device, squad, seen in (("m1", "sq-a", time.time()), ("m2", "sq-a", time.time()), ("m3", "sq-b", 0.0)):
+        d.execute(
+            "INSERT INTO devices (device_id, dev_pid, status, created_at) VALUES (?, 'x', 'active', 0)", (device,)
+        )
+        d.execute("INSERT INTO fleet (device_id, squad, last_seen) VALUES (?,?,?)", (device, squad, seen))
+    _session(people, "tok-admin")
+    page = people.get("/dash/flags").text
+    assert "3 máquina(s) ativas" in page
+    assert "<td>sq-a</td><td class=n>2</td>" in page and "<td>sq-b</td>" not in page  # m3 parou de dar sinal

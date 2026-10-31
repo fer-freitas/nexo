@@ -109,7 +109,7 @@ def read_session_usage(db: Path, workdir: str, started: float, ended: float) -> 
         cols = [c for c in ("id", "working_directory", "created_at", "last_activity_at", "metadata") if c in present]
         matches = [
             r
-            for r in conn.execute(f"SELECT {', '.join(cols)} FROM sessions")  # noqa: S608  # nosemgrep: colunas fixas
+            for r in conn.execute(f"SELECT {', '.join(cols)} FROM sessions")  # noqa: S608  # nosemgrep -- colunas fixas
             if _norm(str(r["working_directory"])) == target
             and _seconds(r["created_at"]) <= ended + SLACK_S
             and _seconds(r["last_activity_at"]) >= started - SLACK_S

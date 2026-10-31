@@ -298,7 +298,8 @@ def migrate(conn: sqlite3.Connection) -> int:
         conn.execute("BEGIN IMMEDIATE")
         try:
             _run_script(conn, script)
-            conn.execute(f"PRAGMA user_version={version}")
+            pragma = f"PRAGMA user_version={int(version)}"  # PRAGMA não aceita parâmetro; é um inteiro
+            conn.execute(pragma)  # nosemgrep -- texto montado acima, só com um inteiro
             conn.execute("COMMIT")
         except Exception:
             conn.execute("ROLLBACK")

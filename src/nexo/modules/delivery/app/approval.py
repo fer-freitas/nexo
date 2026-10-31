@@ -85,7 +85,9 @@ def find_pending(ctx: AppContext, kind: str, target: str | None = None, dev: str
     if dev is not None:
         sql += " AND dev = ?"
         params.append(dev)
-    row = ctx.conn.execute(sql + " ORDER BY created_at LIMIT 1", params).fetchone()
+    row = ctx.conn.execute(  # nosemgrep -- SQL fixo, valores como parâmetro
+        sql + " ORDER BY created_at LIMIT 1", params
+    ).fetchone()
     return str(row["id"]) if row else None
 
 

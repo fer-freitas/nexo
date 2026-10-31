@@ -168,7 +168,7 @@ def _fetch(source: str, limit: int) -> bytes:
         path = Path(urllib.request.url2pathname(parsed.path) if parsed.scheme == "file" else source)
         data = path.read_bytes()
     elif parsed.scheme == "https":
-        with urllib.request.urlopen(source, timeout=60) as resp:  # noqa: S310 — esquema validado acima
+        with urllib.request.urlopen(source, timeout=60) as resp:  # noqa: S310  # nosemgrep -- esquema validado acima
             data = resp.read(limit + 1)
     else:
         raise NexoError(f"origem recusada (somente https ou arquivo local): {source}")

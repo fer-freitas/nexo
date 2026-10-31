@@ -13,7 +13,7 @@ from nexo.central.common import pid_of
 from nexo.central.db import CollectorDB
 from nexo.central.visibility import Principal, check_filter_squads
 
-FILTER_KEYS = ("month_from", "month_to", "directorate", "squad", "project", "stack", "tool", "model")
+FILTER_KEYS = ("month_from", "month_to", "directorate", "squad", "sigla", "project", "stack", "tool", "model")
 
 
 DONE = "Concluido"
@@ -42,6 +42,7 @@ class Filters:
     stack: str = ""
     tool: str = ""
     model: str = ""
+    sigla: str = ""
 
     @classmethod
     def parse(cls, params: dict[str, str], now: datetime | None = None) -> Filters:
@@ -51,7 +52,12 @@ class Filters:
         if not (_valid_month(to) and _valid_month(start)) or start > to:
             raise HTTPException(400, "período inválido (use AAAA-MM, início ≤ fim)")
         values = {k: str(params.get(k) or "")[:80] for k in FILTER_KEYS[2:]}
+        values["squad"] = str(params.get("squad") or "")[:2000]  # vários squads, separados por vírgula
         return cls(month_from=start, month_to=to, **values)
+
+    @property
+    def selected_squads(self) -> list[str]:
+        return [s.strip() for s in self.squad.split(",") if s.strip()]
 
     def query(self) -> dict[str, str]:
         return {k: getattr(self, k) for k in FILTER_KEYS if getattr(self, k)}
@@ -65,6 +71,19 @@ class Scope:
     squads: set[str] | None
     principal: Principal
     now: datetime = field(default_factory=lambda: datetime.now(UTC))
+    projects: set[str] | None = None  # repositórios da sigla escolhida
+
+    def has_squad(self, squad: str | None) -> bool:
+        return self.squads is None or (squad or "") in self.squads
+
+    def has_project(self, project: str | None) -> bool:
+        if self.filters.project and project != self.filters.project:
+            return False
+        return self.projects is None or (project or "") in self.projects
+
+    @property
+    def by_project(self) -> bool:
+        return bool(self.filters.project or self.filters.sigla)
 
     def where(
         self,
@@ -89,6 +108,12 @@ class Scope:
         if self.filters.project:
             clauses.append(f"{a}project = ?")
             params.append(self.filters.project)
+        if self.projects is not None:
+            if not self.projects:
+                clauses.append("1 = 0")
+            else:
+                clauses.append(f"{a}project IN ({', '.join('?' * len(self.projects))})")
+                params += sorted(self.projects)
         if stack and self.filters.stack:
             clauses.append(f"{a}stack = ?")
             params.append(self.filters.stack)
@@ -116,10 +141,15 @@ def make_scope(d: CollectorDB, principal: Principal, filters: Filters, now: date
         rows = d.query("SELECT squad FROM dim_squad WHERE directorate = ?", (filters.directorate,))
         in_dir = {str(r["squad"]) for r in rows}
         squads = in_dir if squads is None else squads & in_dir
-    if filters.squad:
-        check_filter_squads(principal, [filters.squad])
-        squads = {filters.squad} if squads is None else squads & {filters.squad}
-    return Scope(filters, squads, principal, now or datetime.now(UTC))
+    selected = filters.selected_squads
+    if selected:
+        check_filter_squads(principal, selected)
+        squads = set(selected) if squads is None else squads & set(selected)
+    projects: set[str] | None = None
+    if filters.sigla:
+        rows = d.query("SELECT project FROM dim_project WHERE sigla = ?", (filters.sigla,))
+        projects = {str(r["project"]) for r in rows}
+    return Scope(filters, squads, principal, now or datetime.now(UTC), projects)
 
 
 def _day_fraction(scope: Scope) -> tuple[int, int, bool]:

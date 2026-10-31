@@ -11,12 +11,12 @@ from __future__ import annotations
 
 import html
 import math
-import time
 import urllib.parse
 from typing import Any
 
 from nexo.central import brand as collector_brand
 from nexo.central.dashboard_css import CSS
+from nexo.central.dashboard_filters import _query, filters_form, month_label, squad_bar
 from nexo.central.visibility import ALL_PAGES, Principal
 from nexo.kernel.brand import css as brand_css
 from nexo.kernel.finops.money import brl
@@ -27,7 +27,7 @@ NAV: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Times", ("squad", "me")),
     ("Plataforma", ("board", "insights", "brain", "fleet", "flags", "killswitch", "people")),
 )
-MONTHS = ("jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez")
+UNFILTERED = ("me", "flags", "killswitch", "people")  # não têm recorte por squad
 
 
 def e(value: Any) -> str:
@@ -48,15 +48,6 @@ def fmt(value: Any, kind: str = "num") -> str:
     return str(value)
 
 
-def month_label(value: str) -> str:
-    """`2026-10` → `out/26` (eixo dos gráficos)."""
-    if len(value) == 7 and value[4] == "-" and value[5:].isdigit():
-        return f"{MONTHS[int(value[5:]) - 1]}/{value[2:4]}"
-    if len(value) == 8 and value[4:6] == "-S" and value[6:].isdigit():  # semana ISO: 2026-S41
-        return f"sem {value[6:]}"
-    return value[-7:]
-
-
 def _head(title: str) -> str:
     current = collector_brand.current()
     return (
@@ -66,14 +57,16 @@ def _head(title: str) -> str:
     )
 
 
-def layout(title: str, principal: Principal | None, active: str, body: str) -> str:
+def layout(title: str, principal: Principal | None, active: str, body: str, squad: str = "") -> str:
     name = collector_brand.current().name
     if principal is None:
         return f"{_head(title)}<body><div class=center>{body}</div></body></html>"
     groups = []
+    keep = f"?{urllib.parse.urlencode({'squad': squad})}" if squad else ""  # a escolha de squads segue na navegação
     for group, keys in NAV:
         links = [
-            f'<a class="{"on" if key == active else ""}" href="/dash/{key}">{e(ALL_PAGES[key][0])}</a>'
+            f'<a class="{"on" if key == active else ""}" '
+            f'href="/dash/{key}{"" if key in UNFILTERED else e(keep)}">{e(ALL_PAGES[key][0])}</a>'
             for key in keys
             if key in ALL_PAGES and principal.can_page(key)
         ]
@@ -85,97 +78,6 @@ def layout(title: str, principal: Principal | None, active: str, body: str) -> s
         '<a class=btn href="/logout">Sair</a></div></nav>'
     )
     return f"{_head(title)}<body><div class=app>{side}<main>{body}</main></div></body></html>"
-
-
-# ---------------------------------------------------------------------- filtros
-
-
-def _query(current: dict[str, str], **changes: str) -> str:
-    merged = {k: v for k, v in {**current, **changes}.items() if v}
-    return urllib.parse.urlencode(merged)
-
-
-def _month_add(month: str, delta: int) -> str:
-    year, mon = int(month[:4]), int(month[5:7])
-    index = year * 12 + (mon - 1) + delta
-    return f"{index // 12:04d}-{index % 12 + 1:02d}"
-
-
-def filters_form(
-    page_name: str,
-    current: dict[str, str],
-    period: list[str],
-    opts: dict[str, list[str]],
-    names: dict[str, str] | None = None,
-) -> str:
-    """Período em atalhos; o resto dos filtros recolhido em "Mais filtros" (abre sem JavaScript)."""
-    now = time.strftime("%Y-%m")
-    presets = (("Este mês", now, now), ("3 meses", _month_add(now, -2), now), ("6 meses", _month_add(now, -5), now))
-    chips = []
-    matched = False
-    for label, start, end in presets:
-        on = period[0] == start and period[1] == end
-        matched = matched or on
-        href = f"/dash/{e(page_name)}?{e(_query(current, month_from=start, month_to=end))}"
-        chips.append(f'<a class="chip{" on" if on else ""}" href="{href}">{e(label)}</a>')
-    if not matched:
-        chips.append(f"<span class='chip on'>{e(month_label(period[0]))} a {e(month_label(period[1]))}</span>")
-
-    def select(name: str, label: str) -> str:
-        values = opts.get(name) or []
-        items = "".join(
-            f'<option value="{e(v)}"{" selected" if current.get(name) == v else ""}>{e(v)}</option>' for v in values
-        )
-        return f'<label>{e(label)}<select name="{name}"><option value="">todos</option>{items}</select></label>'
-
-    active = [
-        (key, label)
-        for key, label in (
-            ("directorate", "diretoria"),
-            ("squad", "squad"),
-            ("project", "projeto"),
-            ("stack", "stack"),
-            ("tool", "ferramenta"),
-            ("model", "modelo"),
-        )
-        if current.get(key)
-    ]
-    for key, label in active:
-        href = f"/dash/{e(page_name)}?{e(_query(current, **{key: ''}))}"
-        chips.append(f'<a class="chip on" href="{href}" title="tirar o filtro">{e(label)}: {e(current[key])} ✕</a>')
-    form = (
-        f'<form class=filters method=get action="/dash/{e(page_name)}">'
-        f'<label>de<input name=month_from value="{e(period[0])}" size=7 placeholder="AAAA-MM"></label>'
-        f'<label>até<input name=month_to value="{e(period[1])}" size=7 placeholder="AAAA-MM"></label>'
-        + select("directorate", "diretoria")
-        + select("squad", "squad")
-        + _project_select(current.get("project", ""), names or {})
-        + select("stack", "stack")
-        + select("tool", "ferramenta")
-        + select("model", "modelo")
-        + "<button class='btn primary'>Aplicar</button></form>"
-    )
-    more = f"Mais filtros{f' ({len(active)})' if active else ''}"
-    return (
-        f"<div class=chips role=group aria-label=Período>{''.join(chips)}"
-        f"<details class=more><summary class=chip>{e(more)} ▾</summary>{form}</details></div>"
-    )
-
-
-def _project_select(current: str, names: dict[str, str]) -> str:
-    """Projeto pelo nome; o mesmo nome em máquinas diferentes ganha o código curto ao lado."""
-    count: dict[str, int] = {}
-    for name in names.values():
-        count[name] = count.get(name, 0) + 1
-    items = sorted(names.items(), key=lambda kv: (kv[1].lower(), kv[0]))
-    options = "".join(
-        f'<option value="{e(h)}"{" selected" if h == current else ""}>'
-        f"{e(n + (f' · {h[:6]}' if count[n] > 1 else ''))}</option>"
-        for h, n in items
-    )
-    if current and current not in names:
-        options += f'<option value="{e(current)}" selected>{e(current[:8])}</option>'
-    return f'<label>projeto<select name=project><option value="">todos</option>{options}</select></label>'
 
 
 # ---------------------------------------------------------------------- blocos
@@ -366,7 +268,13 @@ def _table(t: dict[str, Any], names: dict[str, str] | None = None) -> str:
 
 
 def _period_text(data: dict[str, Any]) -> str:
-    scope = "todos os squads" if data["squads"] is None else (", ".join(data["squads"]) or "nenhum squad")
+    squads = data["squads"]
+    if squads is None:
+        scope = "todos os squads"
+    elif len(squads) > 4:
+        scope = f"{len(squads)} squads"
+    else:
+        scope = ", ".join(squads) or "nenhum squad"
     start, end = data["period"]
     span = month_label(start) if start == end else f"{month_label(start)} a {month_label(end)}"
     return f"{span} · {scope}"
@@ -378,6 +286,8 @@ def render_page(
     filters = data["filters"]
     controls = filters_form(data["page"], filters, data["period"], opts, names) if data["page"] != "me" else ""
     body = f"<div class=top><div><h1>{e(data['title'])}</h1><p>{e(_period_text(data))}</p></div>{controls}</div>"
+    if data["page"] != "me":
+        body += squad_bar(f"/dash/{data['page']}", filters, opts.get("squad") or [])
     headline = data.get("headline") or []
     body += _questions(headline, filters)
     if data["kpis"] and not headline:  # sem perguntas: o resumo (indicadores) vem antes do detalhe
@@ -399,13 +309,20 @@ def render_page(
             f"<small>para comparar com o seu recorte</small></div>{_kpis(data['org'], {})}</section>"
         )
     body += "".join(f"<p class=note>{e(n)}</p>" for n in data["notes"])
-    return layout(data["title"], principal, data["page"], body)
+    return layout(data["title"], principal, data["page"], body, filters.get("squad", ""))
 
 
 # ---------------------------------------------------------------------- outras páginas
 
 
-def render_insights(items: list[dict[str, Any]], principal: Principal, csrf: str | None, state: str) -> str:
+def render_insights(
+    items: list[dict[str, Any]],
+    principal: Principal,
+    csrf: str | None,
+    state: str,
+    squads: list[str] | None = None,
+    squad: str = "",
+) -> str:
     labels = {
         "aberto": "abertos",
         "reconhecido": "reconhecidos",
@@ -413,7 +330,7 @@ def render_insights(items: list[dict[str, Any]], principal: Principal, csrf: str
         "descartado": "descartados",
     }
     tabs = "".join(
-        f'<a class="chip{" on" if s == state else ""}" href="/dash/insights?state={s}">{labels.get(s, "todos")}</a>'
+        f'<a class="chip{" on" if s == state else ""}" href="/dash/insights?{e(_query({"state": s, "squad": squad}))}">{labels.get(s, "todos")}</a>'
         for s in ("aberto", "reconhecido", "resolvido", "descartado", "")
     )
     cards = []
@@ -445,9 +362,11 @@ def render_insights(items: list[dict[str, Any]], principal: Principal, csrf: str
     empty = "<p class=empty><b>Nenhum insight neste estado.</b> Os detectores rodam a cada envio de telemetria.</p>"
     body = (
         f"<div class=top><div><h1>Insights</h1><p>o que os detectores acharam e quem deve olhar</p></div>"
-        f"<div class=chips>{tabs}</div></div>" + ("".join(cards) or empty)
+        f"<div class=chips>{tabs}</div></div>"
+        + squad_bar("/dash/insights", {"state": state, "squad": squad}, squads or [])
+        + ("".join(cards) or empty)
     )
-    return layout("Insights", principal, "insights", body)
+    return layout("Insights", principal, "insights", body, squad)
 
 
 def render_drill(data: dict[str, Any], principal: Principal) -> str:
@@ -541,6 +460,17 @@ def render_approval(
     )
 
 
+def _reach(reach: dict[str, int]) -> str:
+    """Quantas máquinas cada escopo alcança, contando quem deu sinal nos últimos 30 dias."""
+    if not reach:
+        return ""
+    rows = "".join(f"<tr><td>{e(name)}</td><td class=n>{count}</td></tr>" for name, count in sorted(reach.items()))
+    return (
+        "<details class=all><summary>Máquinas por squad</summary><div class=wrap><table><thead><tr><th>squad</th>"
+        f"<th class=n>máquinas</th></tr></thead><tbody>{rows}</tbody></table></div></details>"
+    )
+
+
 FLAG_COLUMNS = (
     ("key", "flag"),
     ("title", "funcionalidade"),
@@ -562,6 +492,7 @@ def render_flags(
     sort: str = "",
     desc: bool = False,
     machines: int = 0,
+    reach: dict[str, int] | None = None,
 ) -> str:
     """Feature flags com filtro por área e ordenação por coluna (links do servidor, sem JavaScript)."""
     from nexo.kernel import modules
@@ -623,7 +554,8 @@ def render_flags(
             "<section class=card><div class=card-head><h2>Alterar</h2></div>"
             f"<p>Antes de aplicar: {machines} máquina(s) ativas na empresa. A coluna de dependências mostra o que "
             "desliga junto. Vale em até 2 minutos para quem está online; offline, vale o último valor conhecido.</p>"
-            f'<form method=post action="/dash/flags" class=inline>'
+            + _reach(reach or {})
+            + f'<form method=post action="/dash/flags" class=inline>'
             f'<input type=hidden name=csrf value="{e(csrf)}"><label>flag<select name=key>{options}</select></label>'
             "<label>valor<select name=value><option>off</option><option>on</option><option>inherit</option>"
             "</select></label><label>squad (vazio = empresa)<input name=squad size=14></label>"

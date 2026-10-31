@@ -128,3 +128,38 @@ def test_graph_traversal_finds_neighbors_and_path(tmp_path: Path, nexo: Runner, 
     assert code == 0, err + out
     assert [n["id"] for n in json.loads(out)["neighbors"]] == ["dois"]
     assert json.loads(nexo("--json", "brain", "path", "um", "dois")[1])["path"] == ["um", "dois"]
+
+
+def test_context_follows_note_links_without_crossing_projects(project: Path, nexo: Runner, nexo_home: Path) -> None:
+    from ruamel.yaml import YAML
+
+    from nexo.kernel.context import AppContext, Options
+    from nexo.modules.knowledge.app import graph
+
+    (project / "src" / "svc" / "version.py").write_text("x = 1\n", encoding="utf-8")
+    brain = nexo_home / "brain"
+    for rel, text in {
+        "knowledge/pagamento.md": "Regra de `src/svc/version.py`. Veja [[retentativa]] e [[segredo]].",
+        "knowledge/retentativa.md": "Três tentativas, e veja [[distante]].",
+        "knowledge/distante.md": "Dois saltos de distância.",
+        "projects/outro/segredo.md": "Só do outro projeto.",
+    }.items():
+        (brain / rel).parent.mkdir(parents=True, exist_ok=True)
+        (brain / rel).write_text(text, encoding="utf-8")
+
+    def context() -> str:
+        ctx = AppContext(options=Options())
+        try:
+            return graph.context_for(ctx, ["src/svc/version.py"])
+        finally:
+            ctx.close()
+
+    (brain / "org").mkdir(parents=True, exist_ok=True)
+    yaml = YAML()
+    with (brain / "org" / "flags.yaml").open("w", encoding="utf-8") as fh:
+        yaml.dump({"flags": {"brain.graph": False}}, fh)
+    assert "knowledge/pagamento.md" in context() and "retentativa" not in context()
+    (brain / "org" / "flags.yaml").unlink()
+    text = context()
+    assert "Notas vizinhas no cérebro: knowledge/retentativa.md" in text
+    assert "segredo" not in text and "distante" not in text

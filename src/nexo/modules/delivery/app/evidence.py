@@ -52,7 +52,7 @@ def _now() -> str:
 def _events_for(ctx: AppContext, refs: set[str]) -> list[dict[str, Any]]:
     out = []
     marks = ",".join("?" for _ in refs)
-    rows = ctx.conn.execute(
+    rows = ctx.conn.execute(  # nosemgrep -- SQL fixo, valores como parâmetro
         f"SELECT seq, at, actor, type, ref, payload, prev_hash, hash FROM events WHERE ref IN ({marks}) ORDER BY seq",  # noqa: S608
         tuple(sorted(refs)),
     )
@@ -389,7 +389,7 @@ def audit_export(
     if until:
         sql += " AND at < ?"
         params.append(until + "T99")  # inclui o dia inteiro
-    rows = ctx.conn.execute(sql + " ORDER BY seq", params).fetchall()
+    rows = ctx.conn.execute(sql + " ORDER BY seq", params).fetchall()  # nosemgrep -- SQL fixo, valores como parâmetro
     ctx.audit("audit.exported", {"ref": ref or "", "since": since or "", "until": until or "", "events": len(rows)})
     return [
         {

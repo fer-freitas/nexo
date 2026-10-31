@@ -62,7 +62,11 @@ def _issue(device_id: str, kind: str, ttl: int) -> str:
 
 
 def _filters(request: Request) -> metrics.Filters:
-    return metrics.Filters.parse(dict(request.query_params))
+    params = dict(request.query_params)
+    squads = request.query_params.getlist("squad")  # caixas de seleção repetem o nome
+    if squads:
+        params["squad"] = ",".join(squads)
+    return metrics.Filters.parse(params)
 
 
 def _dashboard_on(name: str) -> None:

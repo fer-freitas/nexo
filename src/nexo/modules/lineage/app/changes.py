@@ -91,15 +91,19 @@ def discover_aws(ctx: AppContext) -> dict[str, Any]:
 
 
 def discover_kafka(ctx: AppContext, source: Path) -> dict[str, Any]:
-    """Recebe o que o time de Kafka exporta, `{"grupo": ["tópico"]}`. A credencial do cluster não entra no Nexo."""
+    """Recebe o que o time de Kafka exporta: `{"groups": {"grupo": ["tópico"]}, "acls": [...], "schemas": [...]}`,
+    ou só `{"grupo": ["tópico"]}`. A credencial do cluster não entra no Nexo."""
     if not source.is_file():
         raise NexoError(f"{source} não existe")
-    groups = json.loads(source.read_text(encoding="utf-8-sig"))
-    if not isinstance(groups, dict):
-        raise NexoError('formato esperado: {"grupo": ["tópico"]}')
-    return _save_discovery(
-        ctx, discovery.from_kafka(project_settings(_root(ctx)).team_name or "local", groups), "kafka"
-    )
+    data = json.loads(source.read_text(encoding="utf-8-sig"))
+    if not isinstance(data, dict):
+        raise NexoError('formato esperado: {"groups": {"grupo": ["tópico"]}, "acls": [], "schemas": []}')
+    full = isinstance(data.get("groups"), dict) or "acls" in data or "schemas" in data
+    groups = dict(data.get("groups") or {}) if full else data
+    acls = list(data.get("acls") or []) if full else []
+    schemas = list(data.get("schemas") or []) if full else []
+    team = project_settings(_root(ctx)).team_name or "local"
+    return _save_discovery(ctx, discovery.from_kafka(team, groups, acls, schemas), "kafka")
 
 
 def branch_report(ctx: AppContext, root: Path, head: str = "HEAD") -> dict[str, Any]:

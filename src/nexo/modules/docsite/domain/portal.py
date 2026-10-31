@@ -6,7 +6,7 @@ serviço, variáveis). Cruzar os dois dá três tipos de ligação:
 
 - `ok`: declarada no produto e vista no código;
 - `declared`: declarada, mas não vista no código (chamada indireta ou repositório não lido);
-- `deviation`: vista no código, mas o produto não declara: desvio do desenho, vira alerta para o arquiteto.
+- `deviation`: vista no código, mas o projeto não declara: desvio do desenho, vira alerta para o arquiteto.
 
 Tudo determinístico, sem IA. O nome técnico de uma parte é o `id` (é o que aparece em URLs e configurações), com
 `-` ou `_`; os apelidos servem ao texto das features, não ao código.
@@ -110,8 +110,8 @@ def structural_attention(product: Product, all_edges: list[Edge], read: set[str]
         items.append(
             Attention(
                 "desvio",
-                f"{source.label} usa {target.label} no código, mas o produto não declara",
-                f"Visto em {files}. Declare em `uses` no produto.yaml ou corrija o código.",
+                f"{source.label} usa {target.label} no código, mas o projeto não declara",
+                f"Visto em {files}. Declare em `uses` no projeto.yaml ou corrija o código.",
                 "arquiteto",
             )
         )
@@ -124,8 +124,8 @@ def structural_attention(product: Product, all_edges: list[Edge], read: set[str]
                 Attention(
                     "dono",
                     f"{part.label} sem squad dono",
-                    f"Usado por {users}." if users else "Defina `squads` no produto.yaml.",
-                    "produto.yaml",
+                    f"Usado por {users}." if users else "Defina `squads` no projeto.yaml.",
+                    "projeto.yaml",
                 )
             )
         if part.id not in read:
@@ -133,8 +133,8 @@ def structural_attention(product: Product, all_edges: list[Edge], read: set[str]
                 Attention(
                     "leitura",
                     f"Repositório de {part.label} não foi lido",
-                    f"Esperado: {part.repo or part.path or part.id}. O CI do portal precisa baixar esse repositório.",
-                    "CI do portal",
+                    f"Esperado: {part.repo or part.path or part.id}. Baixe esse repositório antes de gerar o portal.",
+                    "quem gera o portal",
                 )
             )
     return items

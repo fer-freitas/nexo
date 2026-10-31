@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import time
+
 from fastapi import HTTPException, Request
 from fastapi.responses import RedirectResponse, Response
 
@@ -11,7 +13,7 @@ from nexo.central.app.admin import FlagIn, put_flag
 from nexo.central.app.api import api_drill
 from nexo.central.app.core import _dash_principal, _dashboard_on, _filters, _form, _html, app
 from nexo.central.common import db
-from nexo.central.visibility import PAGES, require_page
+from nexo.central.visibility import PAGES, check_filter_squads, require_page
 
 
 @app.get("/dash", response_model=None)
@@ -38,7 +40,21 @@ def dash_insights(request: Request, state: str = "aberto") -> Response:
         return principal
     session = auth.session_of(request)
     items = insight_engine.list_for(db(), principal, state or None)
-    return _html(dashboard.render_insights(items, principal, str(session["csrf"]) if session else None, state))
+    filters = _filters(request)
+    selected = filters.selected_squads
+    if selected:
+        check_filter_squads(principal, selected)
+        items = [i for i in items if i["squad"] in selected]
+    return _html(
+        dashboard.render_insights(
+            items,
+            principal,
+            str(session["csrf"]) if session else None,
+            state,
+            metrics.options(db(), principal)["squad"],
+            filters.squad,
+        )
+    )
 
 
 @app.post("/dash/insights/{insight_id}", response_model=None)
@@ -71,6 +87,7 @@ def dash_page(name: str, request: Request) -> Response:
                 sort=request.query_params.get("sort", ""),
                 desc=request.query_params.get("dir") == "desc",
                 machines=_active_machines(),
+                reach=_machines_by_squad(),
             )
         )
     scope = metrics.make_scope(db(), principal, _filters(request))
@@ -103,6 +120,16 @@ async def dash_flags_submit(request: Request) -> Response:
 def _active_machines() -> int:
     row = db().one("SELECT COUNT(*) AS n FROM devices WHERE revoked_at IS NULL")
     return int(row["n"]) if row else 0
+
+
+def _machines_by_squad() -> dict[str, int]:
+    since = time.time() - 30 * 86400
+    rows = db().query(
+        "SELECT f.squad, COUNT(*) AS n FROM fleet f JOIN devices d ON d.device_id = f.device_id"
+        " WHERE d.revoked_at IS NULL AND f.last_seen >= ? AND COALESCE(f.squad, '') <> '' GROUP BY f.squad",
+        (since,),
+    )
+    return {str(r["squad"]): int(r["n"]) for r in rows}
 
 
 @app.get("/login", response_model=None)

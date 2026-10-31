@@ -81,6 +81,24 @@ def load(ctx: AppContext, pid: str) -> Product:
         raise NexoError(f"{folder / 'projeto.yaml'}: {exc}") from exc
 
 
+def _sigla_free(ctx: AppContext, sigla: str, pid: str) -> None:
+    """Uma sigla identifica um projeto só."""
+    other = next((p for p in list_products(ctx) if sigla and p["sigla"] == sigla and p["id"] != pid), None)
+    if other:
+        raise NexoError(f"a sigla {sigla} já é do projeto {other['id']}")
+
+
+def set_sigla(ctx: AppContext, pid: str, sigla: str) -> Product:
+    product = load(ctx, pid)
+    try:
+        updated = Product.model_validate({**product.model_dump(mode="json"), "sigla": sigla})
+    except ValueError as exc:
+        raise NexoError(str(exc)) from exc
+    _sigla_free(ctx, updated.sigla, pid)
+    save(ctx, updated)
+    return updated
+
+
 def list_products(ctx: AppContext) -> list[dict[str, Any]]:
     seen: dict[str, dict[str, Any]] = {}
     for base, official in ((ctx.brain_dir / FOLDER, True), (ctx.home / FOLDER, False)):
@@ -90,7 +108,13 @@ def list_products(ctx: AppContext) -> list[dict[str, Any]]:
                 p = load(ctx, pid)
             except NexoError:
                 continue
-            seen[pid] = {"id": pid, "name": p.label, "parts": len(p.parts), "official": official and pid not in seen}
+            seen[pid] = {
+                "id": pid,
+                "sigla": p.sigla,
+                "name": p.label,
+                "parts": len(p.parts),
+                "official": official and pid not in seen,
+            }
     return sorted(seen.values(), key=lambda x: str(x["id"]))
 
 
@@ -211,14 +235,15 @@ def save(ctx: AppContext, product: Product) -> Path:
     return folder
 
 
-def create(ctx: AppContext, pid: str, name: str, description: str, squads: list[str]) -> Path:
+def create(ctx: AppContext, pid: str, name: str, description: str, squads: list[str], sigla: str = "") -> Path:
     folder, _ = locate(ctx, pid)
     if folder is not None:
         raise NexoError(f"projeto {pid} já existe ({folder})")
     try:
-        product = Product(id=pid, name=name, description=description, squads=squads)
+        product = Product(id=pid, sigla=sigla, name=name, description=description, squads=squads)
     except ValueError as exc:
         raise NexoError(str(exc)) from exc
+    _sigla_free(ctx, product.sigla, pid)
     folder = save(ctx, product)
     (folder / "contexto.md").write_text(
         f"# {product.label}\n\n{description or '(o que é o projeto, para quem e por quê)'}\n\n"

@@ -111,7 +111,7 @@ def extract_video(path: Path, dest_dir: Path, max_frames: int = 8) -> tuple[Path
 
 def _http_get_json(url: str, token: str) -> dict[str, Any]:
     req = urllib.request.Request(url, headers={"X-Figma-Token": token})  # noqa: S310 — host fixo https
-    with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310
+    with urllib.request.urlopen(req, timeout=60) as resp:  # noqa: S310  # nosemgrep -- host fixo, https
         return dict(json.loads(resp.read().decode("utf-8")))
 
 

@@ -16,7 +16,7 @@ OSV_ECOSYSTEM = {"pypi": "PyPI", "npm": "npm", "nuget": "NuGet", "pub": "Pub", "
 
 def _get(url: str) -> dict[str, Any] | None:
     try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:  # noqa: S310 — URLs https fixas
+        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:  # noqa: S310 — URLs https fixas  # nosemgrep -- URL https do código
             return dict(json.loads(resp.read().decode("utf-8")))
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
@@ -26,7 +26,7 @@ def _get(url: str) -> dict[str, Any] | None:
 
 def _get_text(url: str) -> str | None:
     try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:  # noqa: S310 — URLs https fixas
+        with urllib.request.urlopen(url, timeout=TIMEOUT) as resp:  # noqa: S310 — URLs https fixas  # nosemgrep -- URL https do código
             return str(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
@@ -36,7 +36,7 @@ def _get_text(url: str) -> str | None:
 
 def _post(url: str, body: dict[str, Any]) -> dict[str, Any]:
     req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})  # noqa: S310
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:  # noqa: S310
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:  # noqa: S310  # nosemgrep -- URL https do código
         return dict(json.loads(resp.read().decode("utf-8")))
 
 

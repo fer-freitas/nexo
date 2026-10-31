@@ -131,9 +131,11 @@ def register(root: typer.Typer, tools: Any) -> None:
 
     @discover.command("kafka")
     def discover_kafka_cmd(
-        source: Annotated[Path, typer.Option("--from-file", help='JSON exportado: {"grupo": ["tópico"]}')],
+        source: Annotated[
+            Path, typer.Option("--from-file", help='JSON exportado: {"groups": {}, "acls": [], "schemas": []}')
+        ],
     ) -> None:
-        """Grupos de consumidores viram nós não identificados até o time dono se apresentar."""
+        """Grupos e ACLs viram nós não identificados até o time dono se apresentar; o schema registry dá o contrato."""
         emit(changes.discover_kafka(ctx(), source))
 
     agent = typer.Typer(help="Gatilho automático na máquina", no_args_is_help=True)

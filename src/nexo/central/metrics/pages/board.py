@@ -15,7 +15,10 @@ def board(d: CollectorDB, scope: Scope) -> dict[str, Any]:
     rows = [
         r
         for r in d.query("SELECT * FROM fact_demand ORDER BY project, demand")
-        if scope.principal.sees_squad(str(r["squad"] or "")) and str(r["stage"]) not in CLOSED
+        if scope.principal.sees_squad(str(r["squad"] or ""))
+        and scope.has_squad(str(r["squad"] or ""))
+        and scope.has_project(str(r["project"] or ""))
+        and str(r["stage"]) not in CLOSED
     ]
     by_stage: dict[str, int] = {}
     for r in rows:

@@ -129,7 +129,36 @@ def impact(ctx: AppContext, paths: list[str], depth: int = 3) -> dict[str, Any]:
 
 def related(ctx: AppContext, paths: list[str]) -> dict[str, list[str]]:
     g, _ = load(ctx)
-    return graph_domain.related(g, paths)
+    found = graph_domain.related(g, paths)
+    near = _nearby_notes(ctx, found)
+    return {**found, "notes": near} if near else found
+
+
+def _nearby_notes(ctx: AppContext, found: dict[str, list[str]]) -> list[str]:
+    """Une os dois grafos: das notas ligadas ao código, segue as ligações entre notas do cérebro, um salto só.
+
+    O grafo de notas respeita o isolamento: nota de outro projeto não entra.
+    """
+    start = [*found.get("lessons", []), *found.get("docs", [])]
+    if not start or not flags.enabled(ctx, "brain.graph") or not ctx.brain_dir.is_dir():
+        return []
+    from nexo.kernel.workspace.specs import project_settings
+    from nexo.modules.knowledge.app import notes
+    from nexo.modules.knowledge.domain import notes as notes_domain
+
+    try:
+        visible = notes.load_notes(ctx.brain_dir, project_settings(_root(ctx)).project)
+    except (NexoError, OSError, ValueError):
+        return []
+    nodes, edges = notes_domain.nodes_and_edges(visible)
+    by_id = {str(n["id"]): str(n["path"]) for n in nodes}
+    by_id.update({Path(str(n["path"])).stem: str(n["path"]) for n in nodes})
+    ids = {str(n["path"]): str(n["id"]) for n in nodes}
+    near: set[str] = set()
+    for path in start:
+        if path in ids:
+            near |= {by_id[k] for k in notes_domain.neighbors(edges, ids[path], 1) if k in by_id}
+    return sorted(near - set(start))
 
 
 def context_for(ctx: AppContext, paths: list[str], budget: int = 1500) -> str:
@@ -146,6 +175,7 @@ def context_for(ctx: AppContext, paths: list[str], budget: int = 1500) -> str:
         "decisions": "Decisões (ADRs)",
         "lessons": "Lições do cérebro",
         "docs": "Documentação e conhecimento",
+        "notes": "Notas vizinhas no cérebro",
         "incidents": "Incidentes que passaram por aqui",
     }
     lines: list[str] = []

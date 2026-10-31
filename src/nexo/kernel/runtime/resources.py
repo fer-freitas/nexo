@@ -40,6 +40,17 @@ def _parse(rel: str, text: str) -> dict[str, Any]:
     return data
 
 
+def copy_sample_project(target: Path) -> None:
+    """Copia o projeto de exemplo embutido, usado em demonstrações e testes descartáveis."""
+    source = embedded_dir("selftest") / "python-svc"
+    for path in source.rglob("*"):
+        if path.is_file() and "__pycache__" not in path.parts:
+            rel = path.relative_to(source).as_posix().replace("gitignore.txt", ".gitignore")
+            dest = target / rel.removesuffix(".txt")
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(path.read_bytes())
+
+
 def embedded_dir(rel: str) -> Path:
     """Diretório real de um recurso embutido (instalação em disco ou PyInstaller)."""
     return Path(str(resources.files("nexo.resources").joinpath(rel)))

@@ -182,7 +182,7 @@ STORY_FIELDS = frozenset(  # retrato da história a cada transição (o central 
     }
 )
 CONTEXT_FIELDS = frozenset(
-    {"squad", "stack", "nexo", "lag_hours", "brain", "agents", "os", "project_name"}
+    {"squad", "stack", "nexo", "lag_hours", "brain", "agents", "os", "project_name", "project_sigla"}
 )  # frota  # contexto do lote
 USAGE_FIELDS = frozenset(  # totais do dia de IA usada fora do Nexo (sem pasta, projeto, sessão ou conteúdo)
     {

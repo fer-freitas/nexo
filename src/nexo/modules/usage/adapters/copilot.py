@@ -78,7 +78,7 @@ def read_session_usage(db: Path, workdir: str, started: float, ended: float) -> 
         marks = ",".join("?" for _ in ids)
         columns = "input_tokens, output_tokens, cache_read_tokens, cache_write_tokens, request_multiplier, initiator"
         sql = f"SELECT {columns}, total_nano_aiu FROM assistant_usage_events WHERE session_id IN ({marks})"  # noqa: S608
-        rows = conn.execute(sql, ids)  # nosemgrep: só marcadores `?`; os ids vão como parâmetros
+        rows = conn.execute(sql, ids)  # nosemgrep -- só marcadores `?`; os ids vão como parâmetros
         for r in rows:
             usage.responses += 1
             units["tokens_in"] += float(r["input_tokens"] or 0)

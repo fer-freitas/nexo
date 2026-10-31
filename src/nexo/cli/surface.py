@@ -75,4 +75,4 @@ def register_modules(root: typer.Typer, tools: Tools) -> None:
         if not manifest.cli:
             continue
         module, _, name = manifest.cli.partition(":")
-        getattr(importlib.import_module(module), name)(root, tools)
+        getattr(importlib.import_module(module), name)(root, tools)  # nosemgrep -- alvo do manifesto embutido

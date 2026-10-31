@@ -208,7 +208,7 @@ def _http_json(method: str, url: str, form: dict[str, str] | None = None, bearer
     if form is not None:
         headers["Content-Type"] = "application/x-www-form-urlencoded"
     req = urllib.request.Request(url, method=method, data=data, headers=headers)  # noqa: S310 — esquema validado
-    with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+    with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310  # nosemgrep -- esquema validado
         return dict(json.loads(resp.read() or b"{}"))
 
 

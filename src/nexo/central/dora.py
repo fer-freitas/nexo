@@ -58,7 +58,9 @@ def record_deployment(d: CollectorDB, body: dict[str, Any]) -> dict[str, Any]:
         "month": str(body["finished_at"])[:7],
     }
     d.execute("DELETE FROM deployments WHERE id = ?", (row["id"],))
-    d.execute(f"INSERT INTO deployments ({', '.join(row)}) VALUES ({', '.join('?' * len(row))})", tuple(row.values()))
+    d.execute(  # nosemgrep -- colunas fixas
+        f"INSERT INTO deployments ({', '.join(row)}) VALUES ({', '.join('?' * len(row))})", tuple(row.values())
+    )
     return row
 
 
@@ -87,7 +89,9 @@ def record_incident(d: CollectorDB, body: dict[str, Any]) -> dict[str, Any]:
         "month": str(body["opened_at"])[:7],
     }
     d.execute("DELETE FROM incidents WHERE id = ?", (row["id"],))
-    d.execute(f"INSERT INTO incidents ({', '.join(row)}) VALUES ({', '.join('?' * len(row))})", tuple(row.values()))
+    d.execute(  # nosemgrep -- colunas fixas
+        f"INSERT INTO incidents ({', '.join(row)}) VALUES ({', '.join('?' * len(row))})", tuple(row.values())
+    )
     if nexo_caused and row["squad"]:  # incidente causado por mudança do Nexo rebaixa a autonomia do squad
         from nexo.central import autonomy
 

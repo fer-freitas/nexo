@@ -85,7 +85,7 @@ def put_directory(body: DirectoryIn, ident: dict[str, str] = Depends(identity)) 
     d = db()
     with d.tx():
         for table_name in ("dim_directorate", "dim_squad", "org_people", "org_members"):
-            d.execute(f"DELETE FROM {table_name}")
+            d.execute(f"DELETE FROM {table_name}")  # nosemgrep -- tabela de lista fixa
         for dr in body.directorates:
             d.execute(
                 "INSERT INTO dim_directorate (directorate, name, cost_center) VALUES (?,?,?)",

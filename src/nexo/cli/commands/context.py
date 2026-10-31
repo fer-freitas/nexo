@@ -126,9 +126,10 @@ def context_init(
                 product = str(existing[pick - 1]["id"])
             else:
                 name = _ask("Nome do projeto (ex.: Custódia)")
+                sigla = _ask("Sigla do projeto na empresa (ex.: CDT)")
                 product = _ask("Id do projeto", _slug(name or folder_id))
                 description = _ask("Em uma frase, o que é o projeto?")
-                pc.create(c, product, name or product, description, [values_squad] if values_squad else [])
+                pc.create(c, product, name or product, description, [values_squad] if values_squad else [], sigla)
                 console.print(f"  [nexo.good]✔[/] projeto {escape(product)} criado (rascunho local)")
     if product and not standalone:
         try:
@@ -293,7 +294,8 @@ def product_list() -> None:
     for p in items:
         state = "oficial" if p["official"] else "rascunho"
         console.print(
-            f"  {escape(str(p['id'])):<20} {escape(str(p['name']))}  [nexo.muted]{p['parts']} partes · {state}[/]"
+            f"  {escape(str(p['sigla'] or '—')):<9} {escape(str(p['id'])):<20} {escape(str(p['name']))}"
+            f"  [nexo.muted]{p['parts']} partes · {state}[/]"
         )
 
 
@@ -323,15 +325,28 @@ def product_new(
     name: Annotated[str, typer.Option("--name", help="Nome do projeto")] = "",
     description: Annotated[str, typer.Option("--description", help="O que é o projeto, em uma frase")] = "",
     squad: Annotated[list[str] | None, typer.Option("--squad", help="Squad que cuida do projeto (repita)")] = None,
+    sigla: Annotated[str, typer.Option("--sigla", help="Sigla do projeto na empresa")] = "",
 ) -> None:
     """Cria um projeto (rascunho local até ser proposto ao cérebro)."""
     from nexo.modules.planning.app import product_context as pc
 
-    folder = pc.create(ctx(), product, name or product, description, list(squad or []))
+    folder = pc.create(ctx(), product, name or product, description, list(squad or []), sigla)
     if ctx().options.json:
         emit({"project": product, "folder": str(folder)})
     else:
         console.print(f"[nexo.good]✔[/] projeto {escape(product)} criado em {escape(str(folder))}")
+
+
+@product_app.command("sigla")
+def product_sigla(product: str, sigla: str) -> None:
+    """Define a sigla do projeto na empresa."""
+    from nexo.modules.planning.app import product_context as pc
+
+    updated = pc.set_sigla(ctx(), product, sigla)
+    if ctx().options.json:
+        emit({"project": updated.id, "sigla": updated.sigla})
+    else:
+        console.print(f"[nexo.good]✔[/] {escape(updated.titled)}")
 
 
 @product_app.command("part")

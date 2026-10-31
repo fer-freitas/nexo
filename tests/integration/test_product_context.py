@@ -79,13 +79,26 @@ def test_non_interactive_init_links_the_repository_to_the_product(project: Path,
 
 
 def test_wizard_for_a_new_folder(project: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch) -> None:
-    answers = ["s", "1", "Custódia", "", "posições e movimentações", "1", "", "2", "calcula posições", "as visões"]
+    answers = [
+        "s",
+        "1",
+        "Custódia",
+        "cdt",
+        "",
+        "posições e movimentações",
+        "1",
+        "",
+        "2",
+        "calcula posições",
+        "as visões",
+    ]
     monkeypatch.setattr("sys.stdin", io.StringIO("\n".join(answers) + "\n"))
     code, out, err = nexo("context", "init")
     assert code == 0, out + err
     data = json.loads(nexo("--json", "context")[1])
     assert data["project"] == "custodia" and data["part"] == project.name.lower().replace("_", "-")
     show = json.loads(nexo("--json", "context", "project", "show", "custodia")[1])
+    assert show["sigla"] == "CDT"
     assert show["parts"][0]["kind"] == "componente" and show["description"] == "posições e movimentações"
     assert "context propose custodia" in out  # rascunho: como levar para os outros squads
 
@@ -148,7 +161,7 @@ def test_official_product_from_the_brain_is_used_and_copied_on_edit(
     folder = nexo_home / "brain" / "projetos" / "custodia"
     dump_yaml(folder / "projeto.yaml", {"name": "Custódia", "parts": [{"id": "ui-kit", "kind": "componente"}]})
     data = json.loads(nexo("--json", "context", "project", "list")[1])
-    assert data == [{"id": "custodia", "name": "Custódia", "parts": 1, "official": True}]
+    assert data == [{"id": "custodia", "sigla": "", "name": "Custódia", "parts": 1, "official": True}]
     nexo(
         "context",
         "init",

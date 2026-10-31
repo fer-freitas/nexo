@@ -3,7 +3,7 @@ version: 1.0.0
 title: "Conhecimento e cérebro"
 flags:
   - key: brain.graph
-    title: "Cérebro: travessia do grafo de notas"
+    title: "Cérebro: grafo de notas e contexto por vizinhança"
     area: "Conhecimento"
     stage: beta
     commands: ["brain neighbors", "brain path"]

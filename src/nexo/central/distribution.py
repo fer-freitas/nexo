@@ -44,7 +44,7 @@ def _urllib_post(url: str, body: dict[str, Any], headers: dict[str, str]) -> tup
     req = urllib.request.Request(  # noqa: S310 — esquema validado acima
         url, method="POST", data=json.dumps(body).encode(), headers={"Content-Type": "application/json", **headers}
     )
-    with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310
+    with urllib.request.urlopen(req, timeout=15) as resp:  # noqa: S310  # nosemgrep -- esquema validado
         raw = resp.read()
         try:
             return resp.status, dict(json.loads(raw or b"{}"))

@@ -205,6 +205,11 @@ MIGRATIONS: tuple[str, ...] = (
     CREATE TABLE portal_login_attempts (key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, until REAL NOT NULL);
     CREATE TABLE insight_settings (detector TEXT PRIMARY KEY, enabled INTEGER NOT NULL, updated_by TEXT, updated_at REAL);
     """,
+    # sigla do projeto na empresa: vários repositórios (hashes) dividem a mesma
+    """
+    ALTER TABLE dim_project ADD COLUMN sigla TEXT;
+    CREATE INDEX dim_project_sigla ON dim_project(sigla);
+    """,
 )
 
 BI_VIEWS = ("bi_fact_step", "bi_fact_story", "bi_fact_gate", "bi_fact_quality", "bi_fact_standards", "bi_dim_squad")
@@ -283,8 +288,8 @@ class CollectorDB:
             if not found:
                 return False
             # nome conferido pela expressão acima (identificador simples), não vem do usuário final
-            self._conn.execute(f"GRANT USAGE ON SCHEMA public TO {role}")
-            self._conn.execute(f"GRANT SELECT ON {', '.join(BI_VIEWS)} TO {role}")
+            self._conn.execute(f"GRANT USAGE ON SCHEMA public TO {role}")  # nosemgrep -- papel validado acima
+            self._conn.execute(f"GRANT SELECT ON {', '.join(BI_VIEWS)} TO {role}")  # nosemgrep -- papel validado acima
             return True
 
     def close(self) -> None:

@@ -25,7 +25,7 @@ def load(name: str) -> ModuleType:
     target = _table().get(name)
     if target is None:
         raise NexoError(f"serviço indisponível: {name} (o módulo que o oferece não está presente)")
-    return importlib.import_module(target)
+    return importlib.import_module(target)  # nosemgrep -- alvo do manifesto embutido
 
 
 def available(name: str) -> bool:

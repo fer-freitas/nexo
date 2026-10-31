@@ -275,3 +275,25 @@ def test_page_answers_flag_what_is_off_track() -> None:
     assert [t["level"] for t in todo] == ["bad", "warn", "warn", "info"]
     q, todo = answers.quality(None, 0, 0, None, None, 0, 0, 0)
     assert {h["id"]: h["status"] for h in q}["risk"] == "good" and todo == []
+
+
+def test_project_sigla_is_normalized_unique_and_reaches_the_telemetry(project: Path, nexo: Runner) -> None:
+    from nexo.kernel.context import AppContext, Options
+    from nexo.kernel.platform import telemetry
+
+    assert nexo("context", "project", "new", "custodia", "--sigla", "cdt")[0] == 0
+    assert json.loads(nexo("--json", "context", "project", "show", "custodia")[1])["sigla"] == "CDT"
+    code, _, err = nexo("context", "project", "new", "outro", "--sigla", "CDT")
+    assert code != 0 and "já é do projeto custodia" in err
+    code, _, err = nexo("context", "project", "sigla", "custodia", "tem espaço")
+    assert code != 0 and "sigla inválida" in err
+    assert json.loads(nexo("--json", "context", "project", "sigla", "custodia", "cdt2")[1])["sigla"] == "CDT2"
+    assert "CDT2 · custodia" in nexo("context", "project", "show", "custodia")[1]
+    assert "CDT2" in nexo("context", "project", "list")[1]
+    args = ("--project", "custodia", "--part", "web", "--kind", "visao", "--uses", "", "--what", "tela", "--users", "x")
+    assert nexo("context", "init", *args)[0] == 0
+    ctx = AppContext(options=Options())
+    try:
+        assert telemetry.batch_context(ctx)["project_sigla"] == "CDT2"
+    finally:
+        ctx.close()

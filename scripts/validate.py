@@ -15,11 +15,18 @@ import platform
 import shutil
 import subprocess
 import sys
+import sysconfig
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = sys.executable
+DOMAIN_FLOOR = 85.0
+SEMGREP_SKIP = (  # compatibilidade com versões de Python que o projeto não aceita
+    "python.lang.compatibility.python37.python37-compatibility-importlib2",
+    "python.lang.compatibility.python36.python36-compatibility-Popen1",
+    "python.lang.compatibility.python36.python36-compatibility-Popen2",
+)
 TEXT_SUFFIXES = {".py", ".md", ".yaml", ".yml", ".toml", ".json", ".txt", ".css", ".tf"}
 
 
@@ -31,7 +38,7 @@ def run(name: str, cmd: list[str]) -> dict[str, object]:
     ok = done.returncode == 0
     print(f"[{'ok' if ok else 'FALHOU'}] {name} ({time.monotonic() - start:.0f}s)")
     if not ok:
-        print((done.stdout + done.stderr)[-4000:])
+        print((done.stdout + done.stderr)[-20000:])
     return {"step": name, "ok": ok, "seconds": round(time.monotonic() - start, 1)}
 
 
@@ -76,26 +83,58 @@ def install_hook() -> int:
     return 0
 
 
-def optional_tools() -> list[dict[str, object]]:
-    """Segredos, dependências e SAST. Ferramenta ausente fica registrada como não verificada, nunca como aprovada."""
-    tools = {
-        "gitleaks": ["gitleaks", "detect", "--no-banner", "--redact"],
-        "pip-audit": ["pip-audit", "--progress-spinner", "off"],
-        "semgrep": ["semgrep", "--config", "auto", "--error", "--quiet", "src"],
-    }
+def not_verified(name: str, why: str) -> dict[str, object]:
+    print(f"[não verificado] {name}: {why}")
+    return {"step": name, "ok": True, "seconds": 0, "checked": False}
+
+
+def optional_tools(evidence: Path) -> list[dict[str, object]]:
+    """Segredos, dependências, SBOM e SAST. Ferramenta ausente fica como não verificada, nunca como aprovada.
+
+    pip-audit e semgrep têm dependências muito travadas: ficam num ambiente próprio, criado na primeira vez, e o
+    pip-audit olha as dependências do projeto, não as dele.
+    """
+    from nexo.kernel.runtime import toolenv
+
     steps: list[dict[str, object]] = []
-    for name, cmd in tools.items():
-        if shutil.which(cmd[0]) or Path(PY).with_name(cmd[0]).is_file():
-            steps.append(
-                run(
-                    name,
-                    [str(Path(PY).with_name(cmd[0])) if Path(PY).with_name(cmd[0]).is_file() else cmd[0], *cmd[1:]],
-                )
+    gitleaks = shutil.which("gitleaks")
+    if gitleaks:
+        steps.append(run("gitleaks", [gitleaks, "detect", "--no-banner", "--redact"]))
+    else:
+        steps.append(not_verified("gitleaks", "não instalado"))
+    audit, error = toolenv.ensure("pip-audit")
+    if audit:
+        sbom = evidence / "sbom.cdx.json"
+        site = sysconfig.get_path("purelib")
+        steps.append(
+            run(
+                "pip-audit e SBOM",
+                [audit, "--progress-spinner", "off", "--path", site, "-f", "cyclonedx-json", "-o", str(sbom)],
             )
-        else:
-            print(f"[não verificado] {name}: não instalado")
-            steps.append({"step": name, "ok": True, "seconds": 0, "checked": False})
+        )
+    else:
+        steps.append(not_verified("pip-audit e SBOM", error))
+    semgrep, error = toolenv.ensure("semgrep")
+    if semgrep:
+        rules = [flag for rule in SEMGREP_SKIP for flag in ("--exclude-rule", rule)]
+        steps.append(run("semgrep", [semgrep, "--config", "auto", "--error", "--quiet", *rules, "src"]))
+    else:
+        steps.append(not_verified("semgrep", error))
     return steps
+
+
+def domain_coverage(report: Path) -> dict[str, object]:
+    """Cobertura só das regras de domínio. Módulo sem pasta `domain` não entra na conta."""
+    files = json.loads(report.read_text(encoding="utf-8"))["files"]
+    covered = total = 0
+    for path, data in files.items():
+        if "/domain/" in path.replace("\\", "/"):
+            covered += int(data["summary"]["covered_lines"])
+            total += int(data["summary"]["num_statements"])
+    percent = 100.0 * covered / total if total else 0.0
+    ok = percent >= DOMAIN_FLOOR
+    print(f"[{'ok' if ok else 'FALHOU'}] cobertura de domínio ({percent:.1f}%, piso {DOMAIN_FLOOR:.0f}%)")
+    return {"step": "cobertura de domínio", "ok": ok, "seconds": 0, "percent": round(percent, 1)}
 
 
 def main() -> int:
@@ -105,6 +144,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.install_hook:
         return install_hook()
+    evidence = ROOT / "evidence" / version()
+    evidence.mkdir(parents=True, exist_ok=True)
     steps = [
         forbidden_terms(),
         run("lint", [PY, "-m", "ruff", "check", "src", "tests", "scripts"]),
@@ -116,11 +157,13 @@ def main() -> int:
         steps.append(run("testes de unidade", [PY, "-m", "pytest", "tests/unit", "-q", "-n", "auto"]))
     else:
         steps.append(run("tipos", [PY, "-m", "mypy"]))
-        steps.append(run("testes", [PY, "-m", "pytest", "tests", "-q", "-n", "auto", "--timeout=120"]))
-        steps += optional_tools()
+        report = evidence / "coverage.json"
+        cover = ["--cov=nexo", f"--cov-report=json:{report}", "--cov-report="]
+        steps.append(run("testes", [PY, "-m", "pytest", "tests", "-q", "-n", "auto", "--timeout=120", *cover]))
+        steps.append(domain_coverage(report))
+        steps += optional_tools(evidence)
     ok = all(s["ok"] for s in steps)
-    out = ROOT / "evidence" / version() / f"{platform.system().lower()}.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
+    out = evidence / f"{platform.system().lower()}.json"
     out.write_text(json.dumps({"ok": ok, "python": platform.python_version(), "steps": steps}, indent=2), "utf-8")
     print("VALIDAÇÃO OK" if ok else "VALIDAÇÃO FALHOU")
     return 0 if ok else 1

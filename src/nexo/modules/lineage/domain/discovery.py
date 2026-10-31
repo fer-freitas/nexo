@@ -10,9 +10,10 @@ from nexo.modules.lineage.domain.model import SCHEMA, normalize
 from nexo.modules.lineage.domain.scan import SCANNER_VERSION
 
 
-def _link(channel: str) -> dict[str, Any]:
+def _link(channel: str, message: str = "") -> dict[str, Any]:
     return {
         "channel": channel,
+        **({"message": message} if message else {}),
         "status": "discovered",
         "evidence": {"source": "discovery", "file": "", "line": 0, "confidence": "low"},
     }
@@ -66,11 +67,44 @@ def from_aws(
     return _manifest(team, "aws", components)
 
 
-def from_kafka(team: str, groups: dict[str, list[str]]) -> dict[str, Any]:
-    """Grupo de consumidor mostra que alguém consome, mesmo sem saber o repositório."""
+def _contracts(schemas: list[dict[str, Any]]) -> dict[str, str]:
+    """Tópico → contrato, pela convenção do schema registry: o assunto `<tópico>-value` descreve a mensagem."""
+    found: dict[str, str] = {}
+    for schema in schemas:
+        subject = str(schema.get("subject", ""))
+        if subject.endswith("-value"):
+            found[subject.removesuffix("-value")] = f"{subject} v{schema.get('version', '?')}"
+    return found
+
+
+def from_kafka(
+    team: str,
+    groups: dict[str, list[str]],
+    acls: list[dict[str, Any]] | None = None,
+    schemas: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Grupo de consumidor e ACL mostram que alguém usa o tópico, mesmo sem saber o repositório.
+
+    ACL com curinga ou prefixo não aponta para um tópico certo e por isso não vira ligação.
+    """
+    contracts = _contracts(schemas or [])
     components: dict[str, dict[str, Any]] = {}
+
+    def add(cid: str, direction: str, topic: str) -> None:
+        channel, _ = normalize("kafka", topic)
+        links = components.setdefault(cid, {}).setdefault(direction, [])
+        if not any(link["channel"] == channel for link in links):
+            links.append(_link(channel, contracts.get(topic, "")))
+            links.sort(key=lambda link: link["channel"])
+
     for group, topics in groups.items():
         for topic in topics:
-            channel, _ = normalize("kafka", str(topic))
-            _consume(components, f"?kafka-group:{group}", channel)
+            add(f"?kafka-group:{group}", "consumes", str(topic))
+    for acl in acls or []:
+        topic = str(acl.get("topic", ""))
+        direction = {"read": "consumes", "write": "publishes"}.get(str(acl.get("operation", "")).lower())
+        literal = str(acl.get("pattern", "literal")).lower() == "literal"
+        if direction and topic and topic != "*" and literal:
+            principal = str(acl.get("principal", "")).removeprefix("User:")
+            add(f"?kafka-principal:{principal}", direction, topic)
     return _manifest(team, "kafka", components)

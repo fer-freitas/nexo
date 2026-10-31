@@ -24,6 +24,7 @@ SQUADS = {
     "sq-cartoes": ("demo.caio", "cartoes"),
     "sq-risco": ("demo.duda", "risco"),
 }
+SIGLAS = {"sq-pagamentos": "PGT", "sq-cartoes": "CRT", "sq-risco": "RSC"}
 ROLES = ("admin", "nexo", "director", "manager", "lead", "finops", "security", "dev", "pm", "qa")
 
 
@@ -174,7 +175,7 @@ def batch(squad: str, project: str, months: int = 6, per_month: int = 6) -> dict
         "contract": CONTRACT,
         "device_id": "",
         "project": project,
-        "context": {"squad": squad, "stack": "python"},
+        "context": {"squad": squad, "stack": "python", "project_name": project, "project_sigla": SIGLAS[squad]},
         "events": events,
     }
 
@@ -204,7 +205,7 @@ def _call(base: str, method: str, path: str, body: Any, token: str) -> None:
         method=method,
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(request, timeout=30) as answer:  # noqa: S310
+    with urllib.request.urlopen(request, timeout=30) as answer:  # noqa: S310  # nosemgrep -- só 127.0.0.1
         answer.read()
 
 
@@ -212,7 +213,7 @@ def _wait(base: str, seconds: float = 30) -> None:
     limit = time.monotonic() + seconds
     while time.monotonic() < limit:
         try:
-            with urllib.request.urlopen(base + "/health", timeout=2) as answer:  # noqa: S310
+            with urllib.request.urlopen(base + "/health", timeout=2) as answer:  # noqa: S310  # nosemgrep -- só 127.0.0.1
                 if answer.status == 200:
                     return
         except (urllib.error.URLError, OSError):

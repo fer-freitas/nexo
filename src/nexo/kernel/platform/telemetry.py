@@ -19,7 +19,7 @@ from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError
 from nexo.kernel.monitoring.telemetry import CONTRACT, MAX_BATCH_BYTES
 from nexo.kernel.platform import config
-from nexo.kernel.runtime import http
+from nexo.kernel.runtime import http, yamlfile
 from nexo.kernel.secrets import credentials
 
 TRUSTED = ("default", "org", "squad", "anchor")
@@ -113,6 +113,21 @@ def project_name(ctx: AppContext, values: dict[str, Any]) -> str:
     return name[:80] if name and "/" not in name and "\\" not in name else ""
 
 
+def project_sigla(ctx: AppContext, values: dict[str, Any]) -> str:
+    """Sigla do projeto a que o repositório pertence, para o portal mostrar e filtrar."""
+    context = values.get("context")
+    pid = str(context.get("project") or "") if isinstance(context, dict) else ""
+    if not pid or _cfg(ctx).get("project_name") is False:
+        return ""
+    for base in (ctx.home, ctx.brain_dir):  # o rascunho local vence, como no restante do contexto
+        path = base / "projetos" / pid / "projeto.yaml"
+        if path.is_file():
+            with contextlib.suppress(Exception):  # projeto malformado não pode derrubar o envio
+                return str(yamlfile.load(path).get("sigla") or "")[:8].upper()
+            return ""
+    return ""
+
+
 def batch_context(ctx: AppContext) -> dict[str, Any]:
     """Projeto (hash do caminho), squad e stack do momento do evento — gravados junto na outbox."""
     cached = ctx.__dict__.get("_telemetry_context")
@@ -129,6 +144,9 @@ def batch_context(ctx: AppContext) -> dict[str, Any]:
         name = project_name(ctx, values)
         if name:
             cached["project_name"] = name
+        sigla = project_sigla(ctx, values)
+        if sigla:
+            cached["project_sigla"] = sigla
         ctx.__dict__["_telemetry_context"] = cached
     return dict(cached)
 

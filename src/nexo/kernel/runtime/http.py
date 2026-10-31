@@ -43,7 +43,7 @@ def _urllib_transport(method: str, url: str, headers: dict[str, str], data: byte
         raise NexoError(f"somente HTTPS é permitido: {url}")
     req = urllib.request.Request(url, data=data, headers=headers, method=method)  # noqa: S310 — esquema validado
     try:
-        with urllib.request.urlopen(req, timeout=_timeout.get()) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=_timeout.get()) as resp:  # noqa: S310  # nosemgrep -- esquema validado
             raw = resp.read()
             return Response(resp.status, _decode(raw), dict(resp.headers))
     except urllib.error.HTTPError as exc:

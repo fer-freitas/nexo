@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from nexo.kernel.errors import NexoError
-from nexo.kernel.runtime.resources import embedded_dir
+from nexo.kernel.runtime.resources import copy_sample_project, embedded_dir
 from nexo.kernel.runtime.yamlfile import dump
 
 WALKTHROUGH = (
@@ -53,16 +53,6 @@ def env_for(base: Path) -> dict[str, str]:
     }
 
 
-def _copy_project(target: Path) -> None:
-    source = embedded_dir("selftest") / "python-svc"
-    for path in source.rglob("*"):
-        if path.is_file() and "__pycache__" not in path.parts:
-            rel = path.relative_to(source).as_posix().replace("gitignore.txt", ".gitignore")
-            dest = target / rel.removesuffix(".txt")
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(path.read_bytes())
-
-
 def _recipe() -> dict[str, Any]:
     """A receita curta da demonstração: dispensa as ferramentas que o `nexo setup` instala de verdade."""
     return {
@@ -89,7 +79,7 @@ def prepare(folder: Path | None = None) -> dict[str, Any]:
     base.mkdir(parents=True, exist_ok=True)
     project = base / "projeto"
     project.mkdir()
-    _copy_project(project)
+    copy_sample_project(project)
     shutil.copyfile(embedded_dir("demo") / "scenario.yaml", base / "scenario.yaml")
     home = base / "home"
     dump(home / "brain" / "recipes" / "python.yaml", _recipe())

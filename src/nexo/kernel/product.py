@@ -17,8 +17,17 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,40}$")
+SIGLA = re.compile(r"^[A-Z0-9]{2,8}$")
 KIND_LABEL = {"visao": "visão", "componente": "componente compartilhado", "externo": "sistema externo"}
 KINDS = ("visao", "componente", "externo")
+
+
+def normal_sigla(value: str) -> str:
+    """Sigla em maiúsculas; vazia é aceita, porque o projeto pode ainda não ter a dele."""
+    sigla = value.strip().upper()
+    if sigla and not SIGLA.match(sigla):
+        raise ValueError(f"sigla inválida: {value!r} (2 a 8 letras ou números)")
+    return sigla
 
 
 class Part(BaseModel):
@@ -53,6 +62,7 @@ class Product(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str
+    sigla: str = ""  # sigla do projeto na empresa, ex.: CDT
     name: str = ""
     description: str = ""
     squads: list[str] = Field(default_factory=list)
@@ -64,6 +74,11 @@ class Product(BaseModel):
         if not ID.match(value):
             raise ValueError(f"id inválido: {value!r} (minúsculas, números e hífen)")
         return value
+
+    @field_validator("sigla")
+    @classmethod
+    def _sigla(cls, value: str) -> str:
+        return normal_sigla(value)
 
     @model_validator(mode="after")
     def _consistent(self) -> Product:
@@ -83,6 +98,11 @@ class Product(BaseModel):
     @property
     def label(self) -> str:
         return self.name or self.id
+
+    @property
+    def titled(self) -> str:
+        """Nome com a sigla, como a empresa cita o projeto."""
+        return f"{self.sigla} · {self.label}" if self.sigla else self.label
 
     def part(self, part_id: str) -> Part | None:
         return next((p for p in self.parts if p.id == part_id), None)
@@ -145,7 +165,7 @@ def impact(product: Product, here: str, text: str) -> Impact:
 def describe(product: Product, here: str) -> str:
     """Resumo curto da posição do repositório no projeto (vai para o prompt e para o `nexo context`)."""
     part = product.part(here)
-    lines = [f"Projeto: {product.label}" + (f" — {product.description}" if product.description else "")]
+    lines = [f"Projeto: {product.titled}" + (f" — {product.description}" if product.description else "")]
     visions = [p.label for p in product.parts if p.kind == "visao"]
     components = [p for p in product.parts if p.kind == "componente"]
     external = [p.label for p in product.parts if p.kind == "externo"]

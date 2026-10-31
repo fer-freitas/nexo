@@ -38,8 +38,8 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | **Scanner de linhagem em .NET real** | Só com amostras escritas para os testes. A taxa de acerto é desconhecida | Prova M8 |
 | **Descoberta na AWS e no Kafka** | Só simulador, e a de Kafka lê um JSON exportado por alguém | Q-12 |
 | **Skills nas CLIs** | No Claude e no Copilot são instaladas; no Devin entram pelo prompt. A descoberta real não foi provada | Prova M4 |
+| **Casos de harness** | Rodam com agente simulado: provam o motor do Nexo, não o comportamento de um modelo real | `nexo eval harness` com agente real, na prova de cada ferramenta |
 | **Teste de uso por papel** | Não feito | Uma pessoa de cada papel |
-| **pip-audit, semgrep, SBOM** | As duas primeiras rodam em `validate.py` se instaladas, mas não estão nesta máquina. SBOM e cobertura de domínio não estão no script. O gitleaks já roda e passa | Instalar antes da versão |
 
 O roteiro está em [provas-reais.md](provas-reais.md).
 

@@ -101,8 +101,13 @@ class RunStore:
     def update_run(self, run_id: str, **fields: Any) -> None:
         if "classification" in fields and fields["classification"] is not None:
             fields["classification"] = json.dumps(fields["classification"], ensure_ascii=False)
+        if not all(k.isidentifier() for k in fields):  # as colunas vêm do código, nunca de quem usa
+            raise ValueError(f"coluna inválida: {sorted(fields)}")
         cols = ", ".join(f"{k} = ?" for k in fields)
-        self.conn.execute(f"UPDATE runs SET {cols} WHERE id = ?", (*fields.values(), run_id))  # noqa: S608
+        self.conn.execute(  # nosemgrep -- colunas conferidas acima; os valores vão como parâmetro
+            f"UPDATE runs SET {cols} WHERE id = ?",  # noqa: S608
+            (*fields.values(), run_id),
+        )
 
     def get_run(self, run_id: str) -> RunRow | None:
         row = self.conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()

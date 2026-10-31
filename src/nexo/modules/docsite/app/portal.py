@@ -74,7 +74,7 @@ def _repo_name(part: Part) -> str:
 
 
 def locate(repos: Path, part: Part) -> Path | None:
-    """Onde o CI baixou o repositório da parte: `<repos>/<nome do repositório>` ou `<repos>/<id da parte>`."""
+    """Onde o repositório da parte foi baixado: `<repos>/<nome do repositório>` ou `<repos>/<id da parte>`."""
     names = [_repo_name(part)] if part.repo else []
     names.append(part.id)
     for name in names:
@@ -213,7 +213,7 @@ def own_deviations(ctx: AppContext, root: Path) -> list[tuple[Part, list[str]]]:
 
 def scaffold(ctx: AppContext, out: Path, product: Product) -> list[str]:
     """Cria o projeto Docusaurus do portal (com diagramas Mermaid e busca local). Não sobrescreve nada."""
-    name = product.label
+    name = product.titled
     files = {
         "package.json": json.dumps(
             {
@@ -616,7 +616,7 @@ def build(ctx: AppContext, pid: str, repos: Path, out: Path) -> dict[str, Any]:
         else 100
     )
     home = [
-        _front(product.label, 1, "/"),
+        _front(product.titled, 1, "/"),
         product.description or "",
         "",
         stamp,

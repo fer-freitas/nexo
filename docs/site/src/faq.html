@@ -22,6 +22,10 @@ nexo demo site</code></pre></div></details>
 <details id="como-informo-o-meu-squad"><summary>Como informo o meu squad?</summary><div class="resposta"><p>Custo, métricas e flags por squad dependem disso. O valor vale para você em todos os repositórios.</p><pre><code>nexo squad set sq-seu-squad
 nexo squad          # mostra o atual e de onde vem
 nexo squad list     # os que o Nexo conhece</code></pre><p>Com <code>--project</code>, vira o padrão do repositório para quem ainda não informou.</p></div></details>
+<details id="como-informo-a-sigla-do-projeto"><summary>Como informo a sigla do projeto?</summary><div class="resposta"><p>Todo projeto da empresa tem uma sigla. Ela aparece no contexto que a IA recebe e no portal, onde também serve de filtro: todos os repositórios do projeto entram juntos.</p><pre><code>nexo context project new custodia --sigla CDT
+nexo context project sigla custodia CDT   # para um projeto que já existe
+nexo context project list                 # sigla, id e nome</code></pre><p>A sigla tem de 2 a 8 letras ou números, e cada uma pertence a um projeto só.</p></div></details>
+<details id="como-filtro-o-portal-por-squad"><summary>Como filtro o portal por squad?</summary><div class="resposta"><p>Quem enxerga mais de um squad vê a linha <b>Squads</b> no alto das páginas de dados. Marque um ou vários e clique em <b>Filtrar</b>. A escolha continua valendo ao trocar de página, e <b>Ver todos</b> desfaz. O filtro só reduz o que você já pode ver: pedir um squad fora do seu acesso é recusado.</p></div></details>
 <details id="como-preparo-um-repositorio"><summary>Como preparo um repositório?</summary><div class="resposta"><p>Quem cuida do repositório faz isto uma vez.</p><pre><code>nexo init
 nexo team link nome-do-time --repo endereço-do-repositório
 nexo context init</code></pre></div></details>

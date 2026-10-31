@@ -400,7 +400,7 @@ def _product_page(ctx: AppContext, docs: Path) -> bool:
     if cur.product is None:
         return False
     lines = [
-        _front(f"Projeto: {cur.product.label}", 5, "/projeto"),
+        _front(f"Projeto: {cur.product.titled}", 5, "/projeto"),
         ":::info Fonte: cérebro da org",
         "Esta página é uma cópia de leitura. Para mudar o projeto ou o glossário, proponha a mudança ao cérebro "
         f"(`nexo context propose {cur.product.id}`).",

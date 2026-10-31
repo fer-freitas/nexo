@@ -195,7 +195,7 @@ def apply(d: CollectorDB, raw: dict[str, Any]) -> None:
     elif kind == "usage":
         values = [payload.get(c) for c in USAGE_COLUMNS]
         day = str(payload.get("day") or "")
-        d.execute(
+        d.execute(  # nosemgrep -- SQL constante
             USAGE_UPSERT,
             (raw.get("device_id") or "", raw["dev_pid"], base[1], day[:7], day, *values, raw["at"]),
         )
@@ -205,7 +205,7 @@ def apply(d: CollectorDB, raw: dict[str, Any]) -> None:
             values[STORY_COLUMNS.index(flag)] = int(bool(payload.get(flag)))
         month = _month(payload.get("done_at") or payload.get("started_at") or raw["at"])
         stack = str(payload.get("stack") or base[2])
-        d.execute(
+        d.execute(  # nosemgrep -- SQL constante
             STORY_UPSERT,
             (base[0], payload.get("story"), raw["event_id"], raw["at"], base[1], stack, raw["dev_pid"], month, *values),
         )
@@ -304,7 +304,7 @@ def reprocess(d: CollectorDB, batch: int = 2000) -> int:
     total = 0
     with d.tx():
         for table in FACT_TABLES:
-            d.execute(f"DELETE FROM {table}")
+            d.execute(f"DELETE FROM {table}")  # nosemgrep -- SQL constante
         last: tuple[str, str] = ("", "")
         while True:
             rows = d.query(

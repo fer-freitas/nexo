@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Annotated, Any
 
 import typer
+from rich.markup import escape
 from rich.table import Table
 
 from nexo.cli import render
@@ -454,6 +455,28 @@ eval_app = typer.Typer(help="Avaliação de skills e rotas", no_args_is_help=Tru
 
 
 app.add_typer(eval_app, name="eval")
+
+
+@eval_app.command("harness")
+def eval_harness_cmd(
+    case: Annotated[list[str] | None, typer.Option("--case", help="Só estes casos (repita)")] = None,
+) -> None:
+    """Handoff desatualizado, parada e retomada, bloqueio parcial e revisão somente leitura, com agente simulado."""
+    from nexo.modules.knowledge.app import harness
+
+    unknown = [c for c in case or [] if c not in harness.CASES]
+    if unknown:
+        raise NexoError(f"caso desconhecido: {', '.join(unknown)} (conhecidos: {', '.join(harness.CASES)})")
+    results = harness.run(list(case) if case else None)
+    ctx().audit("eval.harness", {r.id: r.ok for r in results})
+    if ctx().options.json:
+        emit([r.__dict__ for r in results])
+    else:
+        for r in results:
+            mark = "[nexo.good]✔[/]" if r.ok else "[nexo.bad]✘[/]"
+            console.print(f"  {mark} {escape(r.title)}  [nexo.muted]{escape(r.detail)} · {r.seconds} s[/]")
+    if not all(r.ok for r in results):
+        raise typer.Exit(1)
 
 
 @eval_app.command("tasks")

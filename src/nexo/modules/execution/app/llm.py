@@ -232,6 +232,8 @@ def _run(adapter: AgentAdapter, req: AgentRequest) -> AgentOutcome:
     for event in adapter.start(req, "read-only").events():
         if event.kind == DONE:
             outcome = event.data["outcome"]
+    if outcome.files_changed:  # o relato do agente, não o disco: a pessoa pode estar editando ao mesmo tempo
+        raise NexoError(f"o agente alterou arquivos numa etapa só de leitura: {', '.join(outcome.files_changed[:5])}")
     return outcome
 
 

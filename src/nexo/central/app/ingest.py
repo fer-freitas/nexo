@@ -122,9 +122,10 @@ def post_events(batch: Batch, ident: dict[str, str] = Depends(identity)) -> dict
         name = str(batch.context.get("project_name") or "").strip()
         if name:  # nome do projeto para o dashboard (o caminho nunca sai da máquina)
             d.execute(
-                "INSERT INTO dim_project (project, name, squad, updated_at) VALUES (?,?,?,?) ON CONFLICT (project)"
-                " DO UPDATE SET name = excluded.name, squad = excluded.squad, updated_at = excluded.updated_at",
-                (batch.project, name[:80], squad, time.time()),
+                "INSERT INTO dim_project (project, name, squad, updated_at, sigla) VALUES (?,?,?,?,?)"
+                " ON CONFLICT (project) DO UPDATE SET name = excluded.name, squad = excluded.squad,"
+                " updated_at = excluded.updated_at, sigla = excluded.sigla",
+                (batch.project, name[:80], squad, time.time(), str(batch.context.get("project_sigla") or "")[:8]),
             )
         lag = batch.context.get("lag_hours")
         if isinstance(lag, (int, float)) and not isinstance(lag, bool):

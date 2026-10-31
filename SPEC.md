@@ -2122,6 +2122,8 @@ Mantém a regra do painel atual: HTML servido pelo servidor, sem JavaScript obri
 | **Pessoas e acessos** | Perfis e squads, até o SSO assumir | Admin | 🔵 |
 | **Meu painel** | O que é meu | Cada pessoa | 🟡 |
 
+**Filtro por squad:** quem enxerga mais de um squad escolhe um ou vários no alto das páginas de dados, e a escolha acompanha a navegação. O filtro só reduz: pedir um squad fora do acesso devolve 403. **Sigla:** cada projeto tem a sigla usada na empresa (`nexo context project sigla`). Ela chega ao portal junto com o nome e filtra todos os repositórios do projeto.
+
 ### 26.2 Gestão de features
 
 **Interpretação:** "features" aqui são as funcionalidades do próprio Nexo, ou seja, módulos e flags do §6. As features de produto (`F-n`) ficam no Board.
@@ -2191,13 +2193,12 @@ O que foi construído de forma diferente do texto acima, e por quê. O estado de
 | **Flags de demandas** | `demands.external_sync` | Mantida como `tracker_sync`, ao lado de `demands.board` e `demands.flow` | Nome já usado pelo código e pela política |
 | **Worktree** | `%LOCALAPPDATA%\\nexo\\wt\\<hash>` | Vale só no Windows. Em macOS e Linux, continua em `.nexo/worktrees/` | Não há limite de caminho nesses sistemas |
 | **Assinatura** | KMS é a pergunta Q-22 | `awskms://`, pela CLI da AWS da própria pessoa, sem dependência nova. | Segue o padrão assumido em Q-22 |
-| **Descoberta no Kafka** | Tópicos, grupos e ACLs | Lê um JSON `{"grupo": ["tópico"]}` exportado pelo time de Kafka. Sem ACL nem schema registry | A credencial do cluster não entra no Nexo, e não há dependência nova. Falta conferir com Q-12 |
-| **Efeito antes de confirmar flag** | Máquinas naquele escopo | Mostra o total de máquinas ativas na empresa e as dependências da flag | A tabela de dispositivos não guarda o squad. Por escopo, fica para depois |
+| **Descoberta no Kafka** | Tópicos, grupos e ACLs | Lê um JSON exportado com grupos, ACLs e assuntos do schema registry, sem conectar ao cluster. ACL com curinga ou prefixo não vira ligação | A credencial do cluster não entra no Nexo |
 | **Portão de contrato** | Contrato incompatível vai para decisão humana | Segura só o merge automático, com a flag `lineage.gate`, desligada até medir o scanner. Sem a flag, só avisa no PR | O §19 pede a medição antes de usar a linhagem no portão. AsyncAPI é o único formato comparado |
 | **Produto e projeto** | "Produto" é o conjunto de repositórios | Na CLI, nos textos e na configuração, virou **projeto**, e cada pasta de código é um **repositório**: `nexo context project`, `context.project`. A pasta do cérebro é `projetos/`. No código, a classe segue `Product`, porque `project` já significa o repositório em todo o resto | Pedido do responsável. Trocar os identificadores internos criaria conflito sem ganho para quem usa |
 | **Marca** | `brand.yaml` | O padrão usa a paleta aproximada do Itaú Unibanco, sem logo nem fonte da empresa. O código continua genérico: a marca fica só no `brand.yaml` e em `docs/` | Pedido do responsável. Não há manual público de marca: falta confirmar os valores com o time responsável |
-| **Módulos do pós-MVP** | Entram depois do MVP | `deps`, `legacy`, `program`, `change`, `docsite`, `notify` e a travessia do `brain.graph` foram antecipados, com flag em `beta`, ligada | Pedido do responsável. O SSO fica para depois |
-| **Validação local** | Inclui gitleaks, pip-audit, semgrep, SBOM e cobertura de domínio | gitleaks, pip-audit e semgrep rodam se instalados, e ficam como `não verificado` se não. SBOM e cobertura de domínio não estão no script | Falta decidir como instalá-los sem dependência travada no ambiente do projeto |
+| **Módulos do pós-MVP** | Entram depois do MVP | `deps`, `legacy`, `program`, `change`, `docsite`, `notify`, os casos de harness e o `brain.graph`, que une o grafo do código ao das notas na seleção de contexto, foram antecipados, com flag em `beta`, ligada | Pedido do responsável. O SSO fica para depois |
+| **Validação local** | Inclui gitleaks, pip-audit, semgrep, SBOM e cobertura de domínio | Todos estão em `validate.py`. pip-audit gera o SBOM, e semgrep roda em ambiente próprio. O piso de cobertura de domínio é 85%, escolhido a partir da medição. Ferramenta indisponível fica como `não verificado`, nunca aprovada | Sem desvio de escopo |
 
 ---
 
