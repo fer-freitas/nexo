@@ -126,14 +126,6 @@ def _collect_source(ctx: AppContext, root: Path, cfg: dict[str, Any], source: st
         return learning_sources.pr_comments(repo, gh_token, since)
     if source == "incidents":
         events: list[RawEvent] = []
-        conf = dict(lcfg.get("confluence") or {})
-        if conf.get("base_url"):
-            token = credentials.get_secret("confluence")
-            if not token:
-                raise NexoError("credencial 'confluence' ausente: nexo login confluence")
-            events += learning_sources.confluence(
-                str(conf["base_url"]), str(conf.get("email", "")), token, str(conf.get("cql", "label = postmortem"))
-            )
         snow = dict(lcfg.get("servicenow") or {})
         if snow.get("instance"):
             token = credentials.get_secret("servicenow")

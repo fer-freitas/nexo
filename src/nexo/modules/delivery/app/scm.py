@@ -1,9 +1,4 @@
-"""Repositório de código e PRs: um adaptador por provedor, todos no mesmo formato normalizado.
-
-`scm.provider`: github | gitlab | bitbucket | azure. `scm.repo`: owner/repo (GitHub), grupo/projeto (GitLab),
-workspace/repositorio (Bitbucket) ou o nome do repositório (Azure Repos, com `scm.org_url` e `scm.project`, que caem
-no `tracker.azure` quando ausentes). GitLab próprio: `scm.base_url`.
-"""
+"""Repositório de código e PRs: só o GitHub. `scm.provider: github` e `scm.repo: dono/repositório`."""
 
 from __future__ import annotations
 
@@ -14,7 +9,7 @@ from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config as platform_config
 from nexo.kernel.secrets import credentials
 
-PROVIDERS = ("github", "gitlab", "bitbucket", "azure")
+PROVIDERS = ("github",)
 
 
 def config(ctx: AppContext) -> dict[str, Any]:
@@ -40,30 +35,9 @@ def build(ctx: AppContext) -> Any:
     if provider not in PROVIDERS or not cfg.get("repo"):
         raise NexoError(f"configure scm.provider ({' | '.join(PROVIDERS)}) e scm.repo no projeto")
     repo, remote = str(cfg["repo"]), str(cfg.get("remote", "origin"))
-    if provider == "github":
-        from nexo.kernel import services
-        from nexo.modules.delivery.adapters.scm.github import GitHubScm
-
-        github_token = services.get("demands.tracker", "github_token")
-
-        return GitHubScm(repo, github_token(ctx), remote)
-    if provider == "gitlab":
-        from nexo.modules.delivery.adapters.scm.gitlab import GitLabScm
-
-        return GitLabScm(repo, _secret("gitlab"), remote, str(cfg.get("base_url") or "https://gitlab.com"))
-    if provider == "bitbucket":
-        from nexo.modules.delivery.adapters.scm.bitbucket import BitbucketScm
-
-        return BitbucketScm(repo, _secret("bitbucket"), remote)
     from nexo.kernel import services
-    from nexo.modules.delivery.adapters.scm.azure import AzureReposScm
+    from nexo.modules.delivery.adapters.scm.github import GitHubScm
 
-    azure_bearer = services.get("demands.tracker", "azure_bearer")
-    tracker_config = services.get("demands.tracker", "tracker_config")
+    github_token = services.get("demands.tracker", "github_token")
 
-    az = dict(tracker_config(ctx).get("azure") or {})
-    org, project = cfg.get("org_url") or az.get("org_url"), cfg.get("project") or az.get("project")
-    if not org or not project:
-        raise NexoError("Azure Repos exige scm.org_url e scm.project (ou tracker.azure)")
-    bearer = azure_bearer(ctx)
-    return AzureReposScm(str(org), str(project), repo, bearer or _secret("tracker"), remote, bearer=bool(bearer))
+    return GitHubScm(repo, github_token(ctx), remote)

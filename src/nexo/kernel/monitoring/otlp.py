@@ -1,7 +1,7 @@
 """Traces OpenTelemetry: modelo mínimo de span e codificação OTLP/HTTP JSON, sem dependência do SDK.
 
 Atributos passam pela mesma regra da telemetria (só metadados: sem caminhos, prompts ou texto longo). O formato é o
-OTLP/HTTP JSON aceito por Azure Monitor (via OpenTelemetry Collector), Datadog, Grafana/Tempo, Jaeger e afins.
+OTLP/HTTP JSON aceito por Datadog, Grafana/Tempo, Jaeger e afins.
 """
 
 from __future__ import annotations

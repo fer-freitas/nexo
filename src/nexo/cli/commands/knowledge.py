@@ -323,7 +323,7 @@ def brain_keygen_cmd(private_key: Path) -> None:
 @brain_app.command("sign")
 def brain_sign_cmd(
     path: Path,
-    key: Annotated[str, typer.Option("--key", help="Arquivo PEM, awskms://<chave> ou azkv://<cofre>/<chave>")],
+    key: Annotated[str, typer.Option("--key", help="Arquivo PEM ou awskms://<chave>")],
     version: Annotated[str, typer.Option("--version")],
 ) -> None:
     from nexo.modules.knowledge.app import brain as knowledge_brain
@@ -334,7 +334,7 @@ def brain_sign_cmd(
 
 @brain_app.command("pubkey")
 def brain_pubkey_cmd(
-    key: Annotated[str, typer.Option("--key", help="Arquivo PEM ou azkv://<cofre>/<chave>[/<versão>]")],
+    key: Annotated[str, typer.Option("--key", help="Arquivo PEM ou awskms://<chave>")],
 ) -> None:
     """Chave pública para `brain.trusted_keys` e impressão digital (para revogar em revoked-signers.yaml)."""
     from nexo.modules.knowledge.app import brain as knowledge_brain

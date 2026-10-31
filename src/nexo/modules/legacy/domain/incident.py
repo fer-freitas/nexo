@@ -1,6 +1,6 @@
 """Do incidente à correção: normalização de alertas e incidentes e extração da pilha de erro.
 
-Fontes aceitas (JSON): genérica, ServiceNow (`incident`), Sentry (evento) e Azure Monitor (esquema comum de alerta).
+Fontes aceitas (JSON): genérica, ServiceNow (`incident`) e Sentry (evento).
 Tudo determinístico: nenhum LLM participa da leitura; o texto vindo de fora é tratado como dado pelo chamador.
 """
 
@@ -10,7 +10,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-SOURCES = ("generic", "servicenow", "sentry", "azure")
+SOURCES = ("generic", "servicenow", "sentry")
 CRITICAL = ("critical", "sev0", "sev1", "1", "p1", "fatal")
 
 
@@ -79,8 +79,6 @@ def detect(data: dict[str, Any]) -> str:
         return "servicenow"
     if "exception" in data or ("event_id" in data and "platform" in data):
         return "sentry"
-    if "data" in data and isinstance(data.get("data"), dict) and "essentials" in data["data"]:
-        return "azure"
     return "generic"
 
 
@@ -121,20 +119,6 @@ def normalize(data: dict[str, Any], source: str = "auto") -> Incident:
             message="\n".join(messages)[:4000],
             trace_id=str(((data.get("contexts") or {}).get("trace") or {}).get("trace_id") or ""),
             frames=frames[:30],
-        )
-    if kind == "azure":
-        ess = data["data"]["essentials"]
-        ctx = data["data"].get("alertContext") or {}
-        text = str(ctx.get("condition") or ctx)
-        return Incident(
-            id=str(ess.get("alertId") or "").rsplit("/", 1)[-1],
-            title=str(ess.get("alertRule") or ess.get("description") or ""),
-            source=kind,
-            service=str((ess.get("configurationItems") or [""])[0]),
-            severity=str(ess.get("severity") or "").lower(),
-            opened_at=str(ess.get("firedDateTime") or ""),
-            message=str(ess.get("description") or "")[:4000],
-            frames=frames_from_text(text),
         )
     text = "\n".join(str(data.get(k) or "") for k in ("message", "error", "stacktrace", "stack", "log"))
     return Incident(

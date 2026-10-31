@@ -49,7 +49,7 @@ def _scm(ctx: AppContext) -> Any:
     from nexo.modules.delivery.app import scm as delivery_scm
 
     if not delivery_scm.enabled(ctx):
-        raise NexoError("revisão de PR exige scm.provider (github, gitlab, bitbucket ou azure) e scm.repo no projeto")
+        raise NexoError("revisão de PR exige scm.provider github e scm.repo no projeto")
     return delivery_scm.build(ctx)
 
 

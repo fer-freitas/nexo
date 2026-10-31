@@ -1,13 +1,12 @@
 """Identidade de quem dispara e de quem aprova.
 
 Modo `verified` (padrão): a identidade vem do provedor corporativo, a partir do token no keyring — GitHub
-(`GET /user`) ou Azure DevOps (`connectionData`). Usuário do SO e `NX_ACTOR` não servem para aprovar.
+(`GET /user`). Usuário do SO e `NX_ACTOR` não servem para aprovar.
 Modo `os`: só vale se definido pela org ou pelo squad (cérebro); definido no projeto ou no pessoal é ignorado.
 """
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import time
@@ -25,7 +24,7 @@ TRUSTED_ORIGINS = ("default", "org", "squad")
 
 @dataclass(frozen=True)
 class Identity:
-    id: str  # ex.: github:fer-freitas · azure:ana@empresa.com · os:ferfreitas
+    id: str  # ex.: github:pessoa ou os:pessoa
     verified: bool
 
 
@@ -47,7 +46,7 @@ def _provider(ctx: AppContext) -> str:
     explicit = (cfg.get("identity") or {}).get("provider")
     if explicit:
         return str(explicit)
-    return "azure" if (cfg.get("tracker") or {}).get("kind") == "azure" else "github"
+    return "github"
 
 
 def _cache_get(ctx: AppContext, provider: str, token: str) -> str | None:
@@ -79,22 +78,8 @@ def _lookup(ctx: AppContext, provider: str) -> str:
             "GET", "https://api.github.com/user", {"Authorization": f"Bearer {token}", "Accept": "application/json"}
         ).body
         login = str(body.get("login") or "")
-    elif provider == "azure":
-        token = credentials.get_secret("tracker")
-        org = str(((config.resolved(ctx).values.get("tracker") or {}).get("azure") or {}).get("org_url") or "")
-        if not token or not org:
-            raise NexoError("identidade verificada exigida: configure o Azure DevOps e rode `nexo login tracker`")
-        cached = _cache_get(ctx, provider, token)
-        if cached:
-            return cached
-        basic = base64.b64encode(f":{token}".encode()).decode()
-        body = http.request(
-            "GET", f"{org.rstrip('/')}/_apis/connectionData?api-version=7.1", {"Authorization": f"Basic {basic}"}
-        ).body
-        user = body.get("authenticatedUser") or {}
-        login = str(((user.get("properties") or {}).get("Account") or {}).get("$value") or "")
     else:
-        raise NexoError(f"provedor de identidade desconhecido: {provider} (github | azure)")
+        raise NexoError(f"provedor de identidade desconhecido: {provider} (github)")
     if not login:
         raise NexoError(f"o {provider} não confirmou a identidade do token")
     _cache_put(ctx, provider, token, login)

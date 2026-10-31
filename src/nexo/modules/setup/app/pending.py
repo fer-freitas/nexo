@@ -227,7 +227,7 @@ def _docs_step(ctx: AppContext, root: Path) -> list[Step]:
     base = specs.specs_root(root)
     if not base.is_dir() or not any((f / "backlog.yaml").is_file() for f in base.glob("F-*")):
         return []
-    detail = "Docusaurus (GitHub Pages), Confluence, Azure Wiki ou só no repositório"
+    detail = "Docusaurus ou só no repositório"
     return [Step("escolher onde fica a documentação", ("docs", "target"), detail)]
 
 

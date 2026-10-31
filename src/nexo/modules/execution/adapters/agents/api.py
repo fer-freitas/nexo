@@ -51,7 +51,6 @@ ALL_STATUS = tuple(range(200, 600))
 VENDOR = {
     "anthropic": "anthropic",
     "openai": "openai",
-    "azure-openai": "microsoft",
     "gateway": "gateway",
     "bedrock": "aws",
     "gemini-api": "google",
@@ -143,19 +142,6 @@ class Provider:
                 lambda key: {"x-api-key": key, "anthropic-version": "2023-06-01"},
                 max_tokens,
             )
-        if name == "azure-openai":
-            endpoint = str(cfg.get("endpoint") or "").rstrip("/")
-            version = str(cfg.get("api_version") or "2024-10-21")
-            deployments = dict(cfg.get("deployments") or {})
-            return Provider(
-                name,
-                "openai",
-                lambda m: (
-                    f"{endpoint}/openai/deployments/{deployments.get(m, m)}/chat/completions?api-version={version}"
-                ),
-                lambda key: {"api-key": key},
-                max_tokens,
-            )
         if name == "bedrock":
             region = str(cfg.get("region") or "us-east-1")
             root = str(cfg.get("base_url") or f"https://bedrock-runtime.{region}.amazonaws.com").rstrip("/")
@@ -209,8 +195,6 @@ class ApiAdapter:
     def _configured(self) -> bool:
         if not self.cfg.get("enabled"):
             return False
-        if self.name == "azure-openai" and not self.cfg.get("endpoint"):
-            return False
         if self.name == "gateway" and not self.cfg.get("base_url"):
             return False
         return bool(self.hooks.secret())
@@ -233,7 +217,7 @@ class ApiAdapter:
     def start(self, req: AgentRequest, profile: str = "code-writer") -> ApiSession:
         from dataclasses import replace
 
-        # apelido da rota → nome do modelo no provedor (gateway, Azure, Bedrock)
+        # apelido da rota → nome do modelo no provedor (gateway, Bedrock)
         models = {**(BEDROCK_MODELS if self.name == "bedrock" else {}), **dict(self.cfg.get("models") or {})}
         return ApiSession(self, replace(req, model=str(models.get(req.model, req.model))), profile)
 

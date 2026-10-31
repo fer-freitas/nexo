@@ -1,19 +1,19 @@
 ---
 name: tracker-de-trabalho
-description: Como criar, ler e atualizar itens de trabalho no tracker do time (Jira, Azure Boards, GitHub Issues, GitLab Issues, Linear) pelas integrações do Nexo ou por MCP — hierarquia épico, feature, história e tarefa, campos obrigatórios, estados, tags e vínculos. Use sempre que for registrar ou consultar trabalho no tracker.
+description: Como criar, ler e atualizar itens de trabalho no GitHub Issues pela integração do Nexo ou por MCP — hierarquia épico, feature, história e tarefa, campos obrigatórios, estados, tags e vínculos. Use sempre que for registrar ou consultar trabalho no tracker.
 ---
 # Tracker de trabalho
 
 O tracker é a fonte oficial do trabalho do time. O Nexo sincroniza com ele pela integração nativa (`nexo tracker sync`) ou por um servidor MCP do próprio tracker. Esta skill diz **como** preencher; a integração faz a chamada.
 
-## Equivalência de termos entre trackers
-| Nexo | Jira | Azure Boards | GitHub / GitLab Issues | Linear |
-|---|---|---|---|---|
-| Épico | Epic | Epic | Milestone ou issue com label `epic` | Project |
-| Feature | Epic filho ou Feature | Feature | Issue com label `feature` | Project milestone |
-| História | Story | User Story / Product Backlog Item | Issue | Issue |
-| Tarefa | Sub-task | Task | Task list ou issue filha | Sub-issue |
-| Bug | Bug | Bug | Issue com label `bug` | Issue com label `bug` |
+## Equivalência de termos com o GitHub Issues
+| Nexo | GitHub Issues |
+|---|---|
+| Épico | Milestone ou issue com label `epic` |
+| Feature | Issue com label `feature` |
+| História | Issue |
+| Tarefa | Task list ou issue filha |
+| Bug | Issue com label `bug` |
 
 O de-para de estados e tipos de cada projeto fica em `.nexo/mappings` (`nexo tracker map --check`).
 

@@ -72,21 +72,6 @@ def test_sources_are_detected_and_normalized() -> None:
     }
     inc = normalize(sentry)
     assert inc.source == "sentry" and inc.frames[0].file == "src/svc/version.py" and inc.trace_id.startswith("4bf9")
-    azure = {
-        "schemaId": "azureMonitorCommonAlertSchema",
-        "data": {
-            "essentials": {
-                "alertId": "/subscriptions/x/providers/Microsoft.AlertsManagement/alerts/9f1",
-                "alertRule": "Taxa de erro alta",
-                "severity": "Sev1",
-                "firedDateTime": "2026-09-27T14:00:00Z",
-                "configurationItems": ["svc-versao"],
-            },
-            "alertContext": {"condition": {"allOf": [{"metricName": "requests/failed"}]}},
-        },
-    }
-    inc = normalize(azure)
-    assert (inc.source, inc.id, inc.critical) == ("azure", "9f1", True)
     with pytest.raises(ValueError):
         normalize({"x": 1}, "splunk")
 

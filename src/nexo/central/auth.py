@@ -1,6 +1,6 @@
 """Autenticação do coletor: token (integrações, dispositivos), sessão do dashboard e SSO (OIDC).
 
-SSO: fluxo de código com PKCE contra o provedor corporativo (Entra ID ou qualquer OIDC), configurado por
+SSO: fluxo de código com PKCE contra o provedor corporativo (qualquer OIDC), configurado por
 `NX_COLLECTOR_OIDC_ISSUER`, `_CLIENT_ID`, `_CLIENT_SECRET` e `_CLAIM` (padrão `preferred_username`). A identidade
 vem do `userinfo` do provedor (chamada TLS autenticada pelo token recém-emitido), sem aceitar token do navegador.
 Sem OIDC configurado, a tela de login aceita um token pessoal (desenvolvimento/demo; desligável com

@@ -20,14 +20,14 @@ DONE = {"progress": {"percent": 100}}
 @pytest.mark.parametrize(
     "tool,read",
     [
-        ("mcp__atlassian__getJiraIssue", True),
-        ("mcp__atlassian__searchJiraIssuesUsingJql", True),
+        ("mcp__exemplo__getIssue", True),
+        ("mcp__exemplo__searchIssues", True),
         ("mcp__github__list_pull_requests", True),
         ("mcp__github__get_file_contents", True),
-        ("mcp__atlassian__createJiraIssue", False),
-        ("mcp__atlassian__transitionJiraIssue", False),
+        ("mcp__exemplo__createIssue", False),
+        ("mcp__exemplo__transitionIssue", False),
         ("mcp__github__merge_pull_request", False),
-        ("mcp__slack__send_message", False),
+        ("mcp__outro__send_message", False),
         ("mcp__github__get_and_update_issue", False),  # verbo de escrita em qualquer lugar → escrita
         ("mcp__x__issues", False),  # sem verbo conhecido → não é leitura
     ],
@@ -37,15 +37,15 @@ def test_read_tool_detection(tool: str, read: bool) -> None:
 
 
 def test_external_servers_are_read_only_unless_approved_to_write(tmp_path: Path) -> None:
-    base = {"mcp": {"allowed_servers": ["nexo", "atlassian", "github"], "write_allowed": ["github"]}}
+    base = {"mcp": {"allowed_servers": ["nexo", "exemplo", "github"], "write_allowed": ["github"]}}
     policy = Policy.from_mapping(base)
     ws = str(tmp_path)
-    assert evaluate(Action("mcp", "mcp__atlassian__getJiraIssue", mcp_server="atlassian"), ws, policy).allow
-    denied = evaluate(Action("mcp", "mcp__atlassian__createJiraIssue", mcp_server="atlassian"), ws, policy)
+    assert evaluate(Action("mcp", "mcp__exemplo__getIssue", mcp_server="exemplo"), ws, policy).allow
+    denied = evaluate(Action("mcp", "mcp__exemplo__createIssue", mcp_server="exemplo"), ws, policy)
     assert not denied.allow and denied.rule == "SEC-35"
     assert evaluate(Action("mcp", "mcp__github__merge_pull_request", mcp_server="github"), ws, policy).allow
     assert evaluate(Action("mcp", "mcp__nexo__update_progress", mcp_server="nexo"), ws, policy).allow
-    assert not evaluate(Action("mcp", "mcp__slack__search", mcp_server="slack"), ws, policy).allow  # SEC-34
+    assert not evaluate(Action("mcp", "mcp__outro__search", mcp_server="outro"), ws, policy).allow  # SEC-34
 
 
 def approve(home: Path, *servers: str, write: tuple[str, ...] = ()) -> None:

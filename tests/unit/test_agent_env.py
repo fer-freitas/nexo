@@ -21,7 +21,7 @@ ENV = {
     "NX_ACTOR": "chefe",
     "NX_COLLECTOR_TOKEN": "t0k",
     "AWS_SECRET_ACCESS_KEY": "aws",
-    "AZURE_DEVOPS_EXT_PAT": "pat",
+    "OUTRO_EXT_PAT": "pat",
     "GITHUB_TOKEN": "ghp",
     "DB_PASSWORD": "senha",
     "ANTHROPIC_API_KEY": "sk-ant",

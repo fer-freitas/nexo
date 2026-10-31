@@ -7,7 +7,6 @@ Saída por HTTPS com fila e nova tentativa:
 - `NX_COLLECTOR_SIEM_FORMAT=json` (padrão): `POST` de uma lista de eventos em `NX_COLLECTOR_SIEM_URL`
   (Logic App/Function, Cribl, Logstash…), com `Authorization: Bearer $NX_COLLECTOR_SIEM_TOKEN`.
 - `splunk-hec`: HTTP Event Collector (`Authorization: Splunk <token>`, sourcetype `nexo:security`).
-- `sentinel`: Logs Ingestion API do Azure Monitor (URL do DCR/stream; token Entra do coletor).
 
 Violação de política vai com a pessoa identificada (a Segurança vê pessoas nesse caso, §9.2) e a reidentificação
 fica na auditoria.
@@ -142,12 +141,6 @@ def flush(d: CollectorDB, limit: int = 500) -> dict[str, int]:
                     {"event": e, "sourcetype": "nexo:security", "source": e.get("source")},
                     {"Authorization": f"Splunk {token}"},
                 )
-        elif fmt == "sentinel":
-            _post(
-                url,
-                [{"TimeGenerated": e.get("time"), **{k: v for k, v in e.items() if k != "time"}} for e in events],
-                {"Authorization": f"Bearer {token}"},
-            )
         else:
             _post(url, events, {"Authorization": f"Bearer {token}"} if token else {})
     except (OSError, ValueError) as exc:

@@ -34,20 +34,6 @@ def cloud(memory_keyring) -> Iterator[FakeCloud]:  # type: ignore[no-untyped-def
                     {"id": 12, "body": "  ", "created_at": "2026-09-20T10:01:00Z"},
                 ],
             )
-        if "atlassian.net/wiki" in url:
-            return http.Response(
-                200,
-                {
-                    "results": [
-                        {
-                            "id": "900",
-                            "title": "Postmortem: estorno duplicado",
-                            "version": {"number": 3},
-                            "body": {"storage": {"value": "<p>Causa: retry sem idempotência</p>"}},
-                        }
-                    ]
-                },
-            )
         if "service-now.com" in url:
             return http.Response(
                 200,
@@ -66,7 +52,6 @@ def cloud(memory_keyring) -> Iterator[FakeCloud]:  # type: ignore[no-untyped-def
 
     http.set_transport(extra)
     memory_keyring.store[("nexo-cli", "github")] = fake.github_token
-    memory_keyring.store[("nexo-cli", "confluence")] = "conf-token"
     memory_keyring.store[("nexo-cli", "servicenow")] = "snow-token"
     yield fake
     http.set_transport(None)
@@ -80,7 +65,6 @@ def run_json(nexo: Runner, *args: str) -> tuple[int, dict]:  # type: ignore[type
 def test_collectors(project: Path, nexo: Runner, cloud: FakeCloud) -> None:
     for k, v in (
         ("scm.repo", "empresa/app"),
-        ("learning.sources.confluence.base_url", "https://empresa.atlassian.net/wiki"),
         ("learning.sources.servicenow.instance", "empresa.service-now.com"),
     ):
         nexo("config", "set", k, v, "--project")
@@ -107,11 +91,11 @@ def test_collectors(project: Path, nexo: Runner, cloud: FakeCloud) -> None:
     assert code == 0
     assert data["pr_comments"] == {"found": 1, "new": 1}
     assert data["bugs"]["new"] == 1 and data["adrs"]["new"] == 1 and data["human_fixes"]["new"] == 1
-    assert data["incidents"]["new"] == 2
+    assert data["incidents"]["new"] == 1
     again = run_json(nexo, "learn", "collect")[1]
     assert again["pr_comments"]["new"] == 0 and again["human_fixes"]["new"] == 0  # incremental
     status = run_json(nexo, "learn", "status")[1]
-    assert status["sources"]["incidents"]["pending"] == 2
+    assert status["sources"]["incidents"]["pending"] == 1
 
 
 def test_incident_source_requires_credential(project: Path, nexo: Runner, memory_keyring) -> None:  # type: ignore[no-untyped-def]

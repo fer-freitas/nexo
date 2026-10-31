@@ -1,4 +1,4 @@
-"""GitHub como SCM: push da branch da história, PR com `AB#id`, checks e proteção de branch (4.4)."""
+"""GitHub como SCM: push da branch da história, PR, checks e proteção de branch (4.4)."""
 
 from __future__ import annotations
 

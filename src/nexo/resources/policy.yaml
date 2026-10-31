@@ -39,7 +39,6 @@ forbidden_paths:
   - "**/id_ed25519*"
   - "**/.ssh/**"
   - "**/.aws/**"
-  - "**/.azure/**"
   - "**/secrets*.json"
   - "**/appsettings.Production.json"
   - "**/.git/config"

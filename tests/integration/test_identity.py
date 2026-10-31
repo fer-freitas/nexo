@@ -92,19 +92,6 @@ def test_org_can_allow_local_identity(planned, nexo: Runner, scenario, cloud: Fa
     assert rep["state"] == "AguardandoHumano"  # sem token: a org liberou o modo local
 
 
-def test_azure_identity_from_connection_data(nexo: Runner, cloud: FakeCloud, project: Path, nexo_home: Path) -> None:
-    from nexo.kernel.context import AppContext
-    from nexo.kernel.platform import identity
-
-    nexo("config", "set", "tracker.kind", "azure", "--project")
-    nexo("config", "set", "tracker.azure.org_url", cloud.org, "--project")
-    credentials.set_secret("tracker", cloud.pat)
-    ctx = AppContext(cwd=project, home=nexo_home)
-    assert identity.current(ctx) == identity.Identity("azure:dev@empresa.com", verified=True)
-    cloud.azure_users.clear()
-    assert identity.current(ctx).id == "azure:dev@empresa.com"  # cache de 12 h, sem nova chamada
-
-
 def test_doctor_shows_identity(nexo: Runner, cloud: FakeCloud) -> None:
     checks = {c["name"]: c for c in json.loads(nexo("--json", "doctor")[1])["checks"]}
     assert checks["identity"]["status"] == "warn" and "nexo login github" in checks["identity"]["detail"]

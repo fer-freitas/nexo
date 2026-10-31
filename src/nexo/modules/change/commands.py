@@ -12,7 +12,7 @@ import typer
 from nexo.cli.app import app, console, ctx, emit
 from nexo.kernel.errors import NexoError
 
-change_app = typer.Typer(help="Gestão de mudança no ServiceNow ou no Jira Service Management", no_args_is_help=True)
+change_app = typer.Typer(help="Gestão de mudança no ServiceNow", no_args_is_help=True)
 
 
 app.add_typer(change_app, name="change")

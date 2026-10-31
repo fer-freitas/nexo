@@ -145,3 +145,19 @@ def test_new_module_needs_only_a_folder(tmp_path: Path) -> None:
     manifest = modules.parse(data, "teste")
     modules.validate([*modules.builtin(), manifest])
     assert manifest.flags[0].default is False
+
+
+def test_only_github_and_no_removed_vendor_in_the_code() -> None:
+    """PR só no GitHub, e nada de GitLab, Bitbucket, Azure, Jira, Confluence, Linear ou Slack.
+
+    A redação segue reconhecendo tokens desses fornecedores: colar um segredo por engano continua sendo bloqueado.
+    """
+    removed = re.compile(r"(?i)\bgitlab\b|\bbitbucket\b|\bazure\b|azkv|\bjira\b|atlassian|confluence|\bslack\b")
+    allowed = {"redaction.py"}
+    hits = []
+    for f in SRC.rglob("*"):
+        if f.suffix in {".py", ".yaml", ".md"} and "packs" not in f.parts and f.name not in allowed:
+            hits += [
+                f"{f.relative_to(SRC)}" for line in f.read_text(encoding="utf-8").splitlines() if removed.search(line)
+            ]
+    assert sorted(set(hits)) == []

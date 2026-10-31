@@ -214,17 +214,19 @@ def test_hook_and_tool_transpile(project: Path, nexo: Runner, tmp_path: Path, to
     settings = json.loads((project / ".claude/settings.json").read_text(encoding="utf-8"))
     entry = settings["hooks"]["PreToolUse"][0]
     assert entry["matcher"] == "Bash" and "hook exec hook:no-print --claude" in entry["hooks"][0]["command"]
-    mcp = tmp_path / "jira-mcp.json"
-    mcp.write_text(json.dumps({"command": "npx", "args": ["-y", "mcp-jira"]}), encoding="utf-8")
-    rep = json.loads(nexo("--json", "tool", "add", str(mcp), "--name", "jira")[1])
-    assert rep["installed"] == {"claude": ["jira"], "copilot": ["jira"]} and rep["unavailable"] == {"devin": ["jira"]}
-    assert "jira" in json.loads((project / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]
-    assert "jira" in json.loads((tools_home / ".copilot/mcp-config.json").read_text(encoding="utf-8"))["mcpServers"]
+    mcp = tmp_path / "exemplo-mcp.json"
+    mcp.write_text(json.dumps({"command": "npx", "args": ["-y", "mcp-exemplo"]}), encoding="utf-8")
+    rep = json.loads(nexo("--json", "tool", "add", str(mcp), "--name", "exemplo")[1])
+    assert rep["installed"] == {"claude": ["exemplo"], "copilot": ["exemplo"]} and rep["unavailable"] == {
+        "devin": ["exemplo"]
+    }
+    assert "exemplo" in json.loads((project / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]
+    assert "exemplo" in json.loads((tools_home / ".copilot/mcp-config.json").read_text(encoding="utf-8"))["mcpServers"]
     sync = json.loads(nexo("--json", "hook", "sync")[1])
     assert "no-print" in sync["installed"]["claude"]
     assert nexo("hook", "add", str(hook))[0] == 1  # hook avulso sem --event
-    assert nexo("tool", "remove", "jira")[0] == 0
-    assert "jira" not in json.loads((project / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]
+    assert nexo("tool", "remove", "exemplo")[0] == 0
+    assert "exemplo" not in json.loads((project / ".mcp.json").read_text(encoding="utf-8"))["mcpServers"]
 
 
 def test_hook_exec_claude_protocol(

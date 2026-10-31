@@ -6,9 +6,9 @@ rules:
     title: TODO sem item no tracker
     kind: forbidden_pattern
     severity: warning
-    params: { pattern: "(?i)\\b(TODO|FIXME)\\b(?![^\\n]*(AB#\\d+|[A-Z][A-Z0-9]+-\\d+|#\\d+))" }
+    params: { pattern: "(?i)\\b(TODO|FIXME)\\b(?![^\\n]*([A-Z][A-Z0-9]+-\\d+|#\\d+))" }
     skill: solid-e-clean-code
-    message: "TODO/FIXME sem item no tracker (exemplo TODO(AB#123)); registre a pendência ou resolva"
+    message: "TODO/FIXME sem item no tracker (exemplo TODO(#123)); registre a pendência ou resolva"
   - id: CLEAN-ARQUIVO-GRANDE
     title: Arquivo grande demais
     kind: max_file_lines

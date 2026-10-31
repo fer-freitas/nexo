@@ -79,7 +79,7 @@ app.add_typer(incident_app, name="incident")
 @incident_app.command("open")
 def incident_open_cmd(
     path: Annotated[str, typer.Argument(help="Arquivo JSON do incidente ou - para ler da entrada")],
-    source: Annotated[str, typer.Option("--source", help="auto | generic | servicenow | sentry | azure")] = "auto",
+    source: Annotated[str, typer.Option("--source", help="auto | generic | servicenow | sentry")] = "auto",
 ) -> None:
     """Transforma um incidente ou alerta numa história de correção com pilha, arquivos e commit suspeito."""
     from nexo.modules.legacy.app import incident

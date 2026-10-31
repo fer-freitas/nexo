@@ -1,6 +1,6 @@
 """Do incidente à correção: um alerta do APM ou um incidente do ITSM vira uma história de correção pronta.
 
-`nexo incident open <arquivo|->` lê o incidente (genérico, ServiceNow, Sentry ou Azure Monitor), acha na pilha de
+`nexo incident open <arquivo|->` lê o incidente (genérico, ServiceNow ou Sentry), acha na pilha de
 erro os arquivos do repositório, aponta o commit suspeito (última mudança nesses arquivos antes da abertura) e cria
 a feature `F-n` com o critério de aceite da correção e a tarefa com o contexto já preenchido. Nenhuma IA na criação;
 no fluxo normal da história, o QA escreve primeiro o teste de regressão que falha e só depois vem a correção.

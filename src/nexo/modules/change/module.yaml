@@ -3,7 +3,7 @@ version: 1.0.0
 title: "Gestão de mudança"
 flags:
   - key: change
-    title: "Requisição de mudança no ServiceNow ou no Jira Service Management"
+    title: "Requisição de mudança no ServiceNow"
     area: "Execução"
     stage: beta
     commands: ["change"]

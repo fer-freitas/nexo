@@ -103,7 +103,6 @@ EMAIL_KEYS = (
     "notify.email.to",
     "notify.email.from",
     "notify.email.user",
-    "docs.publish.confluence.email",
 )
 
 

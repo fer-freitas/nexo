@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from nexo.kernel.runtime.resources import read_text
 from nexo.modules.planning.domain.templates import mustache
-from nexo.modules.planning.domain.templates.html import markdown_to_html
 from nexo.modules.planning.domain.templates.model import override_problems, parse, sections, slug
 
 
@@ -36,12 +35,6 @@ def test_baseline_templates_are_valid_and_override_keeps_locked_sections() -> No
     ]
     broken = parse("---\nnexo_template: story\nrequired_sections: [inexistente]\n---\n## Narrativa\n")
     assert "seção declarada e ausente no corpo: inexistente" in broken.problems
-
-
-def test_markdown_to_html_for_confluence() -> None:
-    html = markdown_to_html("# T\n\nTexto **forte** e `code`.\n\n- a\n- b <script>\n\n1. um\n")
-    assert "<h1>T</h1>" in html and "<strong>forte</strong>" in html and "<code>code</code>" in html
-    assert "<ul>\n<li>a</li>\n<li>b &lt;script&gt;</li>\n</ul>" in html and "<ol>" in html
 
 
 def test_requirement_with_many_criteria_renders_each_line_once() -> None:

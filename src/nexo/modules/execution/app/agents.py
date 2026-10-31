@@ -27,7 +27,6 @@ TEXT_CLIS = ("copilot", "devin")  # adaptador genérico por contrato
 API_SECRET = {
     "anthropic": "anthropic",
     "openai": "openai",
-    "azure-openai": "azure_openai",
     "gateway": "llm_gateway",
     "bedrock": "bedrock",
     "gemini-api": "gemini_api",
@@ -35,7 +34,6 @@ API_SECRET = {
 API_ENV = {
     "anthropic": "ANTHROPIC_API_KEY",
     "openai": "OPENAI_API_KEY",
-    "azure-openai": "AZURE_OPENAI_API_KEY",
     "gateway": "NX_LLM_GATEWAY_KEY",
     "bedrock": "AWS_BEARER_TOKEN_BEDROCK",
     "gemini-api": "GEMINI_API_KEY",

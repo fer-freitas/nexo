@@ -63,7 +63,7 @@ DEFAULTS: dict[str, Any] = {
     # quem aprova cada portão (quality | cost | budget): o Nexo ou um processo externo que só devolve
     # o sinal continue/stop. `mode`/`gates` só valem da org ou do squad.
     # documentos cujas seções obrigatórias entram na DoR (sdd | functional-requirements |
-    # technical-design | epic | story | task) e publicação (none | azure_wiki | confluence).
+    # technical-design | epic | story | task) e publicação (none | docusaurus).
     # fluxo por papéis (vale só da org/squad). joint_session: always | auto (risco e tamanho) | never.
     "planning": {
         "required_documents": ["sdd"],

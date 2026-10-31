@@ -92,20 +92,16 @@ def public_key_of(private_path: Path) -> str:
 
 
 def sign(root: Path, key_ref: Path | str, version: str, meta_dir: str = ".brain") -> Path:
-    """Assina com chave local ou no Azure Key Vault.
+    """Assina com chave local ou no AWS KMS.
 
     Serve para o cérebro e para qualquer pasta verificável (ex.: pacote de evidências, `meta_dir=".evidencia"`)."""
     files = _files(root, meta_dir)
     payload = _canonical(version, files)
-    from nexo.kernel.secrets import awskms, keyvault
+    from nexo.kernel.secrets import awskms
 
     if isinstance(key_ref, str) and awskms.is_ref(key_ref):
         signature = awskms.sign_digest(key_ref, hashlib.sha256(payload).digest())
         alg, public = "es256", awskms.public_key(key_ref)
-    elif isinstance(key_ref, str) and keyvault.is_ref(key_ref):
-        ref = keyvault.parse_ref(key_ref)
-        signature = keyvault.sign_digest(ref, hashlib.sha256(payload).digest())
-        alg, public = "es256", keyvault.public_key(ref)
     else:
         path = Path(key_ref)
         key = serialization.load_pem_private_key(path.read_bytes(), password=None)

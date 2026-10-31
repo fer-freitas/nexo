@@ -1,4 +1,4 @@
-"""P0 pré-piloto: kill switch, injeção de prompt, assinatura no Key Vault e revogação,
+"""P0 pré-piloto: kill switch, injeção de prompt, assinatura no KMS e revogação,
 portão de regressão de prompts (Q-07), monitor sintético das CLIs e linha de base pelo tracker."""
 
 from __future__ import annotations
@@ -12,13 +12,13 @@ from typing import Any
 import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
 
 from nexo.kernel.runtime import http
 from nexo.kernel.security import injection
 from nexo.kernel.security.killswitch import matches, merge, parse, route_block, version_block
 from tests.conftest import DEFAULT_TASK, Runner, dump_yaml, edit
-from tests.fakes.http_fake import FakeCloud, Response
+from tests.fakes.http_fake import FakeCloud
 from tests.integration.test_story import run_json
 from tests.integration.test_telemetry import enable, login
 
@@ -167,53 +167,40 @@ def test_suspicious_planning_input_forces_human_gate(  # type: ignore[no-untyped
     assert any(e["type"] == "security.injection_suspect" for e in logs)
 
 
-# ---------------------------------------------------------------- S-08 Key Vault e revogação
+# ---------------------------------------------------------------- S-08 KMS e revogação
 
 
-class FakeVault:
-    """Azure Key Vault simulado: chave EC P-256 que nunca sai do cofre."""
+class FakeKms:
+    """AWS KMS simulado: chave EC P-256 que nunca sai do cofre."""
 
-    def __init__(self, cloud: FakeCloud) -> None:
-        self.cloud = cloud
+    def __init__(self) -> None:
         self.key = ec.generate_private_key(ec.SECP256R1())
         self.signed = 0
 
-    def __call__(self, method: str, url: str, headers: dict[str, str], data: bytes | None) -> Response:
-        if not url.startswith("https://kv-nexo.vault.azure.net/keys/brain-signing"):
-            return self.cloud(method, url, headers, data)
-        assert headers["Authorization"] == "Bearer tok-kv"
-        if url.endswith("/sign?api-version=7.4"):
-            body = json.loads(data or b"{}")
-            digest = base64.urlsafe_b64decode(body["value"] + "==")
-            from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
-
-            r, s = decode_dss_signature(self.key.sign(digest, ec.ECDSA(Prehashed(hashes.SHA256()))))
-            self.signed += 1
-            raw = r.to_bytes(32, "big") + s.to_bytes(32, "big")
-            return Response(200, {"kid": "k", "value": base64.urlsafe_b64encode(raw).rstrip(b"=").decode()})
-        nums = self.key.public_key().public_numbers()
-
-        def b64(n: int) -> str:
-            return base64.urlsafe_b64encode(n.to_bytes(32, "big")).rstrip(b"=").decode()
-
-        return Response(200, {"key": {"kty": "EC-HSM", "crv": "P-256", "x": b64(nums.x), "y": b64(nums.y)}})
+    def __call__(self, *args: str) -> dict[str, Any]:
+        if args[0] == "get-public-key":
+            der = self.key.public_key().public_bytes(
+                serialization.Encoding.DER, serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+            return {"KeySpec": "ECC_NIST_P256", "PublicKey": base64.b64encode(der).decode()}
+        digest = Path(args[args.index("--message") + 1].removeprefix("fileb://")).read_bytes()
+        self.signed += 1
+        return {"Signature": base64.b64encode(self.key.sign(digest, ec.ECDSA(Prehashed(hashes.SHA256())))).decode()}
 
 
-def test_keyvault_signing_revocation_and_corporate_rule(
-    cloud: FakeCloud, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_kms_signing_revocation_and_corporate_rule(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from nexo.kernel import brain
     from nexo.kernel.context import AppContext
     from nexo.kernel.platform import config
+    from nexo.kernel.secrets import awskms
     from nexo.modules.knowledge.app import brain as knowledge_brain
 
-    vault = FakeVault(cloud)
-    http.set_transport(vault)
-    monkeypatch.setenv("NX_AZURE_KEYVAULT_TOKEN", "tok-kv")
+    vault = FakeKms()
+    monkeypatch.setattr(awskms, "_call", vault)
     root = tmp_path / "brain"
     (root / "org").mkdir(parents=True)
     (root / "org" / "config.yaml").write_text("locked: []\n", encoding="utf-8")
-    ref = "azkv://kv-nexo/brain-signing"
+    ref = "awskms://alias/brain-signing"
     ctx = AppContext(cwd=tmp_path, home=tmp_path / "home")
     pub = knowledge_brain.public_key(ref)
     assert pub["public_key"].startswith("es256:") and len(pub["fingerprint"]) == 16
@@ -237,7 +224,6 @@ def test_keyvault_signing_revocation_and_corporate_rule(
     monkeypatch.setattr(config, "anchor", lambda: {"brain_repo": "x"})
     with pytest.raises(Exception, match="cofre"):
         knowledge_brain.sign(ctx, root, str(ed_key), "2026.09.25-10")
-    http.set_transport(None)
 
 
 def test_legacy_ed25519_manifest_still_verifies(tmp_path: Path) -> None:

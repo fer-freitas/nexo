@@ -245,9 +245,9 @@ def build(ctx: AppContext, fid: str, out: Path | None = None, key: str | None = 
     version = target.name
     key = key or str((config.resolved(ctx).values.get("evidence") or {}).get("sign_key") or "") or None
     if key:
-        from nexo.kernel.secrets import keyvault
+        from nexo.kernel.secrets import awskms
 
-        brain_adapter.sign(target, key if keyvault.is_ref(key) else Path(key).expanduser(), version, META_DIR)
+        brain_adapter.sign(target, key if awskms.is_ref(key) else Path(key).expanduser(), version, META_DIR)
     else:
         brain_adapter.write_manifest(target, version, META_DIR)
     ctx.audit(

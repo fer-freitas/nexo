@@ -409,17 +409,12 @@ def login_cmd(provider: str) -> None:
         "teams",
         "smtp",
         "collector",
-        "confluence",
         "servicenow",
         "anthropic",
         "openai",
-        "azure_openai",
         "llm_gateway",  # chaves das APIs das LLMs
         "bedrock",  # ACCESS_KEY:SECRET[:SESSION_TOKEN] ou chave de API do Bedrock
         "gemini_api",
-        "gitlab",  # repositório
-        "bitbucket",
-        "jsm",  # aprovações pelo Jira Service Management
         "google_chat",  # webhook do espaço
     )
     if provider.startswith("mcp_"):  # credencial de um MCP oficial do catálogo

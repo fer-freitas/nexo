@@ -147,7 +147,7 @@ def contains_sensitive(text: str) -> bool:
 # Identidade de quem responde por uma decisão (aprovar, reprovar, decidir) fica legível na trilha de auditoria:
 # é a finalidade da trilha. Só vale para esses campos e para valores no formato `provedor:login`.
 ACCOUNTABLE_KEYS = frozenset({"approver", "by", "decided_by", "requester", "author"})
-IDENTITY = re.compile(r"^(github|gitlab|bitbucket|azure|sso|os):[^\s]{1,200}$")
+IDENTITY = re.compile(r"^(github|sso|os):[^\s]{1,200}$")
 
 
 def redact_obj(value: Any, key: str = "") -> Any:

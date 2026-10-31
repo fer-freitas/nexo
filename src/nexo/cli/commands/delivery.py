@@ -53,7 +53,7 @@ app.add_typer(evidence_app, name="evidence", hidden=True)
 def evidence_build_cmd(
     feature: str,
     out: Annotated[Path | None, typer.Option("--out", help="Pasta de destino (padrão .nexo/evidencias)")] = None,
-    key: Annotated[str | None, typer.Option("--key", help="Chave para assinar: PEM ou azkv://…")] = None,
+    key: Annotated[str | None, typer.Option("--key", help="Chave para assinar: PEM ou awskms://…")] = None,
 ) -> None:
     """Monta o dossiê verificável da feature: aprovações, portões, testes, segurança, PRs, custo e trilha."""
     from nexo.modules.delivery.app import evidence

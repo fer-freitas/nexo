@@ -14,9 +14,7 @@ from nexo.kernel.errors import NexoError
 from nexo.kernel.platform import config
 
 OPTIONS = (
-    ("docusaurus", "Docusaurus no GitHub Pages: base de conhecimento do projeto no próprio repositório"),
-    ("confluence", "Confluence: páginas no espaço da empresa"),
-    ("azure_wiki", "Azure Wiki: páginas na wiki do projeto no Azure DevOps"),
+    ("docusaurus", "Docusaurus: base de conhecimento do projeto no próprio repositório"),
     ("none", "Só no repositório (.nexo/specs), sem publicar"),
 )
 
@@ -40,7 +38,7 @@ def docs_site() -> None:
 
 @docs_app.command("target")
 def docs_target(
-    target: Annotated[str | None, typer.Argument(help="docusaurus | confluence | azure_wiki | none")] = None,
+    target: Annotated[str | None, typer.Argument(help="docusaurus | none")] = None,
     level: Annotated[str, typer.Option("--level", help="project ou personal")] = "project",
 ) -> None:
     """Escolhe onde fica a documentação das features (a org ou o squad também definem no cérebro)."""
@@ -70,8 +68,6 @@ def docs_target(
             console.print(f"  gere o conteúdo com [nexo.accent]{look.prefix()}docs site[/]")
     elif not ctx().options.json:
         console.print(f"[nexo.good]✔[/] documentação: {escape(target)}")
-        if target in ("confluence", "azure_wiki"):
-            console.print(f"  [nexo.muted]conecte a conta com {look.prefix()}login {target.split('_')[0]}[/]")
     if ctx().options.json:
         emit({"target": target})
 
@@ -86,7 +82,7 @@ def docs_portal(
         typer.Option("--check", help="Termina com erro se houver desvio do desenho ou entrega sem requisito técnico"),
     ] = False,
 ) -> None:
-    """Monta o portal do projeto (todas as frentes e repositórios) com o desenho da solução; feito para o CI."""
+    """Monta o portal do projeto (todas as frentes e repositórios) com o desenho da solução."""
     from pathlib import Path
 
     from nexo.kernel import services

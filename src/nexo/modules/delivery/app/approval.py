@@ -44,36 +44,25 @@ def _channel_name(ctx: AppContext) -> str:
 
 
 def itsm_channel(ctx: AppContext, name: str, cfg: dict[str, Any]) -> Any:
-    """Canal de ITSM a partir da configuração: `servicenow` ou `jsm`."""
-    if name == "servicenow":
-        sn = dict(cfg.get("servicenow") or {})
-        token = credentials.get_secret("servicenow")
-        if not token:
-            raise NexoError("credencial 'servicenow' ausente: rode `nexo login servicenow`")
-        return channels.ServiceNowChannel(str(sn.get("instance_url") or ""), token, sn.get("user"))
-    jsm = dict(cfg.get("jsm") or {})
-    token = credentials.get_secret("jsm")
+    """Canal de ITSM a partir da configuração: `servicenow`."""
+    sn = dict(cfg.get("servicenow") or {})
+    token = credentials.get_secret("servicenow")
     if not token:
-        raise NexoError("credencial 'jsm' ausente: rode `nexo login jsm`")
-    missing = [k for k in ("base_url", "email", "service_desk_id", "request_type_id") if not jsm.get(k)]
-    if missing:
-        raise NexoError(f"Jira Service Management sem {', '.join(missing)} em approvals.jsm")
-    return channels.JsmChannel(
-        str(jsm["base_url"]), str(jsm["email"]), token, str(jsm["service_desk_id"]), str(jsm["request_type_id"])
-    )
+        raise NexoError("credencial 'servicenow' ausente: rode `nexo login servicenow`")
+    return channels.ServiceNowChannel(str(sn.get("instance_url") or ""), token, sn.get("user"))
 
 
 def _channel(ctx: AppContext) -> Any:
     cfg = _cfg(ctx)
     name = _channel_name(ctx)
-    if name in ("servicenow", "jsm"):
+    if name == "servicenow":
         return itsm_channel(ctx, name, cfg)
     if name == "file":
         folder = str((cfg.get("file") or {}).get("dir") or "")
         return channels.FileChannel(Path(folder).expanduser() if folder else ctx.home / "approvals")
     if name == "http":
         return channels.HttpChannel(str((cfg.get("http") or {}).get("url") or ""), credentials.get_secret("approvals"))
-    raise NexoError(f"canal de aprovação desconhecido: {name} (file | http | tracker | servicenow | jsm)")
+    raise NexoError(f"canal de aprovação desconhecido: {name} (file | http | tracker | servicenow)")
 
 
 def _requester(ctx: AppContext) -> str:
@@ -208,7 +197,7 @@ def sync(ctx: AppContext) -> list[dict[str, Any]]:
             if row["channel"] == "tracker":
                 decision = _tracker_poll(ctx, row)
             else:  # ITSM conhece a requisição pelo id dela (sys_id, chave); file/http, pelo id da Nexo
-                key = row["external_ref"] if row["channel"] in ("servicenow", "jsm") else row["id"]
+                key = row["external_ref"] if row["channel"] == "servicenow" else row["id"]
                 decision = _channel(ctx).poll(str(key))
         except (NexoError, OSError) as exc:
             ctx.audit("approval.error", {"request": row["id"], "error": str(exc)})

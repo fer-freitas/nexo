@@ -1,7 +1,7 @@
 """Gestão de mudança: a requisição de mudança da entrega sai do pacote de evidências.
 
 `nexo change open F-n` monta o pacote, decide o tipo (padrão quando todas as histórias são candidatas e as
-evidências sustentam; normal nos demais casos) e abre a requisição no ServiceNow ou no Jira Service Management
+evidências sustentam; normal nos demais casos) e abre a requisição no ServiceNow
 com plano de implantação, plano de retorno e plano de teste. `nexo change status F-n` acompanha a aprovação.
 """
 
@@ -34,8 +34,8 @@ def _cfg(ctx: AppContext) -> dict[str, Any]:
 
 def _channel(ctx: AppContext) -> tuple[str, Any]:
     name = str(_cfg(ctx).get("channel") or "")
-    if name not in ("servicenow", "jsm"):
-        raise NexoError("configure change.channel: servicenow ou jsm (ajustes em approvals.servicenow / approvals.jsm)")
+    if name != "servicenow":
+        raise NexoError("configure change.channel: servicenow (ajustes em approvals.servicenow)")
     approvals = dict(config.resolved(ctx).values.get("approvals") or {})
     return name, approval.itsm_channel(ctx, name, approvals)
 

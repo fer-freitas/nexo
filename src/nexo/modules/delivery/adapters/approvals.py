@@ -4,8 +4,7 @@ O sistema externo devolve só um sinal: `continue` ou `stop`. Canais:
 - `file`: `<dir>/<id>.request.json` é escrito pelo Nexo; o processo externo grava `<dir>/<id>.decision`
   com `continue` ou `stop` (troca por arquivo, para empresas sem API);
 - `http`: `POST <url>` com a solicitação; `GET <url>/<id>` → `{"status": "continue" | "stop" | "pending"}`;
-- `servicenow`: requisição de mudança pela Table API; a aprovação dela é a decisão;
-- `jsm`: solicitação no Jira Service Management; as aprovações dela são a decisão.
+- `servicenow`: requisição de mudança pela Table API; a aprovação dela é a decisão.
 Limite externo do dev: arquivo YAML `{dev: {mês: limite}}` ou `GET <url>?dev=&month=` → `{"limit_brl", "tools"}`.
 """
 
@@ -100,52 +99,6 @@ class ServiceNowChannel:
             "state": str(rec.get("state", "")),
             "number": str(rec.get("number", "")),
         }
-
-    def poll(self, ref: str) -> str | None:
-        approval = self.status(ref)["approval"]
-        return "continue" if approval == "approved" else "stop" if approval == "rejected" else None
-
-
-class JsmChannel:
-    """Jira Service Management: solicitação com aprovações. Todas aprovadas → continue; uma recusa → stop."""
-
-    name = "jsm"
-
-    def __init__(self, base_url: str, email: str, token: str, service_desk_id: str, request_type_id: str) -> None:
-        if not base_url.startswith("https://"):
-            raise NexoError("approvals.jsm.base_url deve usar https://")
-        self.base = base_url.rstrip("/")
-        self.desk, self.request_type = str(service_desk_id), str(request_type_id)
-        self.headers = {"Authorization": "Basic " + base64.b64encode(f"{email}:{token}".encode()).decode()}
-
-    def open_change(self, summary: str, description: str) -> dict[str, str]:
-        body = http.request(
-            "POST",
-            f"{self.base}/rest/servicedeskapi/request",
-            self.headers,
-            {
-                "serviceDeskId": self.desk,
-                "requestTypeId": self.request_type,
-                "requestFieldValues": {"summary": summary[:255], "description": description},
-            },
-        ).body
-        key = str(body.get("issueKey", ""))
-        return {"ref": key, "number": key}
-
-    def request(self, request_id: str, payload: dict[str, Any]) -> str:
-        summary = f"[Nexo {request_id}] {payload.get('title', '')}"
-        return self.open_change(summary, json.dumps(payload, ensure_ascii=False, indent=2))["ref"]
-
-    def status(self, ref: str) -> dict[str, str]:
-        body = http.request("GET", f"{self.base}/rest/servicedeskapi/request/{quote(ref)}/approval", self.headers).body
-        decisions = [str(v.get("finalDecision", "pending")) for v in (body or {}).get("values") or []]
-        if "declined" in decisions:
-            approval = "rejected"
-        elif decisions and all(d == "approved" for d in decisions):
-            approval = "approved"
-        else:
-            approval = "requested"
-        return {"approval": approval, "state": "", "number": ref}
 
     def poll(self, ref: str) -> str | None:
         approval = self.status(ref)["approval"]

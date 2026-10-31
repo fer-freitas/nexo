@@ -331,7 +331,7 @@ PIPELINE_TOOLS = {
 def pipeline_commands(root: Path) -> dict[str, list[dict[str, str]]]:
     """Comandos reais que o projeto já usa (CI, Makefile, scripts), para preferir aos da receita padrão."""
     sources: list[tuple[str, str]] = []
-    for rel in ("azure-pipelines.yml", "azure-pipelines.yaml", "Makefile", "tox.ini", "noxfile.py"):
+    for rel in ("Makefile", "tox.ini", "noxfile.py"):
         if (root / rel).is_file():
             sources += [
                 (rel, ln.strip()) for ln in (root / rel).read_text(encoding="utf-8", errors="replace").splitlines()

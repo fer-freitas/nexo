@@ -3,7 +3,6 @@
 Provedores:
 - `anthropic`: Messages API;
 - `openai`: Chat Completions;
-- `azure-openai`: Chat Completions do Azure OpenAI (deployment por modelo);
 - `gateway`: qualquer endpoint compatível com OpenAI (gateway interno de LLM, LiteLLM etc.);
 - `bedrock`: Amazon Bedrock pela API Converse (assinatura SigV4 ou chave de API do Bedrock);
 - `gemini-api`: Google Gemini pela API generateContent.
@@ -18,7 +17,7 @@ import json
 from dataclasses import dataclass, field
 from typing import Any
 
-PROVIDERS = ("anthropic", "openai", "azure-openai", "gateway", "bedrock", "gemini-api")
+PROVIDERS = ("anthropic", "openai", "gateway", "bedrock", "gemini-api")
 MODES = ("off", "fallback", "on", "only")
 FINAL_TOOL = "entregar_resultado"
 
@@ -237,7 +236,7 @@ def anthropic_results(results: list[tuple[ToolCall, str, bool]]) -> list[dict[st
     ]
 
 
-# ---------------------------------------------------------------- OpenAI (Chat Completions; Azure e gateways)
+# ---------------------------------------------------------------- OpenAI (Chat Completions e gateways)
 
 
 def openai_request(

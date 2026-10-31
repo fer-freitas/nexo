@@ -114,7 +114,7 @@ def _lineage_note(r: StoryRunner, worktree: Path) -> tuple[list[str], list[str]]
 
 
 def publish(r: StoryRunner, story_id: str) -> None:
-    """História concluída: push da branch e PR (GitHub, GitLab, Bitbucket ou Azure Repos) com `AB#id`,
+    """História concluída: push da branch e PR no GitHub, com
     evidências e decisão do portão (4.4)."""
     from nexo.kernel import services
 
@@ -146,8 +146,6 @@ def publish(r: StoryRunner, story_id: str) -> None:
         lineage_lines, st["lineage_held"] = _lineage_note(r, Path(st["worktree"]))
         evidence += lineage_lines
         scm.push(Path(st["worktree"]), st["branch"])
-        link = r.sync.ref(story_id)
-        ab = f"AB#{link['ref']} " if link and r.sync.kind == "azure" else ""
         gate = st.get("gate") or {}
         title_row = next((r["title"] for r in r.store.items() if r["id"] == story_id), story_id)
         body = "\n".join(
@@ -159,11 +157,9 @@ def publish(r: StoryRunner, story_id: str) -> None:
                 f"- Tarefas: {', '.join(st.get('tasks') or {})}",
                 "- Rastreabilidade: `.nexo/specs/*/traceability.yaml`",
                 *evidence,
-                "",
-                ab.strip(),
             ]
         )
-        pr = scm.open_pr(st["branch"], f"{ab}{story_id}: {title_row}", body)
+        pr = scm.open_pr(st["branch"], f"{story_id}: {title_row}", body)
         st["pr"] = pr.get("html_url")
         r._save(run.id, st)  # sem isto o `nexo pr sync` não achava o PR (achado no teste real com o GitHub)
         r.ctx.audit("scm.pr", {"story": story_id, "pr": pr.get("html_url"), "branch": st["branch"]}, ref=story_id)

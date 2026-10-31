@@ -1,4 +1,4 @@
-# De-para padrão para troca por arquivo (formato de importação CSV do Azure Boards). Squads sobrescrevem em nexo-brain/workflows/mappings/.
+# De-para padrão para troca por arquivo (CSV). Squads sobrescrevem em nexo-brain/workflows/mappings/.
 tracker: file
 types: {epic: Epic, feature: Feature, story: User Story, task: Task, bug: Bug}
 states:

@@ -65,27 +65,14 @@ def github_token(ctx: AppContext, required: bool = True) -> str:
 
     app = dict((config.resolved(ctx).values.get("scm") or {}).get("github_app") or {})
     if app.get("app_id") and app.get("installation_id"):
-        key = str(app.get("key_ref") or credentials.get_secret("github_app_key") or "")
+        key = str(credentials.get_secret("github_app_key") or "")
         if not key:
-            raise NexoError("GitHub App sem chave: `scm.github_app.key_ref` (azkv://…) ou `nexo login github_app_key`")
+            raise NexoError("GitHub App sem chave: rode `nexo login github_app_key`")
         return service_identity.github_installation_token(str(app["app_id"]), str(app["installation_id"]), key)
     token = credentials.get_secret("github")
     if not token and required:
         raise NexoError("credencial 'github' ausente: rode `nexo login github` ou configure scm.github_app")
     return token or ""
-
-
-def azure_bearer(ctx: AppContext) -> str | None:
-    """Service Principal do Azure DevOps se configurado; None = PAT do `nexo login tracker`."""
-    from nexo.kernel.secrets import service_identity
-
-    sp = dict((tracker_config(ctx).get("azure") or {}).get("service_principal") or {})
-    if not (sp.get("tenant") and sp.get("client_id")):
-        return None
-    secret = credentials.get_secret("azure_sp")
-    if not secret:
-        raise NexoError("Service Principal sem segredo: rode `nexo login azure_sp`")
-    return service_identity.azure_sp_token(str(sp["tenant"]), str(sp["client_id"]), secret)
 
 
 def _secret(name: str) -> str:

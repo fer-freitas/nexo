@@ -1,6 +1,6 @@
 ---
 name: gestao-de-mudanca
-description: Como preparar e abrir a requisição de mudança (change request) para produção na ferramenta de ITSM do time (ServiceNow, Jira Service Management, BMC Helix, Freshservice) — classificação de risco, janela, plano de implantação, plano de retorno, testes e evidências, comunicação e aprovadores (CAB). Use ao preparar uma entrega para produção.
+description: Como preparar e abrir a requisição de mudança (change request) para produção na ferramenta de ITSM do time (ServiceNow) — classificação de risco, janela, plano de implantação, plano de retorno, testes e evidências, comunicação e aprovadores (CAB). Use ao preparar uma entrega para produção.
 ---
 # Gestão de mudança
 

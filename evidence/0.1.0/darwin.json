@@ -36,7 +36,7 @@
     {
       "step": "testes",
       "ok": true,
-      "seconds": 76.5
+      "seconds": 71.0
     },
     {
       "step": "gitleaks",

@@ -132,12 +132,9 @@ def test_login_new_providers(nexo: Runner, monkeypatch: pytest.MonkeyPatch, memo
         "smtp",
         "anthropic",
         "openai",
-        "azure_openai",
         "llm_gateway",
         "bedrock",
         "gemini_api",
-        "gitlab",
-        "bitbucket",
     )
     for provider in providers:
         assert nexo("login", provider)[0] == 0, provider
@@ -147,7 +144,7 @@ def test_login_new_providers(nexo: Runner, monkeypatch: pytest.MonkeyPatch, memo
     assert "segredo" not in json.dumps(events)
 
 
-# ---------------- ponta a ponta: planejamento → Azure Boards → história → PR no GitHub ----------------
+# ---------------- ponta a ponta: planejamento → história → PR no GitHub ----------------
 
 from tests.conftest import git_cmd  # noqa: E402
 from tests.integration.test_story import SPEC, backlog  # noqa: E402
@@ -181,7 +178,7 @@ def test_tracker_outage_goes_to_queue(tracked_project: Path, nexo: Runner, scena
     scenario([{"tool": "claude", "events": [SPEC]}])
     cloud.fail_next = 1
     assert nexo("plan", "versão")[0] == 0  # fluxo local segue mesmo com o tracker fora
-    assert cloud.items == {}
+    assert cloud.issues == {}
     code, out, _ = nexo("--json", "tracker", "sync")
     data = json.loads(out)
     assert data["retried"] == 1 and data["pending"] == 0

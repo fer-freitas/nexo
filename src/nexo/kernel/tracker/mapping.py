@@ -72,7 +72,7 @@ class Mapping:
 
     def merge_tags(self, current: list[str], nexo_state: str) -> list[str]:
         """Remove as tags que o de-para usa para estados (e as `nexo-*` antigas), preserva as do time e adiciona
-        as do novo estado. Ex.: no GitLab, `workflow::ready` sai quando a história passa a `workflow::in review`."""
+        as do novo estado. Ex.: `workflow::ready` sai quando a história passa a `workflow::in review`."""
         managed = {t for target in self.states.values() for t in target.tags}
         keep = [t for t in current if not t.startswith(TAG_PREFIX) and t not in managed]
         return [*keep, *[t for t in self.target(nexo_state).tags if t not in keep]]

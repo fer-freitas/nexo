@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-import re
 import urllib.parse
 from pathlib import Path
 
@@ -98,27 +97,6 @@ def adrs(project_root: Path) -> list[RawEvent]:
                     {"path": path.relative_to(project_root).as_posix()},
                 )
             )
-    return out
-
-
-def confluence(base_url: str, email: str, token: str, cql: str) -> list[RawEvent]:
-    import base64
-
-    auth = base64.b64encode(f"{email}:{token}".encode()).decode()
-    url = f"{base_url.rstrip('/')}/rest/api/content/search?cql={urllib.parse.quote(cql)}&expand=body.storage&limit=50"
-    body = http.request("GET", url, {"Authorization": f"Basic {auth}"}).body
-    out = []
-    for page in body.get("results", []):
-        html = str(((page.get("body") or {}).get("storage") or {}).get("value", ""))
-        text = re.sub(r"<[^>]+>", " ", html)
-        out.append(
-            RawEvent(
-                "incidents",
-                f"confluence:{page['id']}:{page.get('version', {}).get('number', 1)}",
-                f"{page.get('title')}\n{text}"[:MAX_TEXT],
-                {"system": "confluence", "title": page.get("title")},
-            )
-        )
     return out
 
 

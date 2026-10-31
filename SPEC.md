@@ -47,7 +47,7 @@
 | D-01 | **O Nexo será da empresa** | Ferramenta interna, com código, cérebro e dados na organização. O responsável liberou o Nexo na empresa (§25.1). |
 | D-02 | **Extrair a base por módulos em repo novo** | `domain/` e `adapters/` são copiados quase intactos; `app/` e `cli/` são reorganizados em módulos. |
 | D-03 | **Toolkit como pack versionado sobre o motor determinístico** | O toolkit não tem código executável. O "core" de conteúdo vem dele e o de execução vem da base. |
-| D-04 | **Tracker local + GitHub Issues + visão consolidada** | Registro no Git de cada projeto, sincronização com o GitHub e `nexo board`. **Jira, Linear, Azure Boards e GitLab foram removidos.** |
+| D-04 | **Tracker local + GitHub Issues + visão consolidada** | Registro no Git de cada projeto, sincronização com o GitHub e `nexo board`. |
 | D-05 | **Brain com a estrutura Git de hoje, preparado para grafo** | Mantém PR e assinatura. Todo arquivo ganha ID e links; o grafo é um derivado (§13). |
 | D-06 | **Um cérebro global + uma pasta por projeto** | O agente só lê `global` + o projeto atual. Projeto sensível pode ter cérebro próprio. |
 | D-07 | **Claude Code, Devin e Copilot no MVP, aprovados pela empresa** | Três adaptadores com prova real. Codex saiu do escopo, e a porta `Agent` permite trazê-lo de volta (§11). |
@@ -1290,7 +1290,7 @@ Isso resolve o conflito sem dividir o repositório: abrir, reorganizar ou editar
 
 **Lint sem CI:** `brain lint` roda em três pontos: `nexo brain propose` não abre PR se falhar, o revisor confere com `nexo brain review <pr>`, e **`nexo brain sign` recusa assinar se falhar**. Como o agente só lê uma versão assinada, um PR que tenha escapado do lint não chega a ele.
 
-**Assinatura:** `nexo brain sign` é manual, e a chave não pode depender de uma só pessoa nem ficar numa máquina pessoal. A base só aceita chave local ou Azure Key Vault; o cofre da empresa é o item Q-22.
+**Assinatura:** `nexo brain sign` é manual, e a chave não pode depender de uma só pessoa nem ficar numa máquina pessoal. O cofre da empresa é o AWS KMS (Q-22).
 
 ---
 
@@ -1388,7 +1388,7 @@ nexo-time-posicao/
 
 Ponto de partida: os adaptadores da base, com a porta `Tracker` (`create`, `transition`, `comment`, `fetch`). 🟡 O GitHub foi testado com conta real como repositório (push, PR, CI), mas o **GitHub Issues** só rodou com simulador. Por isso a prova entra na M5.
 
-**Removidos:** Jira, Linear, Azure Boards e GitLab Issues. `adapters/trackers/{jira,linear,azure,gitlab_issues}.py` (cerca de 630 linhas), seus de-paras e testes **não são copiados**. A porta `Tracker` continua, então uma ferramenta nova pode voltar como módulo.
+**Ferramentas:** só GitHub Issues e arquivo. A porta `Tracker` continua, então uma ferramenta nova pode entrar como módulo.
 
 | Regra | Comportamento |
 |---|---|
@@ -1404,7 +1404,7 @@ Ponto de partida: os adaptadores da base, com a porta `Tracker` (`create`, `tran
 
 **Prova no MVP:** GitHub Issues e Projects com conta real.
 
-**O que esta remoção não muda:** os adaptadores de repositório (`adapters/scm`) são coisa separada. `atlassian`, `azure-devops`, `gitlab`, `linear`, `slack` e `azure` também saíram do catálogo MCP.
+**Só GitHub:** o Nexo não integra outras ferramentas de repositório, gestão, documentação ou chat. PR é sempre no GitHub.
 
 ### 14.5 Visão consolidada
 
@@ -1742,9 +1742,9 @@ Nenhuma bloqueia a M0. O padrão vale até você decidir.
 | Q-11 | A infraestrutura é só Terraform, ou também CDK, SAM ou CloudFormation? | Só Terraform | Início da M8 |
 | Q-12 | Quem pode rodar a descoberta na AWS e no Kafka? | Fica desligada até haver um responsável | Quando for ligar `lineage.discover` |
 | Q-16 | As máquinas permitem agendador de usuário e hooks do Git? Você acredita que sim | Sim; confirmar com teste na P0 | P0 |
-| Q-24 | Qual é o provedor de SSO (Entra ID, Okta...), expõe OIDC, envia grupos e quando será conectado? | OIDC; data a definir | Antes de conectar |
+| Q-24 | Qual é o provedor de SSO , expõe OIDC, envia grupos e quando será conectado? | OIDC; data a definir | Antes de conectar |
 | Q-21 | Qual conta AWS e rede usar, e as máquinas alcançam a rede interna sem VPN? O padrão de implantação atende um serviço novo? O dono já é o time do Nexo | A definir com a plataforma | Antes da M7 |
-| Q-22 | A chave de assinatura fica no AWS KMS? | Sim: chave ECC P-256, com permissão `kms:Sign` só para os responsáveis do time do Nexo. Novo adaptador, seguindo o de Azure Key Vault da base | Antes da M6 |
+| Q-22 | A chave de assinatura fica no AWS KMS? | Sim: chave ECC P-256, com permissão `kms:Sign` só para os responsáveis do time do Nexo. Feito, com `awskms://` | Antes da M6 |
 | Q-23 | O pipeline predefinido registra implantações no GitHub (Deployments ou releases)? | Se não, frequência de implantação fica `sem dado` | Antes da M7 |
 | Q-17 | A empresa permite criar `nexo-<time>`, interno e legível por toda a organização, e sem workflow forçado? | Sim; confirmar na P0. Alternativa: S3 | P0 |
 
@@ -2159,7 +2159,7 @@ O acesso fica atrás de uma porta, `AuthProvider`, e **o restante do portal só 
 
 | | Fase 1: antes do SSO | Fase 2: SSO da empresa |
 |---|---|---|
-| **Como entra** | Convite com token por pessoa, guardado com hash e com validade | OIDC com PKCE, já existente na base (Entra ID ou outro) |
+| **Como entra** | Convite com token por pessoa, guardado com hash e com validade | OIDC com PKCE, já existente na base |
 | **Perfil e squad** | Tela "Pessoas e acessos" | Grupos do provedor mapeados para perfil e squad 🔵, se ele enviar grupos |
 | **Rede** | Só interna | Só interna |
 | **Primeiro admin** | Criado por comando na implantação, com token de uso único | Mantido como acesso de emergência, com uso auditado |
@@ -2189,9 +2189,8 @@ O que foi construído de forma diferente do texto acima, e por quê. O estado de
 | **Histórias em rascunho** | Aparecem no refinamento | Aparecem quando a prontidão chega a 100% | Evita história baseada em dúvida ainda aberta |
 | **Perfil `ci` da matriz** | Sai | Virou `integration`, nunca atribuído a pessoa | O cartão de aprovação e a ingestão de integrações ainda precisam de um token que não é pessoa. Não tem relação com Actions |
 | **Flags de demandas** | `demands.external_sync` | Mantida como `tracker_sync`, ao lado de `demands.board` e `demands.flow` | Nome já usado pelo código e pela política |
-| **Adaptadores de repositório** | GitLab, Bitbucket e Azure Repos seguem (§14.4) | Seguem, mas sem prova e fora do MVP | Conforme o texto, registrado para não parecer esquecimento |
 | **Worktree** | `%LOCALAPPDATA%\\nexo\\wt\\<hash>` | Vale só no Windows. Em macOS e Linux, continua em `.nexo/worktrees/` | Não há limite de caminho nesses sistemas |
-| **Assinatura** | KMS é a pergunta Q-22 | `awskms://`, pela CLI da AWS da própria pessoa, sem dependência nova. O Azure Key Vault continua aceito | Segue o padrão assumido em Q-22 |
+| **Assinatura** | KMS é a pergunta Q-22 | `awskms://`, pela CLI da AWS da própria pessoa, sem dependência nova. | Segue o padrão assumido em Q-22 |
 | **Descoberta no Kafka** | Tópicos, grupos e ACLs | Lê um JSON `{"grupo": ["tópico"]}` exportado pelo time de Kafka. Sem ACL nem schema registry | A credencial do cluster não entra no Nexo, e não há dependência nova. Falta conferir com Q-12 |
 | **Efeito antes de confirmar flag** | Máquinas naquele escopo | Mostra o total de máquinas ativas na empresa e as dependências da flag | A tabela de dispositivos não guarda o squad. Por escopo, fica para depois |
 | **Portão de contrato** | Contrato incompatível vai para decisão humana | Segura só o merge automático, com a flag `lineage.gate`, desligada até medir o scanner. Sem a flag, só avisa no PR | O §19 pede a medição antes de usar a linhagem no portão. AsyncAPI é o único formato comparado |
