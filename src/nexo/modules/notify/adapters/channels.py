@@ -1,4 +1,4 @@
-"""Canais de notificação: Teams (Workflows/webhook), Slack (webhook), Google Chat (webhook) e e-mail (SMTP) — RF-47."""
+"""Canais de notificação: Teams (Workflows/webhook), Google Chat (webhook) e e-mail (SMTP) — RF-47."""
 
 from __future__ import annotations
 
@@ -28,11 +28,6 @@ def teams(webhook_url: str, title: str, message: str, link: str | None = None) -
         ],
     }
     http.request("POST", webhook_url, json_body=card, expect=(200, 202))
-
-
-def slack(webhook_url: str, title: str, message: str, link: str | None = None) -> None:
-    text = f"*{title}*\n{message}" + (f"\n<{link}|Abrir>" if link else "")
-    http.request("POST", webhook_url, json_body={"text": text}, expect=(200,))
 
 
 def google_chat(webhook_url: str, title: str, message: str, link: str | None = None) -> None:

@@ -3,7 +3,7 @@ version: 1.0.0
 title: "Avisos"
 flags:
   - key: notify.use
-    title: "Avisos por Slack, Teams ou e-mail"
+    title: "Avisos por e-mail ou Teams"
     area: "Integrações"
     stage: beta
     commands: ["notify"]

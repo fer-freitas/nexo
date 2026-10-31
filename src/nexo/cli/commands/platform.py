@@ -407,7 +407,6 @@ def login_cmd(provider: str) -> None:
         "tracker",
         "github",
         "teams",
-        "slack",
         "smtp",
         "collector",
         "confluence",

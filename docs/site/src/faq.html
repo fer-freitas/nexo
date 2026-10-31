@@ -132,7 +132,11 @@ nexo login mcp_id-do-mcp
 nexo mcp test id-do-mcp</code></pre></div></details>
 <details id="como-envio-demandas-para-o-github-issues"><summary>Como envio demandas para o GitHub Issues?</summary><div class="resposta"><p>Configure a ferramenta de gestão e sincronize. Reenviar não duplica.</p><pre><code>nexo tracker sync
 nexo board --sync</code></pre></div></details>
-<details id="como-testo-os-avisos-no-slack-ou-no-teams"><summary>Como testo os avisos no Slack ou no Teams?</summary><div class="resposta"><p>A mensagem de teste mostra o resultado de cada canal ligado.</p><pre><code>nexo notify test</code></pre></div></details>
+<details id="como-recebo-avisos-por-e-mail"><summary>Como recebo avisos por e-mail?</summary><div class="resposta"><p>Informe o servidor de e-mail e os destinatários. Se ele exigir usuário, guarde a senha com <code>nexo login smtp</code>. O e-mail cobre história, portão, dúvida do agente, orçamento, planejamento e mudança.</p><pre><code>nexo config set notify.channels.email true
+nexo config set notify.email.host servidor-de-email
+nexo config set notify.email.to "[time@empresa.com]"
+nexo notify test</code></pre></div></details>
+<details id="como-testo-os-avisos"><summary>Como testo os avisos?</summary><div class="resposta"><p>A mensagem de teste mostra o resultado de cada canal ligado.</p><pre><code>nexo notify test</code></pre></div></details>
 </div>
 <h2>Quando algo dá errado</h2>
 <div class="faq">

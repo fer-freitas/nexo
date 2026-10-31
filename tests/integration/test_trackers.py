@@ -68,16 +68,14 @@ def test_notifications(cloud: FakeCloud, nexo: Runner, memory_keyring, monkeypat
     from nexo.modules.notify.adapters import channels as channels_notify
 
     memory_keyring.store[("nexo-cli", "teams")] = "https://hooks.teams.example/workflow/1"
-    memory_keyring.store[("nexo-cli", "slack")] = "https://hooks.slack.example/T1"
     sent: list[dict[str, object]] = []
     monkeypatch.setattr(channels_notify, "email", lambda *a, **k: sent.append({"to": a[3], "title": a[4]}))
     for key, value in (
         ("notify.channels.teams", "true"),
-        ("notify.channels.slack", "true"),
         ("notify.channels.email", "true"),
         ("notify.email.host", "smtp.empresa.com"),
         ("notify.email.to", "[time@empresa.com]"),
-        ("notify.events.story", "[teams, slack, email]"),
+        ("notify.events.story", "[teams, email]"),
     ):
         assert nexo("config", "set", key, value)[0] == 0, key
     from nexo.kernel.context import AppContext, Options
@@ -85,16 +83,14 @@ def test_notifications(cloud: FakeCloud, nexo: Runner, memory_keyring, monkeypat
 
     ctx = AppContext(options=Options())
     channels = notify(ctx, "story", "US-1: escalada", "3 tentativas esgotadas", ref="US-1", link="https://x/1")
-    assert channels == ["teams", "slack", "email"]
+    assert channels == ["teams", "email"]
     card = cloud.webhooks[0]["body"]["attachments"][0]["content"]  # type: ignore[index]
     assert card["type"] == "AdaptiveCard" and card["actions"][0]["url"] == "https://x/1"
-    assert "*US-1: escalada*" in cloud.webhooks[1]["body"]["text"]  # type: ignore[index]
     assert sent == [{"to": ["time@empresa.com"], "title": "US-1: escalada"}]
     del memory_keyring.store[("nexo-cli", "teams")]
-    cloud.fail_next = 1  # slack indisponível
     assert notify(ctx, "story", "t", "m") == ["email"]
     events = [e for e in ctx.events.recent(limit=5) if e.type == "notify"]
-    assert "teams" in events[-1].payload["errors"] and "slack" in events[-1].payload["errors"]
+    assert "teams" in events[-1].payload["errors"]
     ctx.close()
 
 
@@ -133,7 +129,6 @@ def test_login_new_providers(nexo: Runner, monkeypatch: pytest.MonkeyPatch, memo
         "tracker",
         "github",
         "teams",
-        "slack",
         "smtp",
         "anthropic",
         "openai",
@@ -229,3 +224,11 @@ def test_file_tracker_kind(project: Path, nexo: Runner, scenario) -> None:  # ty
     scenario([{"tool": "claude", "events": [SPEC]}])
     nexo("plan", "versão")
     assert "Versão" in (project / ".nexo/tracker/outbox.csv").read_text(encoding="utf-8")
+
+
+def test_every_notification_event_also_goes_by_email_and_slack_is_gone() -> None:
+    from nexo.modules.notify import app as notify_app
+    from nexo.modules.notify.adapters import channels
+
+    assert all("email" in listed for listed in notify_app.DEFAULT_EVENTS.values())
+    assert "slack" not in notify_app.CHATS and not hasattr(channels, "slack")

@@ -235,7 +235,7 @@ LOC é o tamanho aproximado de cada parte na base.
 | `central` (serviço) | API de ingestão, fatos, flags remotas | `collector/` (exceto telas) | 5.500 (§15) | 🟡 | Sim |
 | `portal` | Site: gestão de features, dashboard, insights e board (§26) | `collector/dashboard`, `metrics/`, `app/web`, `insights/` | 2.000 + novo | 🟡 + 🔵 gestão de features | Sim |
 | `agents.*` | Claude, Copilot, Devin | `adapters/agents`, `resources/agents` | 1.350 | ver §11 | Sim |
-| `notify` | Slack, Teams, e-mail | `adapters/channels/notify` | 200 | 🟡 | Depois |
+| `notify` | E-mail, Teams | `adapters/channels/notify` | 200 | 🟡 | Depois |
 | `legacy` | Modernização, incidente | `app/planning/{modernize,incident}` | 500 | 🟢 | Depois |
 | `deps` | Vulnerabilidades em escala | `app/delivery/deps`, `adapters/dependencies` | 600 | 🟢 | Depois |
 | `program` | Feature em vários repositórios | `app/delivery/program` | 200 | 🟢 | Depois |
@@ -633,7 +633,7 @@ $ nexo tl assign US-1-2 --dev gh:edu  --qa gh:caio
 | **`nexo board --mine`** | A mesma lista em tabela, com todos os projetos |
 | **GitHub** | O Nexo atribui a issue à pessoa e troca a etiqueta (`nexo:refinamento-tecnico`). O próprio GitHub avisa por e-mail ou celular, **sem o módulo de notificação** |
 | **Painel central** | Página "Comigo", para quem prefere não usar o terminal |
-| **Slack ou Teams** | Módulo `notify`, depois do MVP |
+| **E-mail ou Teams** | Módulo `notify` |
 
 Ao abrir uma demanda que acabou de chegar, a pessoa vê um **resumo da passagem**, sem precisar ler tudo:
 

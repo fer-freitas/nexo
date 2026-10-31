@@ -11,7 +11,7 @@ from nexo.modules.notify import app as notify_app
 
 def register(root: typer.Typer, tools: Any) -> None:
     ctx, emit = tools.ctx, tools.emit
-    group = typer.Typer(help="Avisos por Slack, Teams ou e-mail", no_args_is_help=True)
+    group = typer.Typer(help="Avisos por e-mail ou Teams", no_args_is_help=True)
     root.add_typer(group, name="notify")
 
     @group.command("test")

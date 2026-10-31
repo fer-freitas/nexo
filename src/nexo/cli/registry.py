@@ -436,7 +436,7 @@ COMMANDS: tuple[CommandSpec, ...] = (
     ),
     C(
         "login",
-        "<central|figma|tracker|github|teams|slack|smtp|collector|confluence|servicenow>",
+        "<central|figma|tracker|github|teams|smtp|collector|confluence|servicenow>",
         "setup",
         "Autentica integrações (keyring)",
         "Authenticate integrations (keyring)",

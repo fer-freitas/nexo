@@ -30,7 +30,7 @@ DEFAULTS: dict[str, Any] = {
     "brain": {"repo": "", "auto_pull": True},
     "tracker": {"kind": "local"},
     "scm": {"provider": "none", "remote": "origin", "open_pr": True},
-    "notify": {"channels": {"teams": False, "email": False, "slack": False}},
+    "notify": {"channels": {"teams": False, "email": False}},
     # Preços em USD com vigência; câmbio configurável (contratos renovados não reescrevem o histórico).
     # os valores de fábrica são a tabela pública de cada ferramenta na data abaixo; cada cliente informa o
     # próprio contrato (`nexo cost pricing set`) e, enquanto não informar, o custo aparece como estimado.

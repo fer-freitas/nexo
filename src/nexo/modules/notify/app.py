@@ -10,13 +10,13 @@ from nexo.kernel.platform import config
 from nexo.kernel.secrets import credentials
 from nexo.modules.notify.adapters import channels as channels
 
-CHATS = ("teams", "slack", "google_chat")  # "chat" nos eventos = os chats ligados
+CHATS = ("teams", "google_chat")  # "chat" nos eventos = os chats ligados
 DEFAULT_EVENTS = {
     "story": ["chat", "email"],
     "budget": ["email", "chat"],
-    "gate": ["chat"],
+    "gate": ["chat", "email"],
     "monitor": ["chat", "email"],  # O-03: formato de CLI divergente
-    "clarification": ["chat"],  # pergunta do agente com link para responder
+    "clarification": ["chat", "email"],  # pergunta do agente com link para responder
     "planning": ["chat", "email"],  # passagem entre papéis (pacote, aprovações, pronto para o dev)
     "change": ["chat", "email"],  # requisição de mudança aberta, aprovada ou recusada
 }
@@ -63,8 +63,6 @@ def test(ctx: AppContext) -> dict[str, Any]:
 def _send(channel: str, cfg: dict[str, object], title: str, message: str, link: str | None) -> None:
     if channel == "teams":
         channels.teams(_secret("teams"), title, message, link)
-    elif channel == "slack":
-        channels.slack(_secret("slack"), title, message, link)
     elif channel == "google_chat":
         channels.google_chat(_secret("google_chat"), title, message, link)
     elif channel == "email":
