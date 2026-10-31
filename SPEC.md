@@ -1142,7 +1142,7 @@ Sessão aberta fora do Nexo também é contada, separadamente, permitindo respon
 
 ## 12. Conexão com novos MCPs
 
-**Ponto de partida:** o catálogo atual (`resources/mcp/catalog.yaml`) tem 16 servidores e **todos estão com `verified: false`**. Ele também aceita comandos sem versão fixa, como `npx -y @azure-devops/mcp`, o que permite mudança silenciosa de código. Os dois pontos são corrigidos.
+**Ponto de partida:** o catálogo atual (`resources/mcp/catalog.yaml`) tem 12 servidores e **todos estão com `verified: false`**. Ele também aceita comandos sem versão fixa, como `npx -y pacote`, o que permite mudança silenciosa de código. Os dois pontos são corrigidos.
 
 ### 12.1 Fluxo
 
@@ -1404,7 +1404,7 @@ Ponto de partida: os adaptadores da base, com a porta `Tracker` (`create`, `tran
 
 **Prova no MVP:** GitHub Issues e Projects com conta real.
 
-**O que esta remoção não muda:** os adaptadores de repositório (`adapters/scm`) e as entradas `atlassian`, `azure-devops`, `gitlab` e `linear` do catálogo MCP são coisas separadas. Os MCPs ficam como ferramentas extras de leitura para o agente, e não são usados para rastrear demandas.
+**O que esta remoção não muda:** os adaptadores de repositório (`adapters/scm`) são coisa separada. `atlassian`, `azure-devops`, `gitlab`, `linear`, `slack` e `azure` também saíram do catálogo MCP.
 
 ### 14.5 Visão consolidada
 

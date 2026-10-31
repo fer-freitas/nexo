@@ -32,17 +32,6 @@ servers:
     auth: none
     docs: https://github.com/ChromeDevTools/chrome-devtools-mcp
     verified: false
-  atlassian:
-    product: Jira, Confluence, Jira Service Management, Bitbucket, Compass
-    vendor: atlassian
-    status: ga
-    transport: http
-    url: https://mcp.atlassian.com/v2/mcp
-    auth: bearer
-    token_env: ATLASSIAN_MCP_TOKEN
-    notes: só Atlassian Cloud (não atende Data Center); respeita as permissões de quem autentica
-    docs: https://github.com/atlassian/atlassian-mcp-server
-    verified: false
   github:
     product: GitHub (repositórios, issues, PRs, Actions)
     vendor: github
@@ -52,38 +41,6 @@ servers:
     auth: bearer
     token_env: GITHUB_MCP_TOKEN
     docs: https://github.com/github/github-mcp-server
-    verified: false
-  azure-devops:
-    product: Azure DevOps (Boards, Repos, Pipelines)
-    vendor: microsoft
-    status: ga
-    transport: stdio
-    command: npx
-    args: ["-y", "@azure-devops/mcp@{version}", "{organization}"]
-    vars: [organization, version]
-    auth: oauth
-    docs: https://github.com/microsoft/azure-devops-mcp
-    verified: false
-  gitlab:
-    product: GitLab (projetos, issues, merge requests)
-    vendor: gitlab
-    status: beta
-    transport: http
-    url: "{base_url}/api/v4/mcp"
-    vars: [base_url]
-    defaults: { base_url: "https://gitlab.com" }
-    auth: oauth
-    docs: https://docs.gitlab.com/user/gitlab_duo/model_context_protocol/ai_catalog_mcp_servers/
-    verified: false
-  linear:
-    product: Linear
-    vendor: linear
-    status: ga
-    transport: http
-    url: https://mcp.linear.app/mcp
-    auth: bearer
-    token_env: LINEAR_MCP_TOKEN
-    docs: https://linear.app/docs/mcp
     verified: false
   servicenow:
     product: ServiceNow (MCP Server Console)
@@ -95,15 +52,6 @@ servers:
     notes: exige Now Assist e Zurich Patch 9 ou Australia Patch 2; a URL vem do MCP Server Console da instância
     docs: https://www.servicenow.com/community/servicenow-otto-articles/enable-mcp-and-a2a-for-your-agentic-workflows-with-faqs-updated/ta-p/3373907
     verified: false
-  slack:
-    product: Slack
-    vendor: salesforce
-    status: ga
-    transport: http
-    url: https://mcp.slack.com/mcp
-    auth: oauth
-    docs: https://docs.slack.dev/ai/slack-mcp-server/
-    verified: false
   teams:
     product: Microsoft Teams (Work IQ, Agent 365)
     vendor: microsoft
@@ -113,18 +61,6 @@ servers:
     auth: oauth
     notes: preview; a URL vem do registro do Agent 365 do tenant
     docs: https://github.com/microsoft/work-iq
-    verified: false
-  azure:
-    product: Azure (inclui Key Vault, Storage, Monitor)
-    vendor: microsoft
-    status: ga
-    transport: stdio
-    command: npx
-    args: ["-y", "@azure/mcp@{version}", "server", "start"]
-    vars: [version]
-    auth: env
-    notes: usa o login do Azure CLI da máquina (az login)
-    docs: https://github.com/microsoft/mcp
     verified: false
   aws:
     product: AWS (APIs da conta, inclui Bedrock)

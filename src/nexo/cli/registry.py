@@ -380,8 +380,8 @@ COMMANDS: tuple[CommandSpec, ...] = (
         "mcp catalog",
         "",
         "setup",
-        "MCPs oficiais dos produtos (Atlassian, GitHub, Slack...): situação e o que falta para ligar",
-        "Official product MCPs (Atlassian, GitHub, Slack...): status and what is missing",
+        "MCPs oficiais dos produtos (GitHub, AWS, Teams...): situação e o que falta para ligar",
+        "Official product MCPs (GitHub, AWS, Teams...): status and what is missing",
     ),
     C(
         "mcp check",

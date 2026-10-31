@@ -54,8 +54,9 @@ def approve(home: Path, *servers: str, write: tuple[str, ...] = ()) -> None:
 
 def test_catalog_lists_official_servers(project: Path, nexo: Runner) -> None:
     rows = {r["id"]: r for r in json.loads(nexo("--json", "mcp", "catalog")[1])}
-    assert {"atlassian", "github", "azure-devops", "gitlab", "linear", "servicenow", "slack", "teams"} <= set(rows)
-    assert {"azure", "aws", "vault", "datadog", "dynatrace", "newrelic", "splunk", "sonarqube"} <= set(rows)
+    assert {"github", "servicenow", "teams"} <= set(rows)
+    assert {"aws", "vault", "datadog", "dynatrace", "newrelic", "splunk", "sonarqube"} <= set(rows)
+    assert not {"gitlab", "azure-devops", "atlassian", "linear", "slack", "azure"} & set(rows)
     assert rows["teams"]["status"] == "preview" and not rows["github"]["enabled"]
     assert all(not r["verified"] for r in rows.values())  # V-08: conferir com conta real
 
@@ -93,16 +94,15 @@ def test_run_receives_servers_without_secret_in_the_command(  # type: ignore[no-
         FakeAdapter, "capabilities", lambda self: Capabilities(verified=True, guard_proven=True, mcp=True)
     )
     monkeypatch.setattr(FakeAdapter, "start", start)
-    approve(nexo_home, "github", "atlassian", "sonarqube")
+    approve(nexo_home, "github", "sonarqube")
     memory_keyring.store[("nexo-cli", "mcp_github")] = "ghp_segredo"
-    memory_keyring.store[("nexo-cli", "mcp_atlassian")] = "atl_segredo"
     memory_keyring.store[("nexo-cli", "mcp_sonarqube")] = "sq_segredo"
-    for server in ("github", "atlassian", "sonarqube"):
+    for server in ("github", "sonarqube"):
         nexo("config", "set", f"mcp.servers.{server}.enabled", "true", "--project")
     nexo("config", "set", "mcp.servers.sonarqube.vars.url", "https://sonar.exemplo.com", "--project")
     nexo("config", "set", "mcp.servers.sonarqube.vars.digest", "sha256:" + "a" * 64, "--project")
     scenario([{"tool": "claude", "events": [edit(), DONE]}])
-    code, out, err = nexo("--json", "run", "task", "T-1")  # classe confidential: atlassian/sonarsource fora
+    code, out, err = nexo("--json", "run", "task", "T-1")  # classe confidential: sonarsource fora
     assert code == 0 and json.loads(out)["state"] == "Concluido", err or out
     servers = seen[0].mcp_config["mcpServers"]
     assert set(servers) == {"nexo", "github"}
@@ -120,7 +120,7 @@ def test_run_receives_servers_without_secret_in_the_command(  # type: ignore[no-
     scenario([{"tool": "claude", "task": "T-2", "events": [edit(), DONE]}])
     nexo("--json", "run", "task", "T-2")
     servers = seen[0].mcp_config["mcpServers"]
-    assert set(servers) == {"nexo", "github", "atlassian", "sonarqube"}
+    assert set(servers) == {"nexo", "github", "sonarqube"}
     assert servers["sonarqube"]["env"] == {
         "SONARQUBE_URL": "https://sonar.exemplo.com",
         "SONARQUBE_TOKEN": "${SONARQUBE_MCP_TOKEN}",
