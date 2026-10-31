@@ -466,7 +466,7 @@ def telemetry_show_cmd(
     pending: Annotated[bool, typer.Option("--pending", help="Só o que ainda vai sair")] = False,
     limit: Annotated[int, typer.Option("--limit")] = 20,
 ) -> None:
-    """Exatamente o que foi e o que será enviado ao coletor (transparência, LGPD art. 9)."""
+    """Exatamente o que foi e o que será enviado ao coletor (transparência)."""
     from nexo.kernel.platform import telemetry
 
     rows = telemetry.show(ctx(), pending, limit)

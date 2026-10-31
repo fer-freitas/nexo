@@ -3,7 +3,7 @@
 Sem PR e sem revisão por outro fornecedor: a prova da M3 continua parcial.
 
 - **Comando:** `nexo selftest --agent claude`, sem `--github`
-- **Versões:** Nexo 0.1.0, Claude Code 2.1.314, gitleaks 8.30.1, macOS
+- **Versões:** Nexo 0.1.0, Claude Code 2.1.314, gitleaks 8.30.1
 - **Data:** 2026-10-30
 - **Resultado:** `TUDO OK`, em 13 passos. Custo da história: R$ 1,29, mais as chamadas de planejamento
 

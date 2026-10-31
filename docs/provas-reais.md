@@ -2,7 +2,7 @@
 
 Estas provas não dão para fazer com simulador. Registre cada resultado em `evidence/p0/` ou `evidence/<versão>/`, com comando, versão da ferramenta, data e resultado.
 
-## P0: ambiente, em macOS
+## P0: ambiente
 
 | # | Como provar | Se falhar |
 |---|---|---|
@@ -14,7 +14,7 @@ Estas provas não dão para fazer com simulador. Registre cada resultado em `evi
 | 9a | Tentar uma ação proibida no Devin e no Copilot. Só depois disso, `guard_proven: true` no `capabilities.yaml` | A ferramenta continua sem receber dados `confidential` |
 | 9b | Subir a imagem de `deploy/central/` pelo padrão de implantação da empresa | Definir com o time de plataforma |
 
-## MF: testes finais no Windows da empresa
+## MF: testes finais no Windows
 
 Sem isso, o Nexo não é liberado às pessoas.
 

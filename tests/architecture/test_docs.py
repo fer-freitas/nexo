@@ -80,8 +80,12 @@ def test_placar_counts_every_feature() -> None:
     assert "{{" not in text and f"{rows.count('real')} itens provados" in text
 
 
-@pytest.mark.parametrize("page", PAGES, ids=lambda p: p.name)
-def test_docs_are_written_from_inside_the_company(page: Path) -> None:
-    text = re.sub(r"<[^>]+>", " ", page.read_text(encoding="utf-8"))
-    found = re.findall(r"(?i)\bmac ?os\b|\bmac\b|máquina windows|windows da empresa|máquina da empresa|conta aws", text)
-    assert found == []
+def test_docs_are_written_from_inside_the_company() -> None:
+    """Vale para o que as pessoas leem: nem ambiente de construção, nem pedido de máquina, nem questão jurídica."""
+    forbidden = re.compile(
+        r"(?i)\bmac ?os\b|\bmac\b|máquina windows|windows da empresa|máquina da empresa|conta aws"
+        r"|jur[ií]dic|\blgpd\b|base legal"
+    )
+    readable = [*PAGES, *sorted((ROOT / "docs").glob("*.md")), ROOT / "README.md"]
+    found = {p.name: forbidden.findall(re.sub(r"<[^>]+>", " ", p.read_text(encoding="utf-8"))) for p in readable}
+    assert {k: v for k, v in found.items() if v} == {}

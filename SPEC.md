@@ -4,7 +4,7 @@
 |---|---|
 | **Versão** | 2.2 |
 | **Data** | 2026-10-30 |
-| **Estado do repositório** | M0 a M8 implementadas e validadas em macOS com simuladores. Sem prova real: ver [docs/estado.md](docs/estado.md) e o §27. |
+| **Estado do repositório** | M0 a M8 implementadas e validadas com simuladores. Sem prova real: ver [docs/estado.md](docs/estado.md) e o §27. |
 | **Referência externa** | `vibe-coding-toolkit` (commit `21b71b6`) |
 
 **Em uma frase:** o Nexo é uma CLI para PM, QA, tech lead e dev que conduz o trabalho do pedido até o PR. Ela usa skills e fluxos conhecidos do mercado, passa tudo pelos portões determinísticos herdados da base e registra cada demanda gerada, em cada projeto.
@@ -54,7 +54,7 @@
 | D-08 | **Coletor central no MVP, confirmado** | É o painel da empresa para FinOps e métricas de squads. Vira um serviço interno (§15). É a decisão que mais aumenta o prazo. |
 | D-31 | **Portal web como módulo: gestão de features, dashboard e insights** | Roda junto com o central, e o SSO entra depois sem refazer nada (§26). |
 | D-28 | **Os repositórios são da empresa, e nada sai da organização** | Cérebro, repositório do time e serviços ficam na organização. Só fornecedores de IA aprovados (§25.1). |
-| D-29 | **Windows é o destino; o desenvolvimento e os testes correntes são em macOS** | Todo o código segue as regras de Windows desde a M0, e a prova real fica para os testes finais na máquina da empresa (§25.2). |
+| D-29 | **Windows é o destino** | Todo o código segue as regras de Windows desde a M0, e a prova real fica para os testes finais (§25.2). |
 | D-33 | **Construção inicial na máquina e no repositório privado do responsável** | Migra para a organização antes do primeiro uso com dados da empresa. Até lá, só projetos de teste (§25.1). |
 | D-32 | **Central na AWS, operado pelo time do Nexo** | ECS Fargate, RDS PostgreSQL e balanceador interno, com a infraestrutura em Terraform (§15.5). |
 | D-30 | **Nada de branch especial nos repositórios de código** | Branches órfãos provavelmente não são permitidos. Demandas, refinamento e linhagem vão para um repositório do time (§14.3). |
@@ -1477,7 +1477,7 @@ tripway   T-4-2        task   Bloqueado (cota)   dev   1d     plan    R$ 0,31
 - páginas por pessoa só para orçamento, bloqueios, portões pendentes e o próprio painel;
 - **sem ranking de pessoas**, e cada nome exibido fica registrado na auditoria.
 
-Isso é decisão de produto: painel usado para avaliar pessoas faz os times esconderem problemas e pode trazer risco trabalhista e de LGPD. Os limites precisam ser validados pelo jurídico (§25.1).
+Isso é decisão de produto: painel usado para avaliar pessoas faz os times esconderem problemas.
 
 **DORA sem Actions.** A base recebia as implantações por um workflow (`deploy/ci/dora-deploy.yml`), o que não é possível aqui. O central passa a **consultar a API do GitHub**, só leitura: PRs, merges, releases e Deployments. A frequência de implantação depende de o pipeline predefinido registrar algo lá (Q-23). Taxa de falha exige uma fonte de incidentes, então fica como `sem dado` até existir. **O painel não mostra número sem fonte.**
 
@@ -1552,7 +1552,7 @@ nexo central up          # só para teste local: SQLite em 127.0.0.1
 | **Agente** | Sem subagentes. Comandos por lista de permissão. Worktree isolada |
 | **Auditoria** | Local, encadeada, com âncora no central |
 | **Kill switch** | Bloqueia ferramenta, modelo, versão do Nexo ou do cérebro, em até 2 minutos |
-| **LGPD** | Telemetria pseudonimizada e matriz de visibilidade (§15.3). A base legal e o aviso aos funcionários são definidos pela empresa |
+| **Dados de uso** | Telemetria pseudonimizada e matriz de visibilidade (§15.3) |
 
 Toda mudança em `kernel/security`, `kernel/audit`, assinatura e identidade exige **revisão de um segundo fornecedor de IA** antes do merge, no próprio desenvolvimento do Nexo.
 
@@ -1639,7 +1639,7 @@ Sem data de calendário porque ainda não há medição de velocidade. O tamanho
 | **M0 — Esqueleto** | Repo, validação local (§20), kernel de módulos, flags, manifesto, kit de contrato, CLI montada do manifesto, teste de nomes reservados, instalador Windows | M | Um módulo `hello` entra só com uma pasta; desligá-lo some com o comando; `nexo flags explain` mostra a fonte |
 | **M1 — Piso** | Política, redação, injeção, ambiente, auditoria, kill switch, identidade, portões, store | M | Testes herdados verdes; import-linter sem exceções; `audit verify` detecta adulteração |
 | **M2 — Planejar com papéis** | `IDEA-n`, `pm split`, histórias em rascunho, etapas e `holders`, `tl assign`, seções com dono, propostas, reuniões, repositório do time com sincronização automática, spec congelada, `team.yaml`, modo solo, `nexo pm`, `tl`, `qa`, `dev refine`, `brief`, console | **GG** | Demo com `fake` e **duas máquinas simuladas**: da ideia ao DoR, com a demanda aparecendo para a pessoa certa em cada etapa. Proposta aceita invalida só a seção alterada. O portão recusa código com lock antigo |
-| **M3 — Executar** | `execution`, `quality`, `sandbox` (`nexo try`, `nexo test`), agentes, roteamento, `nexo dev`, `nexo qa`, `dev problem`, cálculo de impacto, versões do lock, retomada parcial, premissa provisória, leitor Codex, guardas | **GG** | **Uma história real com cada uma das 3 ferramentas, em macOS**, com teste bloqueado, portão e bloqueio de política comprovados, e revisão por outro fornecedor. **Prova de mudança no meio:** um problema técnico aberto durante `dev run` pausa só a tarefa afetada; a retomada, em outra ferramenta, refaz só ela e passa contra a `v2`; premissa aberta segura o merge |
+| **M3 — Executar** | `execution`, `quality`, `sandbox` (`nexo try`, `nexo test`), agentes, roteamento, `nexo dev`, `nexo qa`, `dev problem`, cálculo de impacto, versões do lock, retomada parcial, premissa provisória, leitor Codex, guardas | **GG** | **Uma história real com cada uma das 3 ferramentas**, com teste bloqueado, portão e bloqueio de política comprovados, e revisão por outro fornecedor. **Prova de mudança no meio:** um problema técnico aberto durante `dev run` pausa só a tarefa afetada; a retomada, em outra ferramenta, refaz só ela e passa contra a `v2`; premissa aberta segura o merge |
 | **M4 — Packs** | Formato, lock, conflitos do §9.2, Superpowers e toolkit adotados, transpilação, `tl setup` | M | Mudança de 1 byte no pack falha no lock; script em skill é bloqueado; skills descobertas de verdade nas 3 CLIs |
 | **M5 — Demandas e entrega** | `demands`, árvore de demandas, `delivery`, GitHub Issues real com responsável e etiqueta, `nexo board` local | G | Executar nos **2 projetos reais** e vê-los no mesmo board; bug de portão aparece ligado à história; `demand verify` passa; reenviar não duplica no GitHub |
 | **M6 — Brain** | `nexo-brain`, frontmatter em tudo, `lint`, `index`, `propose` por PR, assinatura por `git ls-files`, isolamento por projeto | M | Vault abre no Obsidian com grafo sem link quebrado; editar nele não quebra `pull`; lição do projeto A não aparece no contexto do B |
@@ -1686,10 +1686,10 @@ Da perspectiva de cada papel:
 | **Integração** | Git real, SQLite, coletor em processo |
 | **E2E com simulador** | Fluxo completo sem gastar tokens (`fake.py`) |
 | **E2E real** | `nexo selftest --agent <ferramenta>` em projeto descartável |
-| **Portabilidade** | Sem Windows durante o desenvolvimento, estes testes rodam no macOS: proibição de `shell=True`, `sh`, `/tmp` e caminho montado com texto; regras de `ntpath` para separadores e caminhos longos; fixtures com CRLF, BOM e nomes que só diferem por maiúscula; adaptadores de agendador e cofre testados por contrato com simuladores |
+| **Portabilidade** | Proibição de `shell=True`, `sh`, `/tmp` e caminho montado com texto; regras de `ntpath` para separadores e caminhos longos; fixtures com CRLF, BOM e nomes que só diferem por maiúscula; adaptadores de agendador e cofre testados por contrato com simuladores |
 | **Harness** | Casos do toolkit: handoff desatualizado, parada e retomada, bloqueio parcial, revisão somente leitura |
 
-**Quando roda:** a validação rápida num `pre-push` opcional do repositório do Nexo; a completa antes de cada versão, **em macOS**, com as verificações de portabilidade abaixo. **Os testes finais rodam numa máquina Windows da empresa** (fase MF), e nenhuma versão é liberada às pessoas sem eles. Linux é melhor esforço. A prova fica em `evidence/<versão>/<sistema>.json`. **Testes reais rodam só antes da versão**, por custo. Os workflows da base (`deploy/ci/*`, `.github/workflows/*`) **não são copiados**.
+**Quando roda:** a validação rápida num `pre-push` opcional do repositório do Nexo; a completa antes de cada versão, com as verificações de portabilidade abaixo. **Os testes finais rodam no Windows** (fase MF), e nenhuma versão é liberada às pessoas sem eles. Linux é melhor esforço. A prova fica em `evidence/<versão>/<sistema>.json`. **Testes reais rodam só antes da versão**, por custo. Os workflows da base (`deploy/ci/*`, `.github/workflows/*`) **não são copiados**.
 
 **Evidência:** "instalado", "configurado" e "funcionando" são três afirmações diferentes. Nenhuma tabela de maturidade deste documento vira 🟢 sem o comando, a versão e o resultado registrados.
 
@@ -1719,9 +1719,9 @@ Da perspectiva de cada papel:
 | **R-18** | A empresa pode não permitir criar o repositório do time, ou deixá-lo legível para toda a organização. | **Alto** | Conferir na P0. Alternativa: S3, pelas portas `TrackingStore` e `LineageStore`. Sem isso, o fluxo entre pessoas não funciona. |
 | **R-19** | **Sem CI, nenhum servidor impõe o portão.** Quem abrir um PR fora do Nexo não passa por ele, e a evidência local pode ser forjada por quem tiver a máquina. | **Alto** | O PR mostra evidência ou a falta dela, e o revisor confere com `nexo tl review`. Só o pipeline predefinido e a proteção de branch são impostos pelo servidor. O Nexo não pode prometer controle obrigatório (§24.2). |
 | **R-20** | Máquinas corporativas podem bloquear o agendador, os hooks, o executável sem assinatura ou o proxy. | Alto | Conferir na P0, porque você acredita que é permitido, mas ainda não foi testado. O scan também dispara ao usar o Nexo. `nexo doctor` diz o que está ativo. |
-| **R-21** | **Risco principal de plataforma: o destino é Windows, e ele só é testado no fim.** Um bloqueio de EDR ou um defeito de Windows pode aparecer depois de o produto estar pronto, com mais retrabalho. | **Alto** | Regras e testes de portabilidade desde a M0 (§20). **Recomendado:** rodar o grupo B, de poucas horas, assim que a máquina da empresa estiver à mão, sem esperar a MF. |
+| **R-21** | **Risco principal de plataforma: o destino é Windows, e ele só é testado no fim.** Um bloqueio de EDR ou um defeito de Windows pode aparecer depois de o produto estar pronto, com mais retrabalho. | **Alto** | Regras e testes de portabilidade desde a M0 (§20). **Recomendado:** rodar o grupo B, de poucas horas, sem esperar a MF. |
 | **R-22** | Copilot sem guarda comprovada pode não poder receber o código da empresa, e os leitores de consumo nunca rodaram no Windows. O FinOps ficaria incompleto. | **Alto** | Provar na P0 e na M3. Até lá, o painel marca a ferramenta como não medida. |
-| **R-23** | Painel virar avaliação individual de pessoas. | **Alto** | Pseudônimo, matriz no servidor e sem ranking (§15.3). Limites validados pelo jurídico. |
+| **R-23** | Painel virar avaliação individual de pessoas. | **Alto** | Pseudônimo, matriz no servidor e sem ranking (§15.3). |
 | **R-24** | Número errado no painel de FinOps minar a confiança. Preço de referência parece gasto real. | **Alto** | Rótulo "estimado", conciliação com a fatura e prova na M7. |
 | **R-26** | Login provisório virar permanente: o portal controla flags e mostra custo. | Alto | Só rede interna, token por pessoa com validade, perfil `admin` restrito. Prazo para o SSO em Q-24. |
 | **R-25** | Time do Nexo pequeno operando serviço em produção, além de desenvolver. | Médio | Serviço gerenciado (Fargate e RDS), alarmes e o princípio de que queda do central não trava ninguém. |
@@ -1733,7 +1733,6 @@ Nenhuma bloqueia a M0. O padrão vale até você decidir.
 
 | ID | Pergunta | Padrão assumido | Precisa até |
 |---|---|---|---|
-| Q-02 | Quando a máquina Windows da empresa estará disponível? | Só na fase MF; o recomendado é antes (R-21) | Quanto antes |
 | Q-03 | Quais são os 2 projetos reais da prova na M5? | Escolha sua. Sugestão: um Python e um React | M5 |
 | Q-04 | Quando o Nexo migra para a organização da empresa, e em qual delas ficam o cérebro e os repositórios de time? | Antes do primeiro uso com dados da empresa, que começa na fase MF | Antes da MF |
 | Q-06 | Quando entrarem outras pessoas, será `team` com qual identidade? | GitHub | Primeiro usuário adicional |
@@ -2044,17 +2043,16 @@ Consequência no controle: a **trilha de auditoria continua local** e mostra o q
 
 ### 25.1 Autorização antes de tudo
 
-**O Nexo será da empresa, e os fornecedores aprovados são Claude, Devin e Copilot. O responsável liberou o uso na empresa.** A liberação fica registrada em `org/approval.yaml` do cérebro (quem, quando e com qual escopo), e `nexo doctor` a mostra. Isto é uma análise técnica, não parecer jurídico.
+**O Nexo será da empresa, e os fornecedores aprovados são Claude, Devin e Copilot. O responsável liberou o uso na empresa.** A liberação fica registrada em `org/approval.yaml` do cérebro (quem, quando e com qual escopo), e `nexo doctor` a mostra.
 
 | Tema | O que precisa ser resolvido | Quem normalmente decide |
 |---|---|---|
 | **Instalação** | Nexo, agente agendado e hooks nas máquinas | TI, Segurança |
-| **Código para IA** | Claude, Devin e Copilot estão aprovados. Falta confirmar para quais classes de dados, qual contrato e se a aprovação cobre uso por CLI. `data_policy` nega o que não estiver listado | Segurança, jurídico |
-| **Transcrição de reuniões** | Gravações têm dados pessoais e estratégicos. O padrão é transcrição local, com aviso aos participantes | Jurídico, LGPD |
+| **Código para IA** | Claude, Devin e Copilot estão aprovados. `data_policy` nega o que não estiver listado | Segurança |
+| **Transcrição de reuniões** | Gravações têm dados pessoais e estratégicos. O padrão é transcrição local, com aviso aos participantes | Segurança |
 | **Dados na organização** | Cérebro, repositório do time e central ficam na empresa. **Nenhuma cópia em conta pessoal** | Segurança |
 | **Propriedade do Nexo** | **Será da empresa.** A construção começa na máquina e no repositório privado do responsável e migra para a organização depois (D-33). **Até a migração, o repositório não recebe código, dados ou conhecimento da empresa** | Responsável |
-| **Métricas de pessoas** | Painel com dados de funcionários, mesmo com pseudônimo: base legal e aviso (§15.3) | Jurídico, LGPD, RH |
-| **Conteúdo de terceiros** | Licenças MIT do toolkit e do Superpowers mantidas em `NOTICE`; dependências revisadas | Jurídico, se a política exigir |
+| **Conteúdo de terceiros** | Licenças MIT do toolkit e do Superpowers mantidas em `NOTICE`; dependências revisadas | Time do Nexo |
 
 **Regra:** antes da M1, registrar a liberação. As máquinas continuam sujeitas aos controles técnicos da empresa.
 
@@ -2079,11 +2077,11 @@ Consequência no controle: a **trilha de auditoria continua local** e mostra o q
 | **Proxy e TLS** | Usa proxy do sistema e o repositório de certificados do Windows. Inspeção de TLS é comum em empresas e quebra `pip` e chamadas HTTP |
 | **Obsidian** | Funciona no Windows. O vault é um clone normal |
 
-**macOS é onde o Nexo é desenvolvido e testado no dia a dia.** Todas as regras acima valem desde a M0, mas os adaptadores de Windows (`schtasks`, Credential Manager, hook) só são provados de verdade na fase MF. **Linux** é melhor esforço.
+Todas as regras acima valem desde a M0, e os adaptadores de Windows (`schtasks`, Credential Manager, hook) só são provados de verdade na fase MF. **Linux** é melhor esforço.
 
 ### 25.3 Prova do ambiente (fase P0)
 
-**Duas respostas foram "acredito que".** Como elas sustentam o desenho, vale testar antes de escrever o produto. **Grupo A, na P0, em macOS:** itens 1, 2, 3, 5, 9, 9a e 9b. **Grupo B, no Windows da empresa:** itens 4, 6, 7, 8 e 10, além de repetir 5, 9 e 9a. Pela decisão atual, o grupo B fica para a fase MF, mas ele é rápido e o mais cedo possível é melhor (R-21).
+**Grupo A, na P0:** itens 1, 2, 3, 5, 9, 9a e 9b. **Grupo B, no Windows:** itens 4, 6, 7, 8 e 10, além de repetir 5, 9 e 9a (R-21).
 
 | # | Teste | Se falhar |
 |---|---|---|

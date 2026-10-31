@@ -2,19 +2,19 @@
 
 Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi provado de verdade do que só passou com simulador.
 
-**Resumo:** o código das entregas M0 a M8 está feito e passa na validação local em macOS. **Nada foi provado no Windows, com contas reais da empresa ou na AWS. O Nexo ainda não pode ser liberado às pessoas.**
+**Resumo:** o código das entregas M0 a M8 está feito e passa na validação local. **Falta provar no Windows, com contas reais e na AWS. O Nexo ainda não pode ser liberado às pessoas.**
 
 ## O que foi verificado
 
 | Verificação | Resultado | Como |
 |---|---|---|
-| Lint, formatação e tipos estritos | Passam | `scripts/validate.py`, em macOS |
-| Testes automáticos | 1.119 testes passam, com ferramentas simuladas | `scripts/validate.py`, em macOS |
+| Lint, formatação e tipos estritos | Passam | `scripts/validate.py` |
+| Testes automáticos | 1.119 testes passam, com ferramentas simuladas | `scripts/validate.py` |
 | Camadas: módulo não importa módulo | Zero dependências diretas | import-linter e `tests/architecture` |
 | Kit de contrato de módulo | Todos os módulos passam | `tests/architecture/test_module_contract.py` |
 | Portabilidade que dá para provar fora do Windows | Passa | `tests/architecture/test_portability.py` |
 | Claude Code real, em projeto descartável | Passou, sem PR e sem revisão por outro fornecedor | [Evidência](../evidence/p0/2026-10-30-claude-selftest.md) |
-| Binário `onedir` | Gerado e executado em macOS, 200 MB, com o portal de demonstração no ar | `scripts/build_binary.py` e `dist/nexo/nexo demo site` |
+| Binário `onedir` | Gerado e executado, 200 MB, com o portal de demonstração no ar | `scripts/build_binary.py` e `dist/nexo/nexo demo site` |
 | `nexo demo cli` | O roteiro impresso é executado comando a comando | `tests/integration/test_demo.py` |
 
 ## O que não foi verificado
@@ -24,16 +24,16 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | **Módulos antecipados do pós-MVP** | `deps`, `legacy`, `program`, `change` e `docsite` vieram da base. Os quatro primeiros têm testes com simulador, e `docsite` tem só um teste de geração. Nenhum rodou em projeto real | Uso real |
 | **Comandos dentro das CLIs** | `nexo pack expose` gera os arquivos, mas não foi conferido se Claude e Copilot os reconhecem | Abrir a ferramenta |
 | **Identidade visual** | Só a paleta aproximada, porque o manual de marca não é público. Sem logo nem fonte da empresa | Time de marca |
-| **`nexo setup` instalando de verdade** | Só simulado. Os identificadores de pacote do `winget` não foram conferidos, e a TI pode bloquear | Prova na máquina da empresa |
-| **Aparência no Windows** | Cores do terminal e páginas conferidas só em macOS | Prova MF |
-| **Windows** | Nunca rodou: agendador, Credential Manager, binário, proxy e TLS, caminhos longos | Máquina da empresa (Q-02) |
+| **`nexo setup` instalando de verdade** | Só simulado. Os identificadores de pacote do `winget` não foram conferidos, e a TI pode bloquear | Prova MF |
+| **Aparência no Windows** | Cores do terminal e páginas ainda não conferidas nele | Prova MF |
+| **Windows** | Nunca rodou: agendador, Credential Manager, binário, proxy e TLS, caminhos longos | Prova MF |
 | **Claude em história real** | Fluxo completo em projeto descartável, com portão humano. Faltam PR no GitHub e revisão por outro fornecedor. [Evidência](../evidence/p0/2026-10-30-claude-selftest.md) | `nexo selftest --agent claude --github <dono>/nexo-selftest` |
 | **Devin e Copilot em história real** | Não rodaram. O Devin está instalado aqui, o Copilot não | `nexo selftest`, que consome créditos |
 | **Guarda do Devin** | O arquivo `.devin/hooks.v1.json` é gerado, mas o bloqueio não foi provado. O formato da resposta do hook também não | Prova 9a |
 | **Guarda do Copilot** | Sem hook, roda só com `--deny-tool` | Prova 9a |
 | **GitHub Issues real** | Só simulador | Prova M5 |
 | **3 MCPs reais** | Só com servidor de teste local | Prova M7 |
-| **AWS** | O Terraform nunca foi aplicado nem validado: a ferramenta não está instalada aqui. O adaptador de KMS só rodou contra simulador | Conta da empresa (Q-21) |
+| **AWS** | O Terraform nunca foi aplicado nem validado: a ferramenta não está instalada aqui. O adaptador de KMS só rodou contra simulador | Implantação (Q-21) |
 | **Custo contra a fatura** | Não conferido | FinOps, com um mês de dados |
 | **Scanner de linhagem em .NET real** | Só com amostras escritas para os testes. A taxa de acerto é desconhecida | Prova M8 |
 | **Descoberta na AWS e no Kafka** | Só simulador, e a de Kafka lê um JSON exportado por alguém | Q-12 |
