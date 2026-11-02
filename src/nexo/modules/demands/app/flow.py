@@ -8,6 +8,7 @@ from typing import Any
 from nexo.kernel.context import AppContext
 from nexo.kernel.errors import NexoError, PolicyViolation
 from nexo.kernel.runtime import yamlfile
+from nexo.kernel.spec.model import Spec
 from nexo.kernel.workspace import specs
 from nexo.kernel.workspace import tasks as workspace_tasks
 from nexo.modules.demands.app import core
@@ -86,7 +87,7 @@ def split(ctx: AppContext, did: str, titles: list[str], single: bool = False) ->
     return {"id": d.id, "features": created}
 
 
-def adopt_feature(ctx: AppContext, fid: str, title: str) -> None:
+def adopt_feature(ctx: AppContext, fid: str, title: str, origin: str = "planning") -> None:
     """Feature criada direto pelo planejamento também vira demanda."""
     demands = core.load(ctx, sync=False)
     if fid in demands:
@@ -99,14 +100,20 @@ def adopt_feature(ctx: AppContext, fid: str, title: str) -> None:
             "type": "feature",
             "title": core.clean(title)[:200],
             "project": core.store(ctx).project,
-            "origin": {"kind": "planning"},
+            "origin": {"kind": origin},
             "responsible": {"pm": core._actor(ctx)},
         },
         push=False,
     )
 
 
-def adopt_backlog(ctx: AppContext, fid: str, stories: list[dict[str, Any]], task_rows: list[dict[str, Any]]) -> None:
+def adopt_backlog(
+    ctx: AppContext,
+    fid: str,
+    stories: list[dict[str, Any]],
+    task_rows: list[dict[str, Any]],
+    origin: str = "planning",
+) -> None:
     """Histórias e tarefas viram demandas ligadas à feature, com o mesmo ID para sempre."""
     demands = core.load(ctx, sync=False)
     project = core.store(ctx).project
@@ -122,7 +129,7 @@ def adopt_backlog(ctx: AppContext, fid: str, stories: list[dict[str, Any]], task
                     "parent": fid,
                     "spawned_by": fid,
                     "project": project,
-                    "origin": {"kind": "planning"},
+                    "origin": {"kind": origin},
                 },
                 push=False,
             )
@@ -365,14 +372,18 @@ def tech_demand(ctx: AppContext, text: str) -> dict[str, Any]:
     demands = core.load(ctx)
     root = core.root_of(ctx)
     fid = specs.next_feature_id(root)
-    specs.create_feature_dir(root, fid, text[:60])
+    folder = specs.create_feature_dir(root, fid, text[:60])
+    title = core.clean(text)[:200]
+    # sem impacto funcional, a spec nasce do próprio texto: a análise do tech lead parte dela
+    specs.save_spec(folder, Spec(id=fid, title=title, problem=title, objective=title, scope_out=["mudança funcional"]))
+    specs.save_questions(folder, [])
     core.record(
         ctx,
         "demand.created",
         fid,
         {
             "type": "feature",
-            "title": core.clean(text)[:200],
+            "title": title,
             "project": core.store(ctx).project,
             "origin": {"kind": "manual", "track": "tech"},
             "responsible": {"pm": actor, "tl": actor},
@@ -401,7 +412,35 @@ def new_bug(ctx: AppContext, story: str, text: str, evidence: str = "", origin: 
             "origin": {"kind": origin, "evidence": core.clean(evidence)},
         },
     )
+    ensure_task(ctx, bug)
     return {"id": bug, "story": d.id}
+
+
+def ensure_task(ctx: AppContext, demand_id: str) -> bool:
+    """Bug e tarefa criados como demanda ganham o arquivo de tarefa que o `run task` executa.
+
+    Herda a stack de uma tarefa irmã da mesma história, quando houver. Devolve se criou.
+    """
+    root = core.root_of(ctx)
+    path = workspace_tasks.tasks_dir(root) / f"{demand_id}.yaml"
+    d = core.load(ctx).get(demand_id)
+    if path.is_file() or d is None or d.type not in ("task", "bug"):
+        return False
+    story = d.parent if d.parent.startswith("US-") else None
+    sibling = next((t for t in workspace_tasks.list_tasks(root) if story and t.story == story), None)
+    evidence = str(d.origin.get("evidence") or "")
+    data: dict[str, Any] = {
+        "title": d.title or demand_id,
+        "description": d.title + (f"\n\nEvidência: {evidence}" if evidence else ""),
+        "story": story,
+    }
+    if d.type == "bug":
+        data["acceptance"] = ["o problema descrito não acontece mais", "um teste reproduz o problema e passa"]
+    if sibling is not None:
+        data["stack"] = sibling.stack
+    path.parent.mkdir(parents=True, exist_ok=True)
+    yamlfile.dump(path, {k: v for k, v in data.items() if v is not None})
+    return True
 
 
 def task_rows(ctx: AppContext) -> list[dict[str, Any]]:

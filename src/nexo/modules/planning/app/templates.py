@@ -383,6 +383,14 @@ def backlog_problems(ctx: AppContext, backlog: Backlog, spec: Spec) -> list[str]
     return problems
 
 
+def _score(spec: Spec, questions: list[Any]) -> int:
+    """A mesma prontidão do planejamento, para a prévia não mostrar 0% numa feature pronta."""
+    from nexo.kernel.spec import questions as q
+    from nexo.kernel.spec.model import readiness
+
+    return readiness(spec, q.blocking_open(questions)).score
+
+
 def preview(ctx: AppContext, kind: str, feature: str, item: str | None = None) -> Rendered:
     from nexo.kernel.workspace import specs
 
@@ -405,7 +413,7 @@ def preview(ctx: AppContext, kind: str, feature: str, item: str | None = None) -
             raise NexoError(f"tarefa {item} não encontrada")
         return render(ctx, kind, task_context(task))
     data = {
-        "sdd": lambda: sdd_context(spec, 0, qs),
+        "sdd": lambda: sdd_context(spec, _score(spec, qs), qs),
         "functional-requirements": lambda: requirements_context(spec, backlog),
         "technical-design": lambda: design_context(spec),
         "epic": lambda: spec.epic.model_dump(mode="json") if spec.epic else {},

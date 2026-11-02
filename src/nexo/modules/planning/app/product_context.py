@@ -81,6 +81,14 @@ def load(ctx: AppContext, pid: str) -> Product:
         raise NexoError(f"{folder / 'projeto.yaml'}: {exc}") from exc
 
 
+def _problem(exc: ValueError) -> str:
+    """Mensagem curta da validação, sem o texto técnico nem o link da biblioteca."""
+    errors = getattr(exc, "errors", None)
+    if callable(errors):
+        return "; ".join(str(e.get("msg", "")).removeprefix("Value error, ") for e in errors())
+    return str(exc)
+
+
 def _sigla_free(ctx: AppContext, sigla: str, pid: str) -> None:
     """Uma sigla identifica um projeto só."""
     other = next((p for p in list_products(ctx) if sigla and p["sigla"] == sigla and p["id"] != pid), None)
@@ -93,7 +101,7 @@ def set_sigla(ctx: AppContext, pid: str, sigla: str) -> Product:
     try:
         updated = Product.model_validate({**product.model_dump(mode="json"), "sigla": sigla})
     except ValueError as exc:
-        raise NexoError(str(exc)) from exc
+        raise NexoError(_problem(exc)) from exc
     _sigla_free(ctx, updated.sigla, pid)
     save(ctx, updated)
     return updated
@@ -236,13 +244,13 @@ def save(ctx: AppContext, product: Product) -> Path:
 
 
 def create(ctx: AppContext, pid: str, name: str, description: str, squads: list[str], sigla: str = "") -> Path:
+    try:  # valida o id antes de procurar a pasta: em disco sem diferença de maiúsculas, Loja acharia loja
+        product = Product(id=pid, sigla=sigla, name=name, description=description, squads=squads)
+    except ValueError as exc:
+        raise NexoError(_problem(exc)) from exc
     folder, _ = locate(ctx, pid)
     if folder is not None:
         raise NexoError(f"projeto {pid} já existe ({folder})")
-    try:
-        product = Product(id=pid, sigla=sigla, name=name, description=description, squads=squads)
-    except ValueError as exc:
-        raise NexoError(str(exc)) from exc
     _sigla_free(ctx, product.sigla, pid)
     folder = save(ctx, product)
     (folder / "contexto.md").write_text(
@@ -264,7 +272,7 @@ def upsert_part(ctx: AppContext, pid: str, part: Part) -> Product:
     try:
         updated = Product.model_validate({**product.model_dump(), "parts": [p.model_dump() for p in parts]})
     except ValueError as exc:
-        raise NexoError(str(exc)) from exc
+        raise NexoError(_problem(exc)) from exc
     save(ctx, updated)
     return updated
 
@@ -278,6 +286,8 @@ def declare_use(ctx: AppContext, target: str) -> tuple[Product, Part]:
         raise NexoError("este repositório não está ligado a uma parte do projeto (rode `nexo context init`)")
     if cur.product.part(target) is None:
         raise NexoError(f"{target} não é parte do projeto {cur.product.id}")
+    if target == part.id:
+        raise NexoError(f"{target} é a parte deste repositório: ela não usa a si mesma")
     if target not in part.uses:
         part = part.model_copy(update={"uses": [*part.uses, target]})
         upsert_part(ctx, cur.product.id, part)

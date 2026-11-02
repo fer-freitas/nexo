@@ -48,7 +48,10 @@ def test_contract_prices_on_the_project(project: Path, nexo: Runner, scenario) -
 
 def test_new_validity_keeps_history(project: Path, nexo: Runner) -> None:
     nexo("pricing", "set", "devin.usd_month", "400")
-    nexo("pricing", "set", "devin.usd_month", "450", "--from", "2026-11-01")
+    from datetime import date
+
+    future = date(date.today().year + 1, 1, 1).isoformat()  # sempre no futuro, em qualquer dia em que o teste rode
+    nexo("pricing", "set", "devin.usd_month", "450", "--from", future)
     data = json.loads(nexo("--json", "pricing", "show")[1])
     devin = next(s for s in data["subscriptions"] if s["tool"] == "devin")
     assert devin["versions"] == 2 and devin["current"]["usd_month"] == 400  # a nova vigência ainda não começou

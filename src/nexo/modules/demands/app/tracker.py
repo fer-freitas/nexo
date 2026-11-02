@@ -335,11 +335,20 @@ def suggest_mapping(ctx: AppContext) -> Path:
     return target
 
 
-def export_file(ctx: AppContext, dest: Path) -> int:
-    """Exporta os itens locais no formato de importação (CSV) — modo 3, sem API."""
+def export_file(ctx: AppContext, dest: Path) -> tuple[int, Path]:
+    """Exporta os itens locais no formato de importação (CSV) — modo 3, sem API. `dest` é pasta ou `.csv`."""
+    import shutil
+    import tempfile
+
     root = ctx.project_root
     if root is None:
         raise NexoError("nenhum projeto Nexo encontrado")
+    if dest.suffix.lower() == ".csv":
+        with tempfile.TemporaryDirectory() as tmp:
+            n, written = export_file(ctx, Path(tmp))
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(written), dest)
+        return n, dest
     mapping = load_mapping(ctx, "file")
     fx = FileExchange(dest, mapping)
     rows = ctx.conn.execute(
@@ -349,8 +358,10 @@ def export_file(ctx: AppContext, dest: Path) -> int:
         state = str(row["state"])
         state = {"Aberto": "EmDev", "Resolvido": "Concluido"}.get(state, state)
         fx.create(TrackerItem(str(row["id"]), str(row["type"]), str(row["title"]), state))
+    if not rows:
+        fx._write([])  # sem itens, o arquivo sai só com o cabeçalho, pronto para a ferramenta
     ctx.audit("tracker.exported", {"items": len(rows), "path": str(fx.outbox)})
-    return len(rows)
+    return len(rows), fx.outbox
 
 
 def import_file(ctx: AppContext, source: Path) -> list[dict[str, str]]:
@@ -360,6 +371,10 @@ def import_file(ctx: AppContext, source: Path) -> list[dict[str, str]]:
     root = ctx.project_root
     if root is None:
         raise NexoError("nenhum projeto Nexo encontrado")
+    if source.is_dir() and (source / "outbox.csv").is_file():
+        source = source / "outbox.csv"  # a pasta que o `tracker export` criou
+    if not source.is_file():
+        raise NexoError(f"arquivo CSV não encontrado: {source}")
     mapping = load_mapping(ctx, "file")
     folder = root / ".nexo" / "tracker"
     folder.mkdir(parents=True, exist_ok=True)

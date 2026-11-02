@@ -1,19 +1,17 @@
-# De-para padrão para troca por arquivo (CSV). Squads sobrescrevem em nexo-brain/workflows/mappings/.
+# De-para padrão para troca por arquivo (CSV), em nomes neutros. Ajuste aos nomes da ferramenta do time em
+# nexo-brain/workflows/mappings/file.yaml ou em .nexo/mappings/file.yaml do repositório.
 tracker: file
-types: {epic: Epic, feature: Feature, story: User Story, task: Task, bug: Bug}
+types: {epic: Epic, feature: Feature, story: Story, task: Task, bug: Bug}
 states:
-  Ideia:            {state: New}
-  Refinamento:      {state: New, tags: [nexo-refinement]}
-  Pronto:           {state: New, tags: [nexo-ready]}
-  EmDev:            {state: Active}
-  EmQA:             {state: Active, tags: [nexo-qa]}
-  EmReview:         {state: Resolved}
-  AguardandoHumano: {state: Resolved, tags: [nexo-human-gate]}
-  Concluido:        {state: Closed}
+  Ideia:            {state: To Do}
+  Refinamento:      {state: To Do, tags: [nexo-refinement]}
+  Pronto:           {state: To Do, tags: [nexo-ready]}
+  EmDev:            {state: In Progress}
+  EmQA:             {state: In Progress, tags: [nexo-qa]}
+  EmReview:         {state: In Review}
+  AguardandoHumano: {state: In Review, tags: [nexo-human-gate]}
+  Concluido:        {state: Done}
   Bloqueado:        {keep_state: true, tags: [nexo-blocked]}
   Escalado:         {keep_state: true, tags: [nexo-escalated]}
-  Cancelado:        {state: Removed}
-fields:
-  story_points: Microsoft.VSTS.Scheduling.StoryPoints
-  acceptance: Microsoft.VSTS.Common.AcceptanceCriteria
-reverse: {New: Pronto, Active: EmDev, Resolved: EmReview, Closed: Concluido, Removed: Cancelado}
+  Cancelado:        {state: Cancelled}
+reverse: {To Do: Pronto, In Progress: EmDev, In Review: EmReview, Done: Concluido, Cancelled: Cancelado}

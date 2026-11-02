@@ -22,14 +22,30 @@ PUSH_RETRIES = 5
 ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 
 
+_LAST: list[tuple[int, int]] = []  # (ms, sufixo) do último id deste processo
+
+
 def new_event_id(now: float | None = None) -> str:
-    """Identificador ordenável por tempo (formato ULID), sem dependência externa."""
+    """Identificador ordenável por tempo (formato ULID), sem dependência externa.
+
+    No mesmo milissegundo, o sufixo cresce em vez de sortear de novo: dois eventos gravados em sequência
+    (criar e aprovar, por exemplo) são lidos na mesma ordem em que aconteceram.
+    """
     ms = int((time.time() if now is None else now) * 1000)
-    chars = []
+    suffix = random.getrandbits(79)
+    if now is None and _LAST and ms <= _LAST[0][0]:
+        ms, suffix = _LAST[0][0], _LAST[0][1] + 1
+    if now is None:
+        _LAST[:] = [(ms, suffix)]
+    head = []
     for _ in range(10):
         ms, rem = divmod(ms, 32)
-        chars.append(ALPHABET[rem])
-    return "".join(reversed(chars)) + "".join(random.choices(ALPHABET, k=16))  # noqa: S311 — não é segredo
+        head.append(ALPHABET[rem])
+    tail = []
+    for _ in range(16):
+        suffix, rem = divmod(suffix, 32)
+        tail.append(ALPHABET[rem])
+    return "".join(reversed(head)) + "".join(reversed(tail))
 
 
 def _git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:

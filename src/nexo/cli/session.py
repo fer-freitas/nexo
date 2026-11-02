@@ -86,7 +86,7 @@ class Session:
         self.menu: list[pending.Step] = []
         self.history: list[tuple[str, str]] = []
         self.auto = False  # /auto: não pede confirmação nesta sessão
-        self.commands = set(top_levels()) | {"console"}
+        self.commands = set(top_levels()) | _cli_words() | {"console"}
         self._read = read or self._reader()
         self._run = run or _run_cli
 
@@ -491,6 +491,16 @@ def _run_cli(argv: list[str]) -> int:
     from nexo.cli.main import main
 
     return int(main(argv))
+
+
+def _cli_words() -> set[str]:
+    """Primeiras palavras de todos os comandos, inclusive os que os módulos registram (pm, board, lineage...)."""
+    from typer.main import get_command
+
+    import nexo.cli.main  # noqa: F401 — registra os comandos dos módulos
+    from nexo.cli.app import app
+
+    return {name for name, cmd in getattr(get_command(app), "commands", {}).items() if not cmd.hidden}
 
 
 def _bare_group(word: str) -> bool:

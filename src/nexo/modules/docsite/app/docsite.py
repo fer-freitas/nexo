@@ -207,7 +207,8 @@ module.exports = config;
 
 def _features(root: Path) -> list[Path]:
     base = specs.specs_root(root)
-    return sorted(f for f in base.glob("F-*") if f.is_dir()) if base.is_dir() else []
+    # feature recém-criada, ainda sem spec, não tem o que mostrar no site
+    return sorted(f for f in base.glob("F-*") if (f / "spec.yaml").is_file()) if base.is_dir() else []
 
 
 def _fid(folder: Path) -> str:

@@ -383,7 +383,7 @@ def product_part(
             aliases=list(alias or []),
         )
     except ValueError as exc:
-        raise NexoError(str(exc)) from exc
+        raise NexoError(pc._problem(exc)) from exc
     updated = pc.upsert_part(ctx(), product, new)
     if ctx().options.json:
         emit(updated.model_dump(mode="json"))

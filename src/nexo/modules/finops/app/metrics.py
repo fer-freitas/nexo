@@ -245,7 +245,9 @@ def baseline(ctx: AppContext, since: str, until: str) -> dict[str, Any]:
         raise NexoError("nenhum projeto Nexo encontrado")
     tracker = integrations_tracker.build_tracker(ctx)
     if tracker is None:
-        raise NexoError("linha de base vem do tracker: configure `tracker` no projeto (nexo tracker check)")
+        raise NexoError(
+            "linha de base vem do tracker: configure `tracker` no projeto e confira com `nexo tracker map --check`"
+        )
     items = [asdict(i) for i in tracker.history(since, until)]
     summary = {**baseline_summary(items, since, until), "tracker": tracker.name}
     out = root / ".nexo" / "metrics" / "baseline.json"

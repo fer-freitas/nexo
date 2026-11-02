@@ -80,7 +80,11 @@ def create_feature_dir(project_root: Path, feature_id: str, title: str) -> Path:
 
 
 def load_spec(folder: Path) -> Spec:
-    return Spec.model_validate(yamlfile.load(folder / "spec.yaml"))
+    path = folder / "spec.yaml"
+    if not path.is_file():
+        fid = "-".join(folder.name.split("-")[:2])
+        raise NexoError(f"{fid} ainda não tem spec: rode `nexo pm refine {fid}` (ou `nexo plan` com o texto)")
+    return Spec.model_validate(yamlfile.load(path))
 
 
 def save_spec(folder: Path, spec: Spec) -> None:

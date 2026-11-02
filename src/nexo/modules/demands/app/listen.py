@@ -76,6 +76,23 @@ def _gate(ctx: AppContext, payload: dict[str, Any], ref: str | None) -> None:
         core.store(ctx).push(f"nexo: backlog de {fid}")
 
 
+def _incident(ctx: AppContext, payload: dict[str, Any], ref: str | None) -> None:
+    fid = str(payload.get("feature") or ref or "")
+    flow.adopt_feature(ctx, fid, str(payload.get("title") or fid), origin="incident")
+    # o requisito é o próprio incidente, já aprovado na abertura: a demanda não para na PM
+    core.record(ctx, "demand.approved", fid, {"part": "requisitos", "digest": "incident"}, push=False)
+    backlog = specs.load_backlog(specs.feature_dir(core.root_of(ctx), fid))
+    if backlog is not None:
+        flow.adopt_backlog(
+            ctx,
+            fid,
+            [s.model_dump(mode="json") for s in backlog.stories],
+            [t.model_dump(mode="json") for t in backlog.tasks],
+            origin="incident",
+        )
+    core.store(ctx).push(f"nexo: incidente em {fid}")
+
+
 def _state(ctx: AppContext, payload: dict[str, Any], ref: str | None) -> None:
     item = str(payload.get("item") or payload.get("task") or ref or "")
     to = str(payload.get("to", ""))
@@ -160,4 +177,5 @@ HANDLERS = {
     "scm.pr": _pr,
     "scm.merged": _merged,
     "review.spec_issue_ignored": _review_finding,
+    "incident.planned": _incident,
 }

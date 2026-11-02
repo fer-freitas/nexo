@@ -212,3 +212,15 @@ def test_closed_output_is_not_an_error(tmp_path: Path) -> None:
         proc.stdout.readline()
         proc.stdout.close()  # o leitor desiste depois da primeira linha
         assert proc.wait(timeout=60) == 0, proc.stderr.read().decode("utf-8", "replace") if proc.stderr else ""
+
+
+def test_console_knows_the_commands_that_modules_register(
+    project: Path, nexo: Runner, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nexo.cli.session import _cli_words
+    from nexo.modules.console.domain.intents import parse
+
+    words = _cli_words()
+    assert {"pm", "qa", "tl", "dev", "board", "squad", "lineage", "try"} <= words
+    for line in ("board", "nexo pm", "tl", "squad"):
+        assert parse(line, words).kind == "command", line

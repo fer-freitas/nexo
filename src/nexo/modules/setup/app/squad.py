@@ -18,8 +18,8 @@ def current(ctx: AppContext) -> dict[str, str]:
 
 
 def known(ctx: AppContext) -> list[str]:
-    """Os squads que o cérebro conhece e o do repositório do time. Não é uma lista fechada."""
-    names: set[str] = set()
+    """Os squads que o cérebro conhece, o do repositório do time e o seu. Não é uma lista fechada."""
+    names: set[str] = {current(ctx)["squad"]}
     folder = ctx.brain_dir / "squads"
     if folder.is_dir():
         names |= {p.name for p in folder.iterdir() if p.is_dir()}
@@ -40,7 +40,13 @@ def set_squad(ctx: AppContext, name: str, project: bool = False) -> dict[str, st
         raise NexoError("--project precisa de um repositório preparado (`nexo init`)")
     config.set_value(ctx, "squad", clean, level="project" if project else "personal")
     ctx.audit("squad.set", {"squad": clean, "level": "project" if project else "personal"})
-    return {"squad": clean, "level": "repositório" if project else "pessoa"}
+    out = {"squad": clean, "level": "repositório" if project else "pessoa"}
+    now = current(ctx)
+    if now["squad"] != clean:  # o valor pessoal vale mais que o padrão do repositório
+        out["aviso"] = (
+            f"para você continua valendo {now['squad']} (fonte: {now['source']}); este é o padrão de quem não informou"
+        )
+    return out
 
 
 def state(ctx: AppContext) -> dict[str, Any]:

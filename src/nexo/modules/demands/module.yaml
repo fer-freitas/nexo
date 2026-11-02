@@ -18,7 +18,7 @@ flags:
     commands: ["tracker"]
 subscribe: "nexo.modules.demands.app.listen:handle"
 events:
-  consumes: ["plan.created", "plan.packaged", "gate.decision", "state.transition", "bug.created", "ready.checked", "scm.pr", "scm.merged", "review.spec_issue_ignored"]
+  consumes: ["plan.created", "plan.packaged", "gate.decision", "state.transition", "bug.created", "ready.checked", "scm.pr", "scm.merged", "review.spec_issue_ignored", "incident.planned"]
 cli: "nexo.modules.demands.cli:register"
 services:
   demands.tracker: "nexo.modules.demands.app.tracker"

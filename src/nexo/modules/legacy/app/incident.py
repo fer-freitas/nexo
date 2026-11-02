@@ -38,6 +38,8 @@ def _root(ctx: AppContext) -> Path:
 
 
 def _read(path: str) -> dict[str, Any]:
+    if path != "-" and not Path(path).expanduser().is_file():
+        raise NexoError(f"arquivo do incidente não encontrado: {path}")
     raw = sys.stdin.read() if path == "-" else Path(path).expanduser().read_text(encoding="utf-8")
     try:
         data = json.loads(raw)
@@ -221,6 +223,8 @@ def open_incident(ctx: AppContext, path: str, source: str = "auto") -> dict[str,
         ref=fid,
     )
     report = planner.materialize(folder, spec, backlog)
+    # o board e os comandos por papel passam a ver a correção como demanda de origem incidente
+    ctx.audit("incident.planned", {"incident": inc.id, "feature": fid, "title": spec.title}, ref=fid)
     return {
         "incident": inc.id,
         "feature": fid,

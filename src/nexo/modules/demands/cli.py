@@ -9,6 +9,7 @@ from rich.table import Table
 
 from nexo.cli.surface import role_app
 from nexo.kernel.errors import ExitCode, NexoError, PolicyViolation
+from nexo.kernel.i18n import t
 from nexo.modules.demands.app import core, flow, proposals, views
 from nexo.modules.demands.cli_meetings import register_meetings
 from nexo.modules.demands.cli_team import register_team
@@ -17,12 +18,12 @@ from nexo.modules.demands.domain import model as m
 Reason = Annotated[str, typer.Option("--reason", help="Motivo")]
 
 
-def _pairs(values: list[str] | None) -> dict[str, str]:
+def _pairs(values: list[str] | None, example: str = "AC-1=texto") -> dict[str, str]:
     out = {}
     for item in values or []:
         key, sep, value = item.partition("=")
         if not sep:
-            raise NexoError(f"use AC-1=texto (recebi {item})")
+            raise NexoError(f"use {example} (recebi {item})")
         out[key.strip()] = value.strip()
     return out
 
@@ -205,10 +206,10 @@ def register(root: typer.Typer, tools: Any) -> None:
     def qa_verify(bug: str) -> None:
         """Roda de novo e verifica a correção antes de fechar o bug."""
         core.require_role(ctx(), "qa", "Verificar a correção")
+        d, _ = core.get(ctx(), bug)  # id desconhecido para aqui, antes de rodar o pipeline inteiro
         code = internal(["quality", "run"])
         if code:
             raise typer.Exit(code)
-        d, _ = core.get(ctx(), bug)
         core.record(ctx(), "demand.state", d.id, {"state": "Concluido"}, push=False)
         core.record(ctx(), "demand.verified", d.id, {"passed": True})
         show({"bug": d.id, "verified": True}, f"{d.id}: verificado e fechado")
@@ -347,8 +348,9 @@ def register(root: typer.Typer, tools: Any) -> None:
                 {"type": "task", "title": core.clean(title)[:200], "parent": d.id, "project": d.project},
                 push=False,
             )
+            flow.ensure_task(ctx(), tid)
             lines.append(f"tarefa {tid}: {title}")
-        for section, text in _pairs(propose).items():
+        for section, text in _pairs(propose, "seção=texto, ex.: tecnica=trocar a fila").items():
             opened = proposals.suggest(ctx(), d.id, section, text, blocking or section in ("funcional", "tecnica"))
             lines.append(f"proposta {opened['id']} para {m.ROLE_LABEL[opened['owner']]}: {text}")
         core.store(ctx()).push(f"nexo: refinamento de {d.id}")
@@ -382,6 +384,7 @@ def register(root: typer.Typer, tools: Any) -> None:
             raise typer.Exit(internal(["run", "story", target]))
         if target.startswith("F-"):
             raise typer.Exit(internal(["run", "feature", target, "--parallel", str(parallel)]))
+        flow.ensure_task(ctx(), target)  # bug ou tarefa criados antes de existir o arquivo
         raise typer.Exit(internal(["run", "task", target]))
 
     @dev.command("resume")
@@ -485,12 +488,12 @@ def register(root: typer.Typer, tools: Any) -> None:
             emit(rows)
             return
         table = Table(title_justify="left")
-        for col in ("PROJETO", "DEMANDA", "TIPO", "ETAPA", "COM", "IDADE", "ORIGEM"):
-            table.add_column(col)
+        for col in ("project", "demand", "type", "stage", "with", "age", "origin"):
+            table.add_column(t(f"board.{col}"))
         for r in rows:
             table.add_row(r["project"], r["id"], r["type"], r["stage"], ", ".join(r["with"]), r["age"], r["origin"])
         console.print(table)
-        console.print(f"{len(rows)} demanda(s) · {sum(1 for r in rows if r['blocked_by'])} bloqueada(s)")
+        console.print(t("board.summary", n=len(rows), blocked=sum(1 for r in rows if r["blocked_by"])))
 
     @root.command("brief")
     def brief_cmd(did: str) -> None:

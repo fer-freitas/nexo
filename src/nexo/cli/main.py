@@ -120,6 +120,32 @@ def _internal(args: list[str]) -> int:
 surface.register_modules(app, surface.Tools(ctx, emit, console, err_console, _internal))
 
 
+DRY_RUN_AWARE = ("run task", "resume", "dev resume", "learn review")  # leem `options.dry_run`
+READ_ONLY = ("status", "logs", "help", "version", "doctor")
+
+
+def _dry_run_args(args: list[str]) -> tuple[list[str], bool]:
+    """Com `--dry-run`, só roda o que sabe simular ou só lê; o resto não roda (e diz isso)."""
+    from typer.main import get_command
+
+    from nexo.kernel import modules
+
+    node: Any = get_command(app)
+    path: list[str] = []
+    for word in args:
+        commands = getattr(node, "commands", None)
+        if word.startswith("-") or not commands or word not in commands:
+            break
+        node = commands[word]
+        path.append(word)
+    joined = " ".join(path)
+    if any(o == "--dry-run" for p in getattr(node, "params", []) for o in p.opts):
+        return [*args, "--dry-run"], True  # o próprio comando tem a opção
+    kinds = {d.path: d.kind for m in modules.builtin() for d in m.commands}
+    kinds |= {d.target: d.kind for m in modules.builtin() for d in m.commands if d.target}
+    return args, joined in DRY_RUN_AWARE or joined in READ_ONLY or kinds.get(joined) == "read"
+
+
 def _command_name(args: list[str]) -> str | None:
     return next((a for a in args if not a.startswith("-")), None)
 
@@ -166,6 +192,12 @@ def main(argv: list[str] | None = None) -> int:
     if "--help" in args or "-h" in args:  # a ajuda tem uma só fonte: `nexo help <comando>`
         args = ["help", *[a for a in args if not a.startswith("-")]]
     args = surface.translate(args)
+    if opts.dry_run:
+        args, simulated = _dry_run_args(args)
+        if not simulated:
+            shown = " ".join(a for a in raw if a != "--dry-run")
+            err_console.print(f"--dry-run: `nexo {shown}` não tem simulação. Nada foi executado.", markup=False)
+            return ExitCode.OK
     context = AppContext(options=opts)
     _state["ctx"] = context
     apply_brand(context)

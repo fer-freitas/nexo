@@ -43,6 +43,8 @@ def docs_target(
 ) -> None:
     """Escolhe onde fica a documentação das features (a org ou o squad também definem no cérebro)."""
     keys = [k for k, _ in OPTIONS]
+    if level not in ("project", "personal"):
+        raise NexoError(f"--level desconhecido: {level} (use project ou personal)")
     if target is None:
         console.print("[nexo.title]Onde fica a documentação das features?[/]")
         for i, (_, label) in enumerate(OPTIONS, start=1):

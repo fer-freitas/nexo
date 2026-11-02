@@ -205,10 +205,10 @@ def test_file_exchange_roundtrip(project: Path, nexo: Runner, scenario, tmp_path
     nexo("plan", "approve", "F-1")
     code, out, _ = nexo("tracker", "export", "--out", str(tmp_path / "x"))
     csv_text = (tmp_path / "x" / "outbox.csv").read_text(encoding="utf-8")
-    assert code == 0 and "User Story" in csv_text and "nexo-ready" in csv_text
+    assert code == 0 and ",Story," in csv_text and "nexo-ready" in csv_text
     edited = csv_text.replace("US-1-1\n", "US-1-1\n").splitlines()
     header, rows = edited[0], edited[1:]
-    rows = [r.replace(",New,", ",Active,") if ",US-1-1," in r else r for r in rows]
+    rows = [r.replace(",To Do,", ",In Progress,") if ",US-1-1," in r else r for r in rows]
     (tmp_path / "in.csv").write_text("\n".join([header, *rows]) + "\n", encoding="utf-8")
     code, out, _ = nexo("--json", "tracker", "import", str(tmp_path / "in.csv"))
     changes = json.loads(out)

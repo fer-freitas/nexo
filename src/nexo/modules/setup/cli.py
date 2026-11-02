@@ -131,4 +131,5 @@ def register(root: typer.Typer, tools: Any) -> None:
         except ImportError as exc:
             raise NexoError("instale o extra: pip install nexo[central]") from exc
         os.environ["NX_COLLECTOR_DB"] = db
+        console.print(f"Coletor de teste em http://127.0.0.1:{port} (banco {db}). Ctrl+C encerra.", markup=False)
         _serve(port)

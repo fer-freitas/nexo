@@ -66,13 +66,15 @@ def tracker_sync_cmd() -> None:
 
 
 @tracker_app.command("export")
-def tracker_export_cmd(out: Annotated[Path | None, typer.Option("--out")] = None) -> None:
+def tracker_export_cmd(
+    out: Annotated[Path | None, typer.Option("--out", help="Pasta ou arquivo .csv")] = None,
+) -> None:
     from nexo.modules.demands.app import tracker
 
     root = ctx().project_root
     dest = out or ((root or ctx().cwd) / ".nexo" / "tracker")
-    n = tracker.export_file(ctx(), dest)
-    console.print(f"{n} item(ns) exportado(s) para {dest / 'outbox.csv'}")
+    n, path = tracker.export_file(ctx(), dest)
+    console.print(f"{n} item(ns) exportado(s) para {path}")
 
 
 @tracker_app.command("import")
