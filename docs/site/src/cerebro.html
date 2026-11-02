@@ -1,0 +1,62 @@
+<h1>Cérebro</h1>
+<p class="lead">O cérebro é o repositório <code>nexo-brain</code>, na organização do GitHub. Nele ficam a configuração da empresa, as regras de qualidade, as skills, as lições e o contexto dos projetos. A IA só lê a versão assinada, e toda mudança entra por PR.</p>
+<div class="aviso">Duas cópias, de propósito: o clone de trabalho, onde as pessoas editam (e que pode ser aberto no Obsidian), e a cópia verificada, que o Nexo baixa e confere a assinatura. Editar o clone nunca muda o que a IA lê até o PR ser aprovado e a versão ser assinada.</div>
+
+<h2>Como ele é organizado</h2>
+<div class="tabela"><table><tr><th>Pasta ou arquivo</th><th>O que guarda</th><th>Quem mantém</th></tr>
+<tr><td><code>org/config.yaml</code></td><td>Configuração que vale para todos: identidade, portões, guarda, roteamento e telemetria</td><td>Time do Nexo</td></tr>
+<tr><td><code>org/flags.yaml</code></td><td>Funcionalidades ligadas ou desligadas para a empresa</td><td>Time do Nexo</td></tr>
+<tr><td><code>org/standards/</code> e <code>org/security/</code></td><td>Padrões de código, regras de segurança e chaves de assinatura revogadas</td><td>Arquitetura e segurança</td></tr>
+<tr><td><code>squads/&lt;squad&gt;/config.yaml</code></td><td>O que muda para uma squad: receitas, roteamento e flags próprias</td><td>Tech lead da squad</td></tr>
+<tr><td><code>recipes/</code></td><td>Etapas de qualidade por stack: testes, cobertura e análise</td><td>Donos de cada stack</td></tr>
+<tr><td><code>routing/</code> e <code>workflows/mappings/</code></td><td>Que ferramenta de IA faz o quê, e o de-para de estados com o tracker</td><td>Time do Nexo</td></tr>
+<tr><td><code>prompts/</code> e <code>extensions/</code></td><td>Prompts por papel, skills, hooks e ferramentas que os agentes usam</td><td>Time do Nexo e donos das skills</td></tr>
+<tr><td><code>lessons/</code>, <code>knowledge/</code> e <code>decisions/</code></td><td>O que vale para todos os projetos: lições, conhecimento reutilizável e decisões</td><td>Quem propõe, com revisão</td></tr>
+<tr><td><code>projetos/&lt;id&gt;/</code></td><td>Contexto do projeto: <code>projeto.yaml</code> (sigla, partes e squads), <code>contexto.md</code> e <code>glossario.md</code></td><td>Squads do projeto</td></tr>
+<tr><td><code>projects/&lt;id&gt;/</code></td><td>Notas, lições e flags que valem só para um projeto. A IA de outro projeto não vê</td><td>Squads do projeto</td></tr>
+<tr><td><code>.brain/manifest.json</code></td><td>A assinatura da versão. Gerado por <code>nexo brain sign</code>, nunca editado à mão</td><td>Quem assina</td></tr>
+</table></div>
+<p>Cada nota tem um cabeçalho com <code>id</code>, <code>type</code>, <code>scope</code> e <code>links</code>. É isso que forma o grafo: as ligações entre notas e entre notas e código entram no contexto da tarefa, sem cruzar projetos. <code>nexo brain lint</code> confere tudo antes de assinar.</p>
+
+<h2>Montar o cérebro da empresa</h2>
+<p>Feito uma vez, pelo time do Nexo.</p>
+<div class="passos">
+<h3 class="passo">Crie a estrutura e traga a base</h3>
+<pre><code>nexo brain init nexo-brain
+nexo brain migrate nexo-brain --owner-nexo @time-nexo --owner-security @time-seguranca</code></pre>
+<p>O <code>migrate</code> escreve a base embutida (prompts, skills e regras). Revise, faça o commit e envie para o repositório <code>nexo-brain</code> da organização.</p>
+<h3 class="passo">Prepare a assinatura</h3>
+<pre><code>nexo brain pubkey --key awskms://alias/nexo-brain
+nexo brain keygen chave-de-teste.pem      # só para ensaio, fora do cofre</code></pre>
+<p>A chave de produção fica no cofre da empresa, para não depender de uma pessoa nem de uma máquina. A chave pública vai para a configuração de todos.</p>
+<h3 class="passo">Confira e assine a primeira versão</h3>
+<pre><code>nexo brain lint nexo-brain
+nexo brain sign nexo-brain --key awskms://alias/nexo-brain --version 2026.11.1</code></pre>
+<p>O <code>sign</code> recusa assinar se o lint falhar. Faça o commit do manifesto e envie.</p>
+<h3 class="passo">Distribua o endereço e a chave</h3>
+<p>O endereço do repositório e a chave pública entram na configuração que acompanha a instalação. Assim, para as pessoas, basta o <code>nexo brain pull</code>.</p>
+</div>
+
+<h2>Conectar a sua máquina</h2>
+<div class="passos">
+<h3 class="passo">Se o Nexo veio configurado</h3>
+<pre><code>nexo brain pull
+nexo brain status</code></pre>
+<h3 class="passo">Se não veio</h3>
+<pre><code>nexo config set brain.repo endereço-do-nexo-brain
+nexo config set brain.trusted_keys "[chave-publica]"
+nexo login github
+nexo brain pull</code></pre>
+<p>Depois disso, ele atualiza sozinho em segundo plano. Se a assinatura não bater, o pull recusa a versão nova e o Nexo segue com a última verificada.</p>
+</div>
+
+<h2>Mudar o cérebro no dia a dia</h2>
+<div class="tabela"><table><tr><th>Quero</th><th>Comando</th></tr>
+<tr><td>Procurar algo</td><td><code>nexo brain search "idempotência"</code></td></tr>
+<tr><td>Ver o que se liga a uma nota</td><td><code>nexo brain neighbors lesson-idempotencia-sqs</code></td></tr>
+<tr><td>Propor uma nota ou correção</td><td><code>nexo brain propose nota.md --clone nexo-brain --target lessons/nota.md --title "Nova lição"</code></td></tr>
+<tr><td>Revisar o PR de outra pessoa</td><td><code>nexo brain review 42 --path nexo-brain</code></td></tr>
+<tr><td>Levar uma nota de projeto para todos</td><td><code>nexo brain promote nexo-brain lesson-idempotencia-sqs</code></td></tr>
+<tr><td>Publicar depois do merge</td><td><code>nexo brain sign nexo-brain --key awskms://alias/nexo-brain --version 2026.11.2</code></td></tr>
+</table></div>
+<p>Uma nota nova só chega à IA depois de PR, merge e assinatura. Não há merge automático.</p>

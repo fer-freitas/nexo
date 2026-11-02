@@ -11,9 +11,17 @@ from pathlib import Path
 SITE = Path(__file__).resolve().parents[1] / "docs" / "site"
 GROUPS = (
     ("Entender", (("index", "Início"), ("funcional", "Como funciona"), ("arquitetura", "Arquitetura"))),
-    ("Acompanhar", (("features", "Features"),)),
-    ("Decidir", (("executivo", "Para executivos"),)),
-    ("Usar", (("usuarios", "Guia do usuário"), ("faq", "Perguntas frequentes"))),
+    ("Acompanhar", (("features", "Features"), ("roteiro", "Roteiro de testes"))),
+    ("Decidir", (("executivo", "Para executivos"), ("treinamento", "Treinamento da diretoria"))),
+    (
+        "Usar",
+        (
+            ("usuarios", "Guia do usuário"),
+            ("cerebro", "Cérebro"),
+            ("trackers", "Trackers e status"),
+            ("faq", "Perguntas frequentes"),
+        ),
+    ),
 )
 
 

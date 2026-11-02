@@ -1,0 +1,47 @@
+<h1>Trackers e status</h1>
+<p class="lead">O estado de cada demanda vive no Nexo. O tracker é opcional: quando ligado, ele recebe cada mudança de estado, e o que alguém mudar à mão no tracker volta para o Nexo.</p>
+
+<h2>Os três modos</h2>
+<div class="tabela"><table><tr><th>Modo</th><th>Como funciona</th><th>Para quem</th></tr>
+<tr><td><code>local</code> (padrão)</td><td>Só o Nexo. O <code>nexo board</code> é o quadro</td><td>Squads que não usam tracker</td></tr>
+<tr><td><code>github</code></td><td>GitHub Issues, pela API: abre a issue, troca etiquetas e fecha</td><td>Squads que acompanham pelo GitHub</td></tr>
+<tr><td><code>file</code></td><td>Troca por CSV, sem API: o Nexo exporta no formato de importação e importa o que voltar</td><td>Qualquer outra ferramenta que importe e exporte CSV</td></tr>
+</table></div>
+<pre><code>nexo config set tracker.kind github --project
+nexo config set tracker.github.repo org/repositorio --project
+nexo login github
+nexo tracker map --check     # confere se todo estado tem de-para</code></pre>
+
+<h2>Do Nexo para o tracker</h2>
+<p>Toda transição de estado no Nexo, como a história entrando em desenvolvimento ou indo para o portão humano, é enviada ao tracker na hora. No GitHub, a issue troca a etiqueta de estado e é fechada quando a demanda termina. No CSV, a linha da demanda é atualizada em <code>.nexo/tracker/outbox.csv</code>.</p>
+<p>Se o tracker estiver fora do ar, o trabalho não para: a mudança vai para uma fila e é reenviada no próximo <code>nexo tracker sync</code>.</p>
+
+<h2>Do tracker para o Nexo</h2>
+<p>Quando alguém muda o card à mão, <strong>a mudança do tracker prevalece</strong>. O Nexo busca essas mudanças antes de rodar uma tarefa ou uma história, e quando você pede:</p>
+<pre><code>nexo tracker sync                      # GitHub: reenvia pendências e traz mudanças manuais
+nexo tracker import exportado.csv      # CSV: aplica os estados exportados da ferramenta</code></pre>
+<p>Uma mudança só é aplicada se o estado externo for diferente do local e do último enviado. Assim, o Nexo não desfaz o que ele mesmo mandou.</p>
+
+<h2>O de-para de estados</h2>
+<div class="tabela"><table><tr><th>Estado no Nexo</th><th>GitHub Issues</th><th>CSV (padrão)</th></tr>
+<tr><td>Ideia</td><td>aberta, <code>nexo-idea</code></td><td>To Do</td></tr>
+<tr><td>Refinamento</td><td>aberta, <code>nexo-refinement</code></td><td>To Do, <code>nexo-refinement</code></td></tr>
+<tr><td>Pronto</td><td>aberta, <code>nexo-ready</code></td><td>To Do, <code>nexo-ready</code></td></tr>
+<tr><td>Em desenvolvimento</td><td>aberta, <code>nexo-in-dev</code></td><td>In Progress</td></tr>
+<tr><td>Em QA</td><td>aberta, <code>nexo-in-qa</code></td><td>In Progress, <code>nexo-qa</code></td></tr>
+<tr><td>Em revisão</td><td>aberta, <code>nexo-in-review</code></td><td>In Review</td></tr>
+<tr><td>Aguardando pessoa</td><td>aberta, <code>nexo-human-gate</code></td><td>In Review, <code>nexo-human-gate</code></td></tr>
+<tr><td>Concluído</td><td>fechada</td><td>Done</td></tr>
+<tr><td>Bloqueado</td><td>mantém, <code>nexo-blocked</code></td><td>mantém, <code>nexo-blocked</code></td></tr>
+<tr><td>Escalado</td><td>mantém, <code>nexo-escalated</code></td><td>mantém, <code>nexo-escalated</code></td></tr>
+<tr><td>Cancelado</td><td>fechada, <code>nexo-cancelled</code></td><td>Cancelled</td></tr>
+</table></div>
+<p>As etiquetas do time são preservadas: o Nexo só troca as de estado. Quando a mudança vem do tracker, a etiqueta do Nexo vale mais que o estado aberto ou fechado. Sem etiqueta, uma issue aberta vira "em desenvolvimento" e uma fechada, "concluído".</p>
+
+<h2>Ajustar aos nomes da sua ferramenta</h2>
+<p>Se a ferramenta usa outros nomes de estado ou de tipo, gere um de-para, revise e confira:</p>
+<pre><code>nexo tracker map --suggest
+nexo tracker map --check</code></pre>
+<p>O de-para da squad fica em <code>.nexo/mappings/</code> no repositório, e o da empresa, em <code>workflows/mappings/</code> no cérebro. O do repositório vale primeiro.</p>
+<p>Para uma ferramenta com API que não seja o GitHub, o caminho é um adaptador novo, com quatro operações: criar, mudar o estado, comentar e buscar o estado atual. Até ele existir, o modo CSV atende.</p>
+<p>A sincronização inteira pode ser desligada pela flag <code>tracker_sync</code>, sem nova versão. O trabalho segue só no Nexo.</p>

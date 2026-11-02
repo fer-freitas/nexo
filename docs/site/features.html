@@ -4,16 +4,17 @@
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="pagina">
-<aside class="lateral"><a class="marca" href="index.html">Nexo</a><nav aria-label="Documentação"><p class="grupo">Entender</p><ul><li><a href="index.html">Início</a></li><li><a href="funcional.html">Como funciona</a></li><li><a href="arquitetura.html">Arquitetura</a></li></ul><p class="grupo">Acompanhar</p><ul><li><a href="features.html" aria-current="page">Features</a><ul class="indice"><li><a href="#trabalho-por-papel">Trabalho por papel</a></li><li><a href="#contexto-e-conhecimento">Contexto e conhecimento</a></li><li><a href="#gestao">Gestão</a></li><li><a href="#alem-do-mvp-ja-antecipado">Além do MVP, já antecipado</a></li><li><a href="#instalacao-e-plataforma">Instalação e plataforma</a></li></ul></li></ul><p class="grupo">Decidir</p><ul><li><a href="executivo.html">Para executivos</a></li></ul><p class="grupo">Usar</p><ul><li><a href="usuarios.html">Guia do usuário</a></li><li><a href="faq.html">Perguntas frequentes</a></li></ul></nav></aside>
+<aside class="lateral"><a class="marca" href="index.html">Nexo</a><nav aria-label="Documentação"><p class="grupo">Entender</p><ul><li><a href="index.html">Início</a></li><li><a href="funcional.html">Como funciona</a></li><li><a href="arquitetura.html">Arquitetura</a></li></ul><p class="grupo">Acompanhar</p><ul><li><a href="features.html" aria-current="page">Features</a><ul class="indice"><li><a href="#trabalho-por-papel">Trabalho por papel</a></li><li><a href="#contexto-e-conhecimento">Contexto e conhecimento</a></li><li><a href="#gestao">Gestão</a></li><li><a href="#alem-do-mvp-ja-antecipado">Além do MVP, já antecipado</a></li><li><a href="#instalacao-e-plataforma">Instalação e plataforma</a></li></ul></li><li><a href="roteiro.html">Roteiro de testes</a></li></ul><p class="grupo">Decidir</p><ul><li><a href="executivo.html">Para executivos</a></li><li><a href="treinamento.html">Treinamento da diretoria</a></li></ul><p class="grupo">Usar</p><ul><li><a href="usuarios.html">Guia do usuário</a></li><li><a href="cerebro.html">Cérebro</a></li><li><a href="trackers.html">Trackers e status</a></li><li><a href="faq.html">Perguntas frequentes</a></li></ul></nav></aside>
 <main class="conteudo" id="conteudo">
 <h1>Features</h1>
 <p class="lead">O que existe hoje e o que já foi provado. Passar nos testes automáticos não significa estar provado com a ferramenta real, por isso os dois estados são separados.</p>
-<div class="placar" role="img" aria-label="7 itens provados, 17 só com simulador e 14 pendentes">
-<div class="barra"><span class="b-real" style="flex:7"></span><span class="b-sim" style="flex:17"></span><span class="b-falta" style="flex:14"></span></div>
+<p>Atualizado em 2 de novembro de 2026.</p>
+<div class="placar" role="img" aria-label="8 itens provados, 22 só com simulador e 13 pendentes">
+<div class="barra"><span class="b-real" style="flex:8"></span><span class="b-sim" style="flex:22"></span><span class="b-falta" style="flex:13"></span></div>
 <dl>
-<div><dt>7</dt><dd><span class="selo real">Provado</span> rodou de verdade</dd></div>
-<div><dt>17</dt><dd><span class="selo sim">Com simulador</span> feito e testado, sem prova real</dd></div>
-<div><dt>14</dt><dd><span class="selo falta">Pendente</span> depende de algo fora do código</dd></div>
+<div><dt>8</dt><dd><span class="selo real">Provado</span> rodou de verdade</dd></div>
+<div><dt>22</dt><dd><span class="selo sim">Com simulador</span> feito e testado, sem prova real</dd></div>
+<div><dt>13</dt><dd><span class="selo falta">Pendente</span> depende de algo fora do código</dd></div>
 </dl>
 </div>
 <h2 id="trabalho-por-papel">Trabalho por papel</h2>
@@ -33,9 +34,10 @@
 <tr><td>Contexto do projeto</td><td>O projeto, as partes e o que cada repositório faz, usado pela IA</td><td><span class="selo real">Provado com Claude</span></td></tr>
 <tr><td>Enriquecer o contexto</td><td><code>nexo context enrich</code> sugere a partir de documentos, e a pessoa escolhe. <code>add</code> e <code>term</code> incluem direto</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>Squad</td><td><code>nexo squad</code> informa e mostra de onde vem o valor</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Sigla do projeto</td><td><code>nexo context project sigla</code> registra a sigla da empresa, que chega à IA e ao portal</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>Segundo cérebro</td><td>Git, PR, assinatura, lint e estrutura para o Obsidian</td><td><span class="selo falta">Falta abrir no Obsidian</span></td></tr>
 <tr><td>Packs de mercado</td><td>Superpowers e vibe-coding-toolkit travados por hash</td><td><span class="selo falta">Falta ver nas 3 CLIs</span></td></tr>
-<tr><td>Linhagem de componentes</td><td>Scanners de .NET, Terraform e AsyncAPI, sem CI, com consolidação entre times</td><td><span class="selo falta">Falta .NET real</span></td></tr>
+<tr><td>Linhagem de componentes</td><td>Scanners de .NET, Terraform e AsyncAPI, com consolidação entre times. A descoberta no Kafka lê grupos, ACLs e o schema registry exportados</td><td><span class="selo falta">Falta .NET real</span></td></tr>
 <tr><td>MCPs</td><td>Busca, aprovação pelo destino, versão fixa e prova</td><td><span class="selo falta">Faltam 3 reais</span></td></tr>
 </table></div>
 <h2 id="gestao">Gestão</h2>
@@ -43,6 +45,8 @@
 <tr><td>Board de demandas</td><td>Todos os projetos e com quem está cada demanda</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>GitHub Issues</td><td>Sincroniza com responsável e etiqueta, sem duplicar</td><td><span class="selo falta">Falta prova real</span></td></tr>
 <tr><td>Portal</td><td>Features, dashboard, insights, board, kill switch e acessos</td><td><span class="selo falta">Falta implantar na AWS</span></td></tr>
+<tr><td>Filtros do portal</td><td>Várias squads de uma vez, para quem vê mais de uma, e filtro pela sigla do projeto</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Alcance das flags</td><td>Máquinas ativas por squad antes de mudar uma flag</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>FinOps</td><td>Custo em reais por história, pessoa e squad</td><td><span class="selo falta">Falta conferir com a fatura</span></td></tr>
 <tr><td>DORA</td><td>Pela API do GitHub, em tarefa agendada na AWS</td><td><span class="selo falta">Falta implantar</span></td></tr>
 <tr><td>SSO da empresa</td><td>Porta pronta. Fica para depois, por decisão</td><td><span class="selo falta">Depois</span></td></tr>
@@ -56,11 +60,12 @@
 <tr><td><code>nexo program</code></td><td>Uma feature em vários repositórios</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td><code>nexo change</code></td><td>Requisição de mudança no ServiceNow</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td><code>nexo docs site</code></td><td>Gera o site a partir do projeto e do cérebro. Publicar fica com quem hospeda, sem workflow</td><td><span class="selo sim">Com simulador</span></td></tr>
-<tr><td>Grafo do cérebro</td><td><code>nexo brain neighbors</code>, <code>nexo brain path</code> e ferramentas para o agente</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td><code>nexo docs portal</code></td><td>Portal do projeto a partir de vários repositórios, com o que o código desmente</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Grafo do cérebro</td><td><code>nexo brain neighbors</code>, <code>nexo brain path</code> e notas vizinhas no contexto da tarefa, sem cruzar projetos</td><td><span class="selo sim">Com simulador</span></td></tr>
 <tr><td>Comandos dentro das CLIs de IA</td><td><code>nexo pack expose</code> cria <code>/nexo-pm-refine</code> e os demais</td><td><span class="selo falta">Falta ver na ferramenta</span></td></tr>
 <tr><td><code>nexo notify test</code></td><td>Confere o e-mail e o Teams</td><td><span class="selo falta">Falta canal real</span></td></tr>
 <tr><td><code>nexo autonomy</code>, <code>nexo isolation</code>, <code>nexo insights</code></td><td>Autonomia por squad, agente em contêiner e detecção de problemas</td><td><span class="selo sim">Com simulador</span></td></tr>
-<tr><td><code>nexo eval</code></td><td>Avaliação de skills e rotas, e os casos de harness com agente simulado</td><td><span class="selo falta">Harness pendente</span></td></tr>
+<tr><td><code>nexo eval</code></td><td>Avaliação de skills e rotas, e <code>nexo eval harness</code>: handoff desatualizado, parada e retomada, bloqueio parcial e revisão somente leitura</td><td><span class="selo sim">Com simulador</span></td></tr>
 </table></div>
 <h2 id="instalacao-e-plataforma">Instalação e plataforma</h2>
 <div class="tabela"><table><tr><th>Feature</th><th>O que entrega</th><th>Estado</th></tr>
@@ -69,6 +74,7 @@
 <tr><td>Binário sem Python</td><td>Instala sem administrador</td><td><span class="selo real">Provado</span></td></tr>
 <tr><td>Windows</td><td>Agendador, cofre, caminhos longos, proxy e TLS</td><td><span class="selo falta">Em validação</span></td></tr>
 <tr><td>Flags e módulos</td><td>Desligar por flag sem nova versão. O piso nunca desliga</td><td><span class="selo sim">Com simulador</span></td></tr>
+<tr><td>Validação local</td><td>Lint, tipos, testes, cobertura de domínio, SBOM, gitleaks, pip-audit e semgrep, sem depender de CI</td><td><span class="selo real">Provado</span></td></tr>
 </table></div>
 <p class="rodape">Nexo 0.1.0. Documento interno.</p>
 </main>

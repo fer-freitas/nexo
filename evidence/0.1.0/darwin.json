@@ -26,17 +26,17 @@
     {
       "step": "arquitetura",
       "ok": true,
-      "seconds": 17.0
+      "seconds": 24.8
     },
     {
       "step": "tipos",
       "ok": true,
-      "seconds": 0.3
+      "seconds": 0.6
     },
     {
       "step": "testes",
       "ok": true,
-      "seconds": 86.0
+      "seconds": 104.2
     },
     {
       "step": "cobertura de dom\u00ednio",
@@ -57,7 +57,7 @@
     {
       "step": "semgrep",
       "ok": true,
-      "seconds": 7.1
+      "seconds": 6.8
     }
   ]
 }

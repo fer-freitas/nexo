@@ -1,6 +1,6 @@
 # Estado do projeto
 
-Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi provado de verdade do que só passou com simulador.
+Atualizado em 2026-11-02, na versão 0.1.0. Este documento separa o que foi provado de verdade do que só passou com simulador.
 
 **Resumo:** o código das entregas M0 a M8 está feito e passa na validação local. **Falta provar no Windows, com contas reais e na AWS. O Nexo ainda não pode ser liberado às pessoas.**
 
@@ -9,7 +9,10 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 | Verificação | Resultado | Como |
 |---|---|---|
 | Lint, formatação e tipos estritos | Passam | `scripts/validate.py` |
-| Testes automáticos | 1.119 testes passam, com ferramentas simuladas | `scripts/validate.py` |
+| Testes automáticos | 1.169 testes passam, com ferramentas simuladas | `scripts/validate.py` |
+| Cobertura das regras de domínio | 93,2%, com piso de 85% | `scripts/validate.py` |
+| Segredos, dependências e SAST | gitleaks, pip-audit e semgrep sem achado aberto. Os achados do semgrep foram conferidos e marcados no código com o motivo | `scripts/validate.py` |
+| SBOM | Gerado em CycloneDX a cada validação completa | `evidence/0.1.0/sbom.cdx.json` |
 | Camadas: módulo não importa módulo | Zero dependências diretas | import-linter e `tests/architecture` |
 | Kit de contrato de módulo | Todos os módulos passam | `tests/architecture/test_module_contract.py` |
 | Portabilidade que dá para provar fora do Windows | Passa | `tests/architecture/test_portability.py` |
@@ -21,7 +24,7 @@ Atualizado em 2026-10-30, na versão 0.1.0. Este documento separa o que foi prov
 
 | Item | Situação | Quem destrava |
 |---|---|---|
-| **Módulos antecipados do pós-MVP** | `deps`, `legacy`, `program`, `change` e `docsite` vieram da base. Os quatro primeiros têm testes com simulador, e `docsite` tem só um teste de geração. Nenhum rodou em projeto real | Uso real |
+| **Módulos antecipados do pós-MVP** | `deps`, `legacy`, `program`, `change` e `docsite` vieram da base e têm testes com simulador. Nenhum rodou em projeto real | Uso real |
 | **Comandos dentro das CLIs** | `nexo pack expose` gera os arquivos, mas não foi conferido se Claude e Copilot os reconhecem | Abrir a ferramenta |
 | **Identidade visual** | Só a paleta aproximada, porque o manual de marca não é público. Sem logo nem fonte da empresa | Time de marca |
 | **`nexo setup` instalando de verdade** | Só simulado. Os identificadores de pacote do `winget` não foram conferidos, e a TI pode bloquear | Prova MF |

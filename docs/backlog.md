@@ -14,6 +14,8 @@ O que depende de prova real, e não de código, está em [provas-reais.md](prova
 
 | Item | Por que importa | Origem |
 |---|---|---|
+| Traduzir para inglês o restante das mensagens da CLI | `--lang en` hoje cobre a ajuda, o board e parte das mensagens | Roteiro de testes |
+| Unificar `projetos/` e `projects/` no cérebro | O contexto do projeto fica numa pasta e as notas e flags do projeto em outra, com nomes quase iguais | Página do cérebro |
 | Confirmar o formato da sigla do projeto | Hoje aceita de 2 a 8 letras ou números, sem ligação com o cadastro oficial da empresa | Contexto do projeto |
 | Confirmar a identidade visual com o time de marca | A paleta é aproximada, e o logo e a fonte da empresa dependem de liberação | Layout da documentação |
 

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Roteiro de testes: Nexo</title><link rel="stylesheet" href="estilo.css"></head>
+<body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<div class="pagina">
+<aside class="lateral"><a class="marca" href="index.html">Nexo</a><nav aria-label="Documentação"><p class="grupo">Entender</p><ul><li><a href="index.html">Início</a></li><li><a href="funcional.html">Como funciona</a></li><li><a href="arquitetura.html">Arquitetura</a></li></ul><p class="grupo">Acompanhar</p><ul><li><a href="features.html">Features</a></li><li><a href="roteiro.html" aria-current="page">Roteiro de testes</a></li></ul><p class="grupo">Decidir</p><ul><li><a href="executivo.html">Para executivos</a></li><li><a href="treinamento.html">Treinamento da diretoria</a></li></ul><p class="grupo">Usar</p><ul><li><a href="usuarios.html">Guia do usuário</a></li><li><a href="cerebro.html">Cérebro</a></li><li><a href="trackers.html">Trackers e status</a></li><li><a href="faq.html">Perguntas frequentes</a></li></ul></nav></aside>
+<main class="conteudo" id="conteudo">
+<h1>Roteiro de testes</h1>
+<p class="lead">Um passo a passo para testar à mão todos os comandos da CLI, área por área. Cada linha traz o comando, o que deve acontecer e uma coluna para você marcar ok ou falhou.</p>
+<div class="aviso">Comece pela demonstração. Ela cria um repositório descartável com agente simulado, não gasta tokens e não mexe nas suas configurações.</div>
+
+<h2 id="antes">Antes de começar</h2>
+<h3>Prepare a demonstração</h3>
+<p>Escolha uma pasta vazia e prepare tudo nela:</p>
+<pre><code>nexo demo cli --dir pasta-vazia --no-start</code></pre>
+<p>O comando mostra a pasta da demonstração, a pasta do projeto e o passeio sugerido. Depois, num terminal comum, aponte o Nexo para a demonstração e entre no projeto.</p>
+<p>No PowerShell:</p>
+<pre><code>$env:NX_HOME = "pasta-vazia\home"
+$env:NX_FAKE_SCENARIO = "pasta-vazia\scenario.yaml"
+$env:NX_ACTOR = "voce"
+cd pasta-vazia\projeto</code></pre>
+<p>No bash:</p>
+<pre><code>export NX_HOME=pasta-vazia/home
+export NX_FAKE_SCENARIO=pasta-vazia/scenario.yaml
+export NX_ACTOR=voce
+cd pasta-vazia/projeto</code></pre>
+<p>Com essas variáveis, tudo o que o Nexo grava fica dentro da pasta da demonstração. Para recomeçar do zero, apague a pasta e prepare de novo. Para ver o portal com dados fictícios, use <code>nexo demo site</code> em outro terminal.</p>
+
+<h3>Como ler as tabelas</h3>
+<div class="tabela"><table><tr><th>Marca</th><th>Significa</th></tr>
+<tr><td><span class="selo real">Demo</span></td><td>Roda na demonstração, sem conta e sem rede</td></tr>
+<tr><td><span class="selo falta">Conta real</span></td><td>Precisa de conta real (GitHub, Claude, Devin, Copilot, AWS, ServiceNow, Teams ou e-mail). Na demonstração, pule ou confira só a mensagem de erro clara</td></tr>
+<tr><td><span class="selo sim">Fora da demo</span></td><td>Mexe na sua instalação ou nas configurações da sua ferramenta de IA. Rode só quando for testar isso de propósito</td></tr>
+</table></div>
+<ul>
+<li>A IA simulada responde, em ordem, só ao passeio da <a href="#passeio">seção 2</a>. Faça o passeio antes de qualquer outro comando que use IA.</li>
+<li>Fora do passeio, comandos que usam IA mostram as rotas tentadas e terminam com "nenhuma rota disponível". Na demonstração, isso é o esperado. O resultado completo só aparece com conta real do Claude.</li>
+<li>Os números (IDEA-2, F-2, P-1, BUG-1-1-1) dependem da ordem dos passos. Se mudarem, use os que o comando mostrar.</li>
+<li><code>--help</code> funciona em qualquer comando e mostra as opções.</li>
+</ul>
+
+<h2 id="setup">1. Instalação e setup</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>1.1</td><td><code>nexo version</code></td><td>Mostra a versão do Nexo, a do cérebro (ou um traço) e o modo de instalação</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.2</td><td><code>nexo help</code></td><td>Lista os comandos por papel (PM, QA, tech lead, dev), os de todos e as opções globais</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.3</td><td><code>nexo doctor</code></td><td>Tabela com Python, Git e as ferramentas de IA, marcando o que existe e o que falta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.4</td><td><code>nexo setup --check</code></td><td>Lista o que está pronto e o que falta, sem instalar nada, e termina com "Tudo pronto para rodar" ou com o que falta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.5</td><td><code>nexo setup</code></td><td>Instala o que falta, sempre perguntando antes</td><td><span class="selo sim">Fora da demo</span></td><td></td></tr>
+<tr><td>1.6</td><td><code>nexo install</code>, <code>nexo update</code>, <code>nexo uninstall</code></td><td>Prepara, atualiza (conferindo a assinatura) e remove o Nexo. <code>--help</code> mostra as opções sem executar</td><td><span class="selo sim">Fora da demo</span></td><td></td></tr>
+<tr><td>1.7</td><td><code>nexo login github</code></td><td>Pede a credencial e guarda no cofre do sistema</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>1.8</td><td><code>nexo guard status</code></td><td>Diz se o Claude Code tem a guarda do Nexo e explica a situação do Copilot e do Devin</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.9</td><td><code>nexo guard install</code> e depois <code>nexo guard uninstall</code></td><td>O primeiro instala a guarda nas configurações do Claude Code e o segundo remove. <code>nexo guard status</code> confirma cada estado</td><td><span class="selo sim">Fora da demo</span></td><td></td></tr>
+<tr><td>1.10</td><td><code>nexo config list</code></td><td>Tabela com cada chave, valor, origem e bloqueio</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.11</td><td><code>nexo config get planning.role_flow.enabled</code></td><td>Mostra <code>true</code> e a camada de onde vem (org)</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.12</td><td><code>nexo config set notify.quiet true</code> e depois <code>nexo config unset notify.quiet</code></td><td>Grava na camada pessoal e depois remove, com uma linha de confirmação em cada</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.13</td><td><code>nexo module list</code></td><td>Lista os módulos com versão, nome e dependências</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.14</td><td><code>nexo console</code></td><td>Abre o console com o logotipo, a barra do projeto e "Para agora". Digitar <code>version</code>, <code>pm</code> ou <code>board</code> roda o comando. <code>?</code> mostra os próximos passos e <code>sair</code> fecha</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>1.15</td><td><code>nexo selftest --agent claude</code></td><td>Autoteste de ponta a ponta com as ferramentas reais, num projeto descartável</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="passeio">2. Passeio da demonstração</h2>
+<p>Faça na ordem, logo depois de preparar a demonstração. É o único trecho em que a IA simulada responde.</p>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>2.1</td><td><code>nexo pm</code></td><td>Mostra F-1 "Endpoint de versão" com a PM, para refinar e aprovar os requisitos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.2</td><td><code>nexo pm refine F-1</code></td><td>Mostra "planejando a feature" e termina com ✔</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.3</td><td><code>nexo pm approve F-1</code></td><td>Quebra o plano em histórias e tarefas. No fim, requisitos aprovados e design pendente</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.4</td><td><code>nexo tl approve F-1</code></td><td>Prontidão 100%, 1 história e 3 tarefas em duas ondas. Requisitos e design aprovados</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.5</td><td><code>nexo tl assign F-1 --dev os:voce --qa os:voce</code></td><td>Mostra US-1-1 com dev e QA definidos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.6</td><td><code>nexo board</code></td><td>Tabela com IDEA-1, F-1 e US-1-1, a etapa e com quem está cada uma</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.7</td><td><code>nexo qa plan US-1-1</code></td><td>Grava o plano de teste e liga o critério AC-1 a um cenário</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.8</td><td><code>nexo qa approve US-1-1</code></td><td>Plano de testes aprovado por os:voce</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.9</td><td><code>nexo dev approve US-1-1</code></td><td>Plano aprovado. Lista o que ainda falta no refinamento, como aviso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.10</td><td><code>nexo dev run US-1-1</code></td><td>Congela a spec, escreve os testes, implementa 3 tarefas em paralelo, roda a qualidade e para no portão pedindo você, porque não há revisão independente</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.11</td><td><code>nexo tl gate US-1-1</code></td><td>Mostra a confiança abaixo do mínimo, o motivo e os pontos mais fracos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.12</td><td><code>nexo approve US-1-1</code></td><td>US-1-1 concluída, aprovada por os:voce, com custo e branch</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>2.13</td><td><code>nexo try "cria um arquivo"</code></td><td>TRY-1 concluído, com os comandos para ver e levar adiante</td><td><span class="selo real">Demo</span></td><td></td></tr>
+</table></div>
+
+<h2 id="contexto">3. Projeto e contexto</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>3.1</td><td><code>nexo context</code></td><td>Diz que o repositório não está ligado a um projeto e mostra o arquivo <code>.nexo/contexto.md</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.2</td><td><code>nexo context add "A versão vem do pacote instalado"</code></td><td>Confirma que registrou em <code>.nexo/contexto.md</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.3</td><td><code>nexo context term SRE "Time de confiabilidade"</code></td><td>Confirma o termo no glossário</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.4</td><td><code>nexo context project new loja --name "Loja virtual" --sigla LJV</code></td><td>Cria o projeto loja. O id aceita só minúsculas, números e hífen, e um id inválido deve dar uma mensagem clara</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.5</td><td><code>nexo context project part loja api --kind componente --name "API da loja" --repo projeto</code></td><td>Adiciona a parte e mostra o total de partes. <code>--kind</code> aceita visao, componente ou externo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.6</td><td><code>nexo context project part loja pagamentos --kind externo --name "Gateway de pagamento"</code></td><td>Adiciona o sistema externo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.7</td><td><code>nexo context project sigla loja LJA</code></td><td>Troca a sigla e mostra "LJA · Loja virtual"</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.8</td><td><code>nexo context project list</code> e <code>nexo context project show loja</code></td><td>A lista mostra loja como rascunho. O detalhe mostra a sigla, as partes e os squads</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.9</td><td><code>nexo context init --project loja --part api --kind componente --what "API da loja" --users "Clientes"</code></td><td>Salva o contexto e avisa que o projeto está em rascunho na sua máquina</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.10</td><td><code>nexo context uses pagamentos</code></td><td>Registra que esta parte usa pagamentos. Usar a própria parte deve dar uma mensagem clara</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.11</td><td><code>nexo context propose loja</code></td><td>Sem repositório do cérebro, diz quais arquivos entregar ao time do cérebro. Com o cérebro configurado, abre o PR</td><td><span class="selo real">Demo</span> e <span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>3.12</td><td><code>nexo context enrich --from documento.md</code></td><td>A IA sugere itens a partir do documento e você escolhe o que entra</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>3.13</td><td><code>nexo squad</code>, <code>nexo squad set sq-demo</code>, <code>nexo squad list</code></td><td>Mostra o squad e de onde vem o valor, grava o squad e lista os squads conhecidos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.14</td><td><code>nexo role</code></td><td>Mostra os:voce com os papéis pm, tl, qa e dev em modo solo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.15</td><td><code>nexo team init time-demo --path pasta-do-time --mode solo --member os:voce=pm,qa,tl,dev</code></td><td>Cria a estrutura do repositório do time e pede o primeiro commit</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.16</td><td><code>nexo team link time-demo --repo pasta-do-time</code></td><td>Depois do primeiro commit na pasta do time, liga o projeto ao time</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.17</td><td><code>nexo join time-demo --repo pasta-do-time</code></td><td>"Você entrou no time" e lista os projetos. Com o repositório do time no GitHub, precisa de acesso real</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.18</td><td><code>nexo init</code> (numa pasta Git nova)</td><td>Inicializa o projeto e mostra as stacks detectadas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.19</td><td><code>nexo tl setup</code></td><td>Mapa do código, convenções, baseline sem bloquear e grafo montado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.20</td><td><code>nexo discover --as-is --no-baseline</code></td><td>Mapa do código e o arquivo do design as-is, sem rodar a baseline</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.21</td><td><code>nexo graph build</code></td><td>"Grafo montado" com a contagem de nós e ligações</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.22</td><td><code>nexo graph related src/svc/version.py</code> e <code>nexo graph impact src/svc/version.py --depth 2</code></td><td>Mostram código ligado, testes, decisões, histórias e incidentes ligados ao arquivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.23</td><td><code>nexo template list</code></td><td>Tabela com os templates efetivos, origem, versão e seções obrigatórias</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.24</td><td><code>nexo template show sdd</code> e <code>nexo template preview sdd --feature F-1</code></td><td>O primeiro mostra o modelo. O segundo, o documento de F-1 preenchido, com a prontidão real da feature</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>3.25</td><td><code>nexo template validate .nexo/contexto.md --type sdd</code></td><td>Lista o que não confere com o template e termina com erro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+</table></div>
+
+<h2 id="pm">4. PM</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>4.1</td><td><code>nexo pm idea "Exportar relatório em CSV"</code></td><td>Cria IDEA-2 e sugere o próximo passo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.2</td><td><code>nexo pm decide IDEA-2 investigate --reason "Falta evidência"</code></td><td>IDEA-2 em investigação</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.3</td><td><code>nexo pm decide IDEA-2 build --reason "Pedido recorrente"</code></td><td>IDEA-2 segue e sugere o split</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.4</td><td><code>nexo pm split IDEA-2 --feature "Exportar CSV"</code></td><td>"IDEA-2 → F-2" e sugere o refinamento</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.5</td><td><code>nexo pm classify F-2 internal --reason "sem dado pessoal"</code></td><td>Classe internal e os fornecedores permitidos. Classe fora da lista dá erro com as opções</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.6</td><td><code>nexo pm discover "clientes pedem CSV toda semana"</code></td><td>Problema, evidências, hipóteses e recomendação. Sem insumo, pede um. Na demo, termina em "nenhuma rota disponível"</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>4.7</td><td><code>nexo pm refine F-2</code></td><td>Enriquece a spec e gera dúvidas. Na demo, termina em "nenhuma rota disponível"</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>4.8</td><td><code>nexo pm answer F-2 Q1=resposta</code></td><td>Responde a dúvida e a prontidão sobe. Dúvida inexistente dá erro claro</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>4.9</td><td><code>nexo pm approve F-2</code></td><td>Sem prontidão, recusa e lista o que falta. Com a spec pronta, aprova os requisitos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.10</td><td><code>nexo pm reject F-2 --reason "Faltou o critério de arredondamento"</code></td><td>Sem pacote, diz que ainda não há o que reprovar. Com pacote, a IA refaz com o motivo</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>4.11</td><td><code>nexo pm estimate F-1</code></td><td>Pontos, custo em reais, faixa de 80% e confiança</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.12</td><td><code>nexo pm accept US-1-1</code></td><td>Antes do merge, avisa que o aceite vem depois. Depois do merge, registra o aceite</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.13</td><td><code>nexo pm context</code></td><td>Mesmo resultado de <code>nexo context</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.14</td><td><code>nexo pm confirm P-1</code> e <code>nexo pm decline P-1 --reason "não se aplica"</code></td><td>Faça depois do passo 5.12, com o id da premissa. Confirm marca a premissa como confirmada. Decline numa premissa já decidida explica que não está aberta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.15</td><td><code>nexo plan status F-2</code></td><td>Barra de prontidão e cada item que falta, com o peso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.16</td><td><code>nexo plan graph F-1 --mermaid</code></td><td>Diagrama das tarefas em texto Mermaid. Sem a opção, mostra as ondas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.17</td><td><code>nexo plan roles F-1</code></td><td>Situação de cada parte (requisitos, design) e quem aprovou</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.18</td><td><code>nexo plan session start F-2 --pm os:voce --lead os:voce --dev os:voce</code> e <code>nexo plan session close F-2 --notes "Combinado o formato"</code></td><td>Abre a sessão S-1 e depois encerra com a prontidão atual</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.19</td><td><code>nexo plan package F-2</code>, <code>nexo plan decide</code>, <code>nexo plan classify</code></td><td>Mesmo comportamento dos atalhos do PM. Sem spec pronta, recusa com o motivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>4.20</td><td><code>nexo plan discovery</code>, <code>nexo plan feature</code>, <code>nexo plan answer</code>, <code>nexo plan approve</code>, <code>nexo plan reject</code></td><td>Mesmo comportamento de pm discover, pm refine, pm answer, pm approve e pm reject</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="tl">5. Tech lead</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>5.1</td><td><code>nexo tl</code></td><td>Lista o que está com o tech lead</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.2</td><td><code>nexo tl context</code></td><td>Mesmo resultado de <code>nexo context</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.3</td><td><code>nexo tl idea "Trocar o logger" --tech</code></td><td>Registra a melhoria técnica como nova feature e sugere a análise</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.4</td><td><code>nexo tl analyze F-4</code></td><td>Lacunas, riscos e impacto. Na demo, deve terminar em "nenhuma rota disponível" ou em mensagem clara, nunca em erro inesperado</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>5.5</td><td><code>nexo tl spec F-2</code></td><td>Requisito técnico com premissas. Na demo, "nenhuma rota disponível"</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>5.6</td><td><code>nexo tl plan F-2</code></td><td>Primeira quebra em tarefas. Sem prontidão, recusa e lista o que falta</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>5.7</td><td><code>nexo tl return F-2 --reason "Regra de arredondamento"</code></td><td>Devolve ao PM. Antes da análise, pede <code>nexo tech analyze</code></td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>5.8</td><td><code>nexo tl reject F-2 --reason "Rever o desenho da exportação"</code></td><td>Motivo com menos de 10 caracteres é recusado. Sem pacote, diz que ainda não há o que reprovar</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.9</td><td><code>nexo tl assign F-1 --suggest</code></td><td>Sugere dev e QA para cada história</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.10</td><td><code>nexo tl reassign US-1-1 --reason "férias da pessoa" --dev os:outra</code></td><td>Pessoa sem o papel no time é recusada com mensagem clara</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.11</td><td><code>nexo tl ready F-1</code></td><td>Definition of Ready de cada história, com cada item que falta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.12</td><td><code>nexo tl assume P-1 --reason "seguir com a premissa por enquanto"</code></td><td>Faça depois do passo 6.10, com o id da proposta que ele criou. A premissa fica aberta e o merge fica retido até o dono decidir</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.13</td><td><code>nexo tl problem US-1-1 --kind technical --text "Critério ambíguo"</code></td><td>Diz para quem vai e cria uma proposta. Tipo inválido lista as opções</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.14</td><td><code>nexo tl impact src/svc/version.py</code></td><td>Código, testes, histórias, critérios e incidentes que dependem do arquivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.15</td><td><code>nexo tl pass US-1-1</code></td><td>Antes do QA, pede <code>nexo qa pass</code>. Depois, aprova o portão humano</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.16</td><td><code>nexo tl fail US-1-1 --reason "faltou teste de borda"</code></td><td>Com a história aguardando você, gera bug e volta ao dev. Fora disso, diz que não está aguardando aprovação</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>5.17</td><td><code>nexo tl review 12</code></td><td>Roda o pipeline e os revisores num PR humano, sem aprovar sozinho</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>5.18</td><td><code>nexo tech analyze F-2</code>, <code>nexo tech spec F-2</code>, <code>nexo tech return F-2 --reason "motivo"</code></td><td>Mesmo comportamento de tl analyze, tl spec e tl return</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="qa">6. QA</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>6.1</td><td><code>nexo qa</code></td><td>Lista o que está com o QA</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.2</td><td><code>nexo qa trace US-1-1</code></td><td>Do critério ao resultado: DoR, critérios, tarefas, testes travados, pipeline, portão, PR e custo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.3</td><td><code>nexo qa run</code></td><td>Tabela da qualidade com a etapa unit passando</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.4</td><td><code>nexo qa write US-1-1</code></td><td>Gera os testes antes do código. Em história concluída, avisa que já está concluída</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>6.5</td><td><code>nexo qa bug US-1-1 "Versão vem vazia quando falta o arquivo"</code></td><td>Cria o bug ligado à história e mostra o comando para o dev corrigir</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.6</td><td><code>nexo qa verify BUG-1-1-1</code></td><td>Roda a qualidade e fecha o bug. Id inexistente deve ser recusado antes de rodar o pipeline</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.7</td><td><code>nexo qa pass US-1-1</code></td><td>Valida a entrega e manda para o tech lead</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.8</td><td><code>nexo qa flaky</code></td><td>Lista os testes instáveis. Na demo, lista vazia</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.9</td><td><code>nexo qa reject US-1-1 --reason "faltou cenário de erro"</code></td><td>Plano de teste reprovado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.10</td><td><code>nexo qa problem US-1-1 --kind test --text "Cenário de carga sem dados"</code></td><td>Diz para quem vai, o que fica mantido e cria uma proposta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.11</td><td><code>nexo qa perf script US-1-1</code></td><td>Gera o script de carga. Sem performance no refinamento, lista o que falta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>6.12</td><td><code>nexo qa perf check US-1-1 --summary resultado-k6.json</code></td><td>Compara o resultado do k6 com os limites e reprova como qualquer teste. Sem <code>--summary</code>, pede a opção</td><td><span class="selo real">Demo</span></td><td></td></tr>
+</table></div>
+
+<h2 id="dev">7. Dev</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>7.1</td><td><code>nexo dev</code></td><td>Lista histórias e tarefas com o dev e o que fazer em cada uma</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.2</td><td><code>nexo dev take US-1-1</code></td><td>"agora é sua"</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.3</td><td><code>nexo dev refine US-1-1 --add-task "Tratar arquivo ausente"</code></td><td>Cria a tarefa nova com id próprio</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.4</td><td><code>nexo dev refine US-1-1 --propose "tecnica=Usar cache de 1 minuto" --blocking</code></td><td>Cria a proposta bloqueante para o dono da seção. O formato é seção=texto, com a seção funcional, tecnica, testes ou implementacao</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.5</td><td><code>nexo dev reject US-1-1 --reason "plano sem rollback"</code></td><td>Plano reprovado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.6</td><td><code>nexo dev run BUG-1-1-2</code> (o bug do passo 6.5)</td><td>O dev corrige o bug com o agente, como sugerido pelo QA</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>7.7</td><td><code>nexo dev explain US-1-1</code></td><td>O quê, por quê, onde mexer e como validar. Na demo, "nenhuma rota disponível"</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>7.8</td><td><code>nexo dev ask "onde fica a versão?"</code></td><td>Resposta com fontes. Na demo, "nenhuma rota disponível"</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>7.9</td><td><code>nexo dev check US-1-1</code></td><td>Mesmo quadro do <code>qa trace</code>, apontando tarefas abertas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.10</td><td><code>nexo dev logs US-1-1</code></td><td>Linha do tempo com número, hora, quem, evento e detalhe</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.11</td><td><code>nexo dev problem US-1-1 --kind task --text "Arquivo de versão não existe no build"</code></td><td>Diz para quem vai e cria uma proposta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.12</td><td><code>nexo dev resume US-1-1</code></td><td>Retoma o que parou. Em história concluída, avisa que já está concluída</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>7.13</td><td><code>nexo dev pr</code></td><td>Sem PR aberto, "nada a fazer". Com GitHub, reage ao pipeline e à revisão</td><td><span class="selo real">Demo</span> e <span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="execucao">8. Execução e portão</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>8.1</td><td><code>nexo status F-1</code> e <code>nexo status US-1-1</code></td><td>Prontidão e backlog da feature. Na história, cada execução e o estado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.2</td><td><code>nexo tasks</code> e <code>nexo tasks --all</code></td><td>Tarefas abertas por história. Com <code>--all</code>, também as concluídas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.3</td><td><code>nexo inbox</code></td><td>Tudo o que está com você, em todos os papéis, com o comando de cada item</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.4</td><td><code>nexo explain T-1-1 --ask</code></td><td>Explica a tarefa e abre espaço para perguntas</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>8.5</td><td><code>nexo logs US-1-1 -n 3</code></td><td>Só os 3 últimos eventos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.6</td><td><code>nexo check US-1-1</code> e <code>nexo ready US-1-1</code></td><td>Mesmo resultado de dev check e tl ready</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.7</td><td><code>nexo run feature F-1</code></td><td>Roda a feature em ondas. Na demo, diz que US-1-1 já está concluída</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.8</td><td><code>nexo run story US-1-1</code> e <code>nexo run task T-1-1</code></td><td>Executa a história ou a tarefa com o agente</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>8.9</td><td><code>nexo resume US-1-1 --ready</code></td><td>Retoma o que estava parado e diz quantos itens voltaram</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.10</td><td><code>nexo run task T-1-1 --simulate-rate-limit</code> e <code>nexo resume T-1-1 --wait</code></td><td>Simula o fim da cota, para e depois retoma no mesmo ponto</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>8.11</td><td><code>nexo approve US-1-1 --economic</code> e <code>nexo approve US-1-1 --raise 50</code></td><td>Num portão de custo, segue no modo econômico ou sobe o teto</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>8.12</td><td><code>nexo reject US-1-1 --reason "faltou teste de regressão"</code></td><td>Com a história aguardando você, reprova e gera bug. Fora disso, explica que não está aguardando</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.13</td><td><code>nexo test</code></td><td>Roda a qualidade no código atual, sem demanda e sem IA</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.14</td><td><code>nexo try show TRY-1</code> e <code>nexo try promote TRY-1</code></td><td>Mostra o que o teste livre mudou. Promote vira uma ideia nova</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.15</td><td><code>nexo quality run --stage unit</code></td><td>Roda só a etapa unit</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.16</td><td><code>nexo quality standards rules --stack python</code></td><td>Tabela com as regras, o que verificam, severidade e skill</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.17</td><td><code>nexo quality standards check --stack python</code></td><td>Confere o padrão de código. Se a receita não tem a etapa, diz isso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.18</td><td><code>nexo review pr 12 --no-quality</code></td><td>Revisa o PR só com os revisores</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>8.19</td><td><code>nexo pr sync</code></td><td>Sem PR, "nada a fazer"</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>8.20</td><td><code>nexo ask "o que faz a função version?"</code></td><td>Mesmo comportamento de dev ask</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="demandas">9. Demandas, board e tracker</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>9.1</td><td><code>nexo board --mine</code>, <code>nexo board --role qa</code>, <code>nexo board --origin planning</code></td><td>Filtram o board por você, pelo papel e pela origem</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.2</td><td><code>nexo board --blocked</code>, <code>nexo board --triage</code>, <code>nexo board --state build</code></td><td>Mostram só as bloqueadas, as em triagem e as da etapa pedida</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.3</td><td><code>nexo board --all</code></td><td>Inclui as concluídas e as canceladas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.4</td><td><code>nexo brief F-1</code></td><td>O que mudou, a etapa, há quanto tempo e o que esperam de você</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.5</td><td><code>nexo demand list</code> e <code>nexo demand show F-1</code></td><td>Lista e detalhe das demandas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.6</td><td><code>nexo demand tree IDEA-1</code></td><td>Árvore da ideia até as tarefas e bugs, com etapa e responsável</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.7</td><td><code>nexo demand why US-1-1</code></td><td>Explica por que a demanda está com quem está</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.8</td><td><code>nexo demand link F-1 jira PROJ-12</code></td><td>Liga a demanda ao item externo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.9</td><td><code>nexo demand verify</code></td><td>Confere eventos e demandas e termina com ok</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.10</td><td><code>nexo demand triage F-4 --accept --reason "faz sentido agora"</code></td><td>Aceita a demanda na triagem</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.11</td><td><code>nexo demand cancel F-2 --reason "trocamos a prioridade"</code></td><td>Cancela a demanda. Ela só aparece com <code>board --all</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.12</td><td><code>nexo proposals</code></td><td>Lista as propostas abertas, com a seção e se bloqueia</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.13</td><td><code>nexo proposals accept P-2</code> e <code>nexo proposals decline P-3 --reason "fora do escopo"</code></td><td>Use dois ids do passo 9.12. Aceita uma, dizendo o que precisa ser reaprovado, e recusa a outra. Proposta já decidida dá aviso claro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.14</td><td><code>nexo suggest F-1 "Incluir o hash do commit" --section tecnica</code></td><td>Cria a proposta para o dono da seção. Seção inválida lista as opções</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.15</td><td><code>nexo return F-1 --to pm --reason "Qual formato de versão?"</code></td><td>Devolve para a PM, e a pergunta aparece em <code>nexo pm</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.16</td><td><code>nexo problem F-1 --kind technical --text "falha no passo de lint"</code></td><td>Diz quem é o dono e cria a proposta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.17</td><td><code>nexo meeting start F-1 --type funcional --with os:voce</code></td><td>Abre M-1. Tipo inválido lista funcional e tecnico</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.18</td><td><code>nexo meeting note "Combinado devolver a versão e o commit"</code></td><td>"nota registrada"</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.19</td><td><code>nexo meeting import ata.txt</code></td><td>Guarda a ata como texto na reunião</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.20</td><td><code>nexo meeting close</code></td><td>Encerra M-1 e lista os itens, como I-1, com o comando de revisão</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.21</td><td><code>nexo meeting review M-1 --accept I-1</code></td><td>Conta os itens decididos e os pendentes</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.22</td><td><code>nexo tracker export --out pasta-de-saida</code></td><td>Exporta os itens para um CSV dentro da pasta. Com <code>--out arquivo.csv</code>, grava direto no arquivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.23</td><td><code>nexo tracker import pasta-de-saida/outbox.csv</code></td><td>Aplica as mudanças do CSV. Passar uma pasta deve dar mensagem clara</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>9.24</td><td><code>nexo tracker map --check</code> e <code>nexo tracker map --suggest</code></td><td>Com tracker local, explica que não há de-para. Com Jira ou Azure Boards, confere e sugere o de-para</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>9.25</td><td><code>nexo tracker sync</code> e <code>nexo board --sync</code></td><td>Com tracker local, "nada a sincronizar". Com GitHub Issues, sincroniza sem duplicar</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>9.26</td><td><code>nexo metrics baseline --sprints 3</code></td><td>Linha de base de lead time, vazão e bugs pelo tracker. Sem tracker, pede para configurar</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="cerebro">10. Cérebro e conhecimento</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>10.1</td><td><code>nexo brain status</code></td><td>Repositório, versão e situação da assinatura</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.2</td><td><code>nexo brain init pasta-do-cerebro</code></td><td>Prepara o cérebro com os arquivos iniciais</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.3</td><td><code>nexo brain migrate-notes pasta-do-cerebro</code></td><td>Dá cabeçalho às notas que não têm e lista as alteradas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.4</td><td><code>nexo brain lint pasta-do-cerebro</code></td><td>Conta notas, erros e avisos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.5</td><td><code>nexo brain index pasta-do-cerebro</code></td><td>Mostra o número de nós e ligações do índice</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.6</td><td><code>nexo brain search versão</code></td><td>Trechos das skills e notas que citam o termo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.7</td><td><code>nexo brain neighbors versao --depth 2</code> e <code>nexo brain path versao rollback</code></td><td>Usam o cérebro ativo (na demo, a pasta <code>home/brain</code>). Com notas ligadas por <code>[[link]]</code>, mostram os vizinhos com a distância e o caminho entre as notas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.8</td><td><code>nexo brain keygen chave.pem</code> e <code>nexo brain pubkey --key chave.pem</code></td><td>Gera a chave e mostra a pública e a impressão digital</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.9</td><td><code>nexo brain sign pasta-do-cerebro --key chave.pem --version 1</code></td><td>Grava o manifesto assinado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.10</td><td><code>nexo brain diff</code></td><td>Compara o cérebro com a baseline embutida, arquivo por arquivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.11</td><td><code>nexo brain migrate pasta-do-cerebro --owner-nexo @time-nexo</code></td><td>Escreve a baseline no clone e pede revisão, assinatura e PR</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.12</td><td><code>nexo brain promote pasta-do-cerebro versao</code></td><td>Abre o branch que leva a nota de projeto para o global. Nota que já é global dá aviso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.13</td><td><code>nexo brain pull</code>, <code>nexo brain propose nota.md --title "Nova lição"</code>, <code>nexo brain review 7</code></td><td>Baixa a versão assinada, abre PR com a mudança e confere um PR do cérebro</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>10.14</td><td><code>nexo learn status</code>, <code>nexo learn collect</code>, <code>nexo learn patterns</code></td><td>Lições propostas, o que foi coletado por fonte e mudanças de padrão</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>10.15</td><td><code>nexo learn review --preview</code></td><td>A IA organiza as lições para revisão. Na demo, "nenhuma rota disponível"</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>10.16</td><td><code>nexo docs update F-1</code> e <code>nexo docs knowledge --dry-run</code></td><td>O writer atualiza <code>docs/</code> e o resumo vira conhecimento no cérebro. Na demo, a tarefa de documentação fica bloqueada sem rota</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="linhagem">11. Linhagem</h2>
+<p>A linhagem lê <code>origin/main</code>. Na demo, crie um repositório Git vazio numa pasta, use como <code>origin</code>, faça o push e adicione um <code>asyncapi.yaml</code> com dois canais.</p>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>11.1</td><td><code>nexo lineage scan</code></td><td>Sem <code>origin/main</code>, diz isso. Com ele, mostra o JSON com o componente e os canais do contrato</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.2</td><td><code>nexo lineage publish</code></td><td>Publica o resultado do commit</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.3</td><td><code>nexo lineage validate</code></td><td>Conta componentes e lista os inválidos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.4</td><td><code>nexo lineage coverage</code></td><td>Canais confirmados sobre o total e a última passada do agente</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.5</td><td><code>nexo lineage show local/origem</code></td><td>Entradas e saídas do componente, com a situação e a mensagem</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.6</td><td><code>nexo lineage upstream local/origem</code> e <code>nexo lineage downstream local/origem --depth 2</code></td><td>Quem alimenta e quem consome o componente</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.7</td><td><code>nexo lineage impact local/origem</code></td><td>Consumidores conhecidos, lembrando que ausência de registro não prova ausência de uso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.8</td><td><code>nexo lineage confirm</code></td><td>Sem argumentos, lista o que o scanner não resolveu. Com <code>--channel</code>, <code>--direction</code>, <code>--kind</code> e <code>--component</code>, grava a confirmação</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.9</td><td><code>nexo lineage export --obsidian pasta-obsidian</code></td><td>Escreve uma nota por componente e canal</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.10</td><td><code>nexo lineage sync</code></td><td>Lista o que foi sincronizado e o que falhou</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.11</td><td><code>nexo lineage notify local/origem --summary "Mudou o formato da versão"</code></td><td>Avisa os consumidores por issue. Sem consumidores, lista vazia</td><td><span class="selo real">Demo</span> e <span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>11.12</td><td><code>nexo lineage agent run --repo pasta-do-projeto</code> e <code>nexo lineage agent status</code></td><td>Uma passada do agente e a hora da última passada</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.13</td><td><code>nexo lineage agent install</code> e <code>nexo lineage agent uninstall</code></td><td>Instala e remove a tarefa de usuário e o hook local</td><td><span class="selo sim">Fora da demo</span></td><td></td></tr>
+<tr><td>11.14</td><td><code>nexo lineage discover kafka --from-file kafka.json</code></td><td>Grupos e ACLs viram nós não identificados. Com a flag desligada, diz qual flag liga</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>11.15</td><td><code>nexo lineage discover aws</code></td><td>Lê assinaturas SNS para SQS, gatilhos de Lambda e serviços ECS</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="finops">12. FinOps, auditoria e telemetria</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>12.1</td><td><code>nexo cost pricing show</code> e <code>nexo cost pricing check</code></td><td>Tabela de preços com câmbio e vigências, e a conferência do que está em uso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.2</td><td><code>nexo cost pricing set claude.usd_month 100 --from 2026-11-01</code></td><td>Grava o preço na camada do projeto. Campo desconhecido lista os válidos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.3</td><td><code>nexo cost budget set --limit 500 --month 2026-11</code> e <code>nexo cost budget show --month 2026-11</code></td><td>Define o orçamento e mostra o gasto contra ele</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.4</td><td><code>nexo cost budget watch</code></td><td>Diz quantos itens foram retomados</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.5</td><td><code>nexo cost budget watch --install</code></td><td>Agenda a retomada no sistema</td><td><span class="selo sim">Fora da demo</span></td><td></td></tr>
+<tr><td>12.6</td><td><code>nexo cost estimate F-1</code></td><td>Mesmo resultado de pm estimate</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.7</td><td><code>nexo cost usage scan</code> e <code>nexo cost usage show</code></td><td>Sessões encontradas e a tabela do mês, dentro e fora do Nexo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.8</td><td><code>nexo cost close --month 2026-10</code></td><td>Fecha o mês e mostra o total alocado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.9</td><td><code>nexo cost chargeback --month 2026-11 --csv rateio.csv</code></td><td>Rateio por squad. Sem o coletor central, avisa que falta o endereço</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>12.10</td><td><code>nexo cost reconcile --invoice fatura.csv</code></td><td>Fatura contra o medido, destacando divergência acima de 5%. Sem o coletor, avisa que falta o endereço</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>12.11</td><td><code>nexo audit verify</code></td><td>"Auditoria íntegra" e o número de eventos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.12</td><td><code>nexo audit export --story US-1-1</code> e <code>nexo audit export --from 2026-11-01 --to 2026-11-30 --out trilha.jsonl</code></td><td>Eventos da história na tela, e os do período num arquivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.13</td><td><code>nexo audit evidence build F-1 --out pasta-evidencias</code></td><td>Cria o pacote de evidências e diz se a trilha está íntegra</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.14</td><td><code>nexo audit evidence verify pasta-evidencias/F-1-data</code></td><td>Aponte para a pasta do pacote criada no passo anterior. "pacote íntegro"</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.15</td><td><code>nexo admin telemetry status</code> e <code>nexo admin telemetry show</code></td><td>Telemetria desligada na demo, pendentes e a outbox</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>12.16</td><td><code>nexo admin telemetry flush</code></td><td>Envia a outbox. Com a telemetria desligada, diz isso</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="portal">13. Portal e central</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>13.1</td><td><code>nexo demo site</code></td><td>Mostra o endereço local do portal e um token de login para cada perfil. Abra o endereço no navegador. Ctrl+C encerra</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>13.2</td><td>No portal, entre com cada perfil</td><td>Cada perfil vê o que é dele: features, dashboard, insights, board, kill switch e acessos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>13.3</td><td><code>nexo central up --port 8770 --db central.db</code></td><td>Sobe o coletor local e mostra o endereço. O endereço <code>/health</code> responde ok. Ctrl+C encerra</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>13.4</td><td><code>nexo central status</code></td><td>Situação da telemetria, pendentes e registro do dispositivo</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>13.5</td><td><code>nexo central pair</code></td><td>Pareia a máquina com o central da empresa, sem colar token</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>13.6</td><td><code>nexo admin killswitch status</code></td><td>"nada bloqueado" ou o que está bloqueado</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>13.7</td><td><code>nexo admin insights list --state open</code> e <code>nexo admin insights set INS-1 dismissed --reason "falso positivo"</code></td><td>Lista e muda o estado dos insights. Sem o coletor, avisa que falta o endereço</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>13.8</td><td><code>nexo docs portal --repos pasta-dos-clones --product loja --out pasta-portal</code></td><td>Monta o portal do projeto, conta os repositórios lidos e lista o que precisa de atenção</td><td><span class="selo real">Demo</span></td><td></td></tr>
+</table></div>
+
+<h2 id="extensoes">14. Packs, MCP e extensões</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>14.1</td><td><code>nexo pack list</code></td><td>superpowers e vibe-coding-toolkit, com commit, licença e itens</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.2</td><td><code>nexo pack show superpowers</code> e <code>nexo pack diff superpowers</code></td><td>Origem, commit, licença e hash. O diff diz se está íntegro e o que foi recusado e por quê</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.3</td><td><code>nexo pack lint</code> e <code>nexo pack lock</code></td><td>Os dois terminam com ok e sem problemas</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.4</td><td><code>nexo pack expose --for claude</code></td><td>Cria em <code>.claude/commands</code> os comandos /nexo-pm-refine e os demais</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.5</td><td><code>nexo pack update superpowers --commit hash-completo --dest pasta-packs</code></td><td>Baixa num commit fixado, sem executar nada, e prepara o PR no cérebro</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>14.6</td><td><code>nexo mcp catalog</code></td><td>Tabela dos MCPs com situação, se está ligado, aprovado e o acesso</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.7</td><td><code>nexo mcp search github</code></td><td>Resultados do catálogo e do registro oficial, marcando os não aprovados. Precisa de rede</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.8</td><td><code>nexo mcp add github</code></td><td>Liga no projeto e mostra o que falta (credencial e aprovação)</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.9</td><td><code>nexo mcp check</code></td><td>Aponta o que impede o uso, como falta de aprovação e de credencial, e termina com erro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.10</td><td><code>nexo mcp approve github --brain pasta-do-cerebro</code></td><td>Prepara a entrada da allowlist no clone do cérebro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.11</td><td><code>nexo mcp test github --tool get_me</code></td><td>Conecta de verdade e chama uma ferramenta de leitura</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>14.12</td><td><code>nexo extensions skill add pasta-da-skill --scope project</code></td><td>Adiciona a skill e diz como fica em cada ferramenta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.13</td><td><code>nexo extensions skill list</code>, <code>nexo extensions skill show minha-skill</code>, <code>nexo extensions skill sync</code></td><td>Lista as skills efetivas, mostra o conteúdo e sincroniza com cada ferramenta</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.14</td><td><code>nexo extensions skill remove minha-skill --scope project</code></td><td>Remove e diz de quantos locais</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.15</td><td><code>nexo extensions hook add aviso.sh --scope project --name aviso --event pre_tool --matcher Bash --description "Exemplo"</code></td><td>Adiciona o hook. Evento inválido lista os válidos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.16</td><td><code>nexo extensions hook list</code>, <code>nexo extensions hook show aviso</code>, <code>nexo extensions hook sync</code>, <code>nexo extensions hook remove aviso --scope project</code></td><td>Lista, mostra, sincroniza e remove o hook</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.17</td><td><code>nexo extensions tool add ferramenta.json --scope project --name minha-tool --description "Exemplo"</code></td><td>Adiciona a tool a partir de um JSON de MCP. JSON inválido dá erro claro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>14.18</td><td><code>nexo extensions tool list</code>, <code>nexo extensions tool show minha-tool</code>, <code>nexo extensions tool sync</code>, <code>nexo extensions tool remove minha-tool --scope project</code></td><td>Lista, mostra, sincroniza e remove a tool</td><td><span class="selo real">Demo</span></td><td></td></tr>
+</table></div>
+
+<h2 id="flags">15. Flags e plataforma</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>15.1</td><td><code>nexo flags list</code></td><td>Tabela com cada flag, a funcionalidade, o estado e a fonte</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.2</td><td><code>nexo flags explain change</code></td><td>Título, módulo, estágio, padrão, comandos afetados e se está ligada</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.3</td><td><code>nexo flags set change off --reason "teste do roteiro" --local</code></td><td>Desliga nesta máquina. Em seguida, <code>nexo change status F-1</code> diz que a funcionalidade está desligada</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.4</td><td><code>nexo flags set change inherit --reason "volta ao padrão" --local</code></td><td>Volta ao padrão. Tentar <code>on</code> com <code>--local</code> explica que local só desliga</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.5</td><td><code>nexo admin flags list</code>, <code>nexo admin flags explain change</code>, <code>nexo admin flags set change inherit --reason "teste" --local</code></td><td>Mesmo comportamento de <code>nexo flags</code></td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.6</td><td><code>nexo admin autopilot</code></td><td>Lista o que fez sozinho (sincronizar, fechar o mês, calibrar, conferir) e o que ficou para você</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.7</td><td><code>nexo admin gates calibrate</code></td><td>Limiar atual e proposto. Com pouco histórico, mantém o limiar</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.8</td><td><code>nexo admin gates explain US-1-1</code></td><td>Mesmo resultado de tl gate</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.9</td><td><code>nexo admin monitor synthetic --route claude/haiku</code></td><td>Monitor sintético das CLIs dos agentes. Usa a ferramenta real e gasta tokens</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>15.10</td><td><code>nexo --json board</code></td><td>O board em JSON</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.11</td><td><code>nexo --dry-run demand cancel F-1 --reason "só testando o dry run"</code></td><td>Avisa que o comando não tem simulação e não executa nada. Confira com <code>nexo board</code> que F-1 continua lá</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.12</td><td><code>nexo --lang en board</code></td><td>Os cabeçalhos e o resumo do board em inglês. Boa parte das outras mensagens ainda sai em português</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.13</td><td><code>nexo --quiet pm</code> e <code>nexo --verbose pm</code></td><td>Menos e mais detalhes</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>15.14</td><td><code>nexo --profile economico pm refine F-2</code> e <code>nexo --tool claude --model sonnet pm refine F-2</code></td><td>Usa o perfil econômico ou força a rota, e a escolha fica auditada</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="antecipados">16. Módulos antecipados</h2>
+<div class="tabela"><table><tr><th>#</th><th>Comando</th><th>O que deve acontecer</th><th>Onde</th><th>ok / falhou</th></tr>
+<tr><td>16.1</td><td><code>nexo deps scan</code> e <code>nexo deps plan</code></td><td>Tabela de dependências com versão atual, alvo e severidade. O plano diz o que atualizar em ondas, ou que não há nada</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.2</td><td><code>nexo modernize playbooks</code></td><td>Lista dotnet-net8, js-date-fns e python-httpx</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.3</td><td><code>nexo modernize plan --playbook python-httpx</code></td><td>Cria a feature em ondas. Sem o padrão antigo no código, diz que não encontrou</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.4</td><td><code>nexo modernize plan --find "requests\.get" --goal "Trocar por httpx" --include "src/**/*.py"</code></td><td>Mesmo comportamento, com um padrão seu</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.5</td><td><code>nexo modernize status F-1</code></td><td>Andamento da modernização. Em feature comum, avisa que não é uma modernização</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.6</td><td><code>nexo incident open incidente.json --source generic</code></td><td>Cria a feature e a história de correção e sugere o próximo passo. A história aparece em <code>nexo board</code>. Arquivo que não é JSON dá erro claro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.7</td><td><code>nexo program repo add api pasta-do-projeto --workspace pasta-programa</code></td><td>Registra o repositório no programa. Pasta sem <code>nexo init</code> é recusada</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.8</td><td><code>nexo program split F-1 --workspace pasta-programa</code> e <code>nexo program status F-1 --workspace pasta-programa</code></td><td>Divide a feature entre os repositórios e mostra o andamento de cada um</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.9</td><td><code>nexo program run F-1 --workspace pasta-programa</code></td><td>Executa em cada repositório na ordem e liga os PRs</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>16.10</td><td><code>nexo change open F-1 --type normal</code> e <code>nexo change status F-1</code></td><td>Abre e acompanha a requisição de mudança. Sem ServiceNow configurado, diz o que configurar</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>16.11</td><td><code>nexo docs target docusaurus --level project</code></td><td>Escolhe o Docusaurus como destino. Nível inválido deve dar mensagem clara</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.12</td><td><code>nexo docs target none</code></td><td>Só no repositório, sem publicar</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.13</td><td><code>nexo docs site</code></td><td>Gera o site de documentação a partir do projeto e do cérebro</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.14</td><td><code>nexo notify test</code></td><td>Sem canal, diz que nenhum está ligado. Com Teams ou e-mail configurado, manda a mensagem de teste</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>16.15</td><td><code>nexo admin autonomy status</code></td><td>Squad, área e nível de autonomia</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.16</td><td><code>nexo admin autonomy set L3 --reason "histórico bom" --squad sq-demo</code></td><td>Pede a mudança ao central. Subir exige elegibilidade e o gestor do squad</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+<tr><td>16.17</td><td><code>nexo admin isolation check</code> e <code>nexo admin isolation setup</code></td><td>Diz se o modo isolado está pronto e gera o proxy de saída com os domínios permitidos</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.18</td><td><code>nexo eval harness</code></td><td>Quatro casos com agente simulado, todos com ✔</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.19</td><td><code>nexo eval tasks</code></td><td>Lista as tarefas de referência com os testes e a base</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.20</td><td><code>nexo eval report</code></td><td>Sem avaliação feita, diz que ainda não há nenhuma</td><td><span class="selo real">Demo</span></td><td></td></tr>
+<tr><td>16.21</td><td><code>nexo eval skill a b --task G-US-1-1</code>, <code>nexo eval model --task G-US-1-1 --routes claude/sonnet,claude/haiku</code>, <code>nexo eval gate --runs 3</code></td><td>Comparam skills e rotas e conferem a regressão de prompts com a ferramenta real</td><td><span class="selo falta">Conta real</span></td><td></td></tr>
+</table></div>
+
+<h2 id="fora">Fora deste roteiro</h2>
+<p><code>nexo extensions hook run</code>, <code>nexo extensions hook exec</code> e <code>nexo mcp serve</code> são chamados pelas ferramentas de IA durante a execução, não por pessoas. Eles são testados indiretamente pelo <code>nexo dev run</code> e pelos hooks instalados. Os nomes antigos, que não aparecem em <code>nexo help</code>, continuam funcionando, como <code>nexo autonomy status</code>, mas o teste vale pelo nome atual.</p>
+
+<h2 id="fim">Ao terminar</h2>
+<ul>
+<li>Anote o número do passo, o comando exato e a mensagem de cada falha.</li>
+<li>Quando aparecer "erro inesperado", o Nexo salva um relatório sanitizado em <code>crash</code>, dentro da pasta da demonstração. Junte o arquivo à anotação.</li>
+<li>Apague a pasta da demonstração. Nada fora dela foi alterado, exceto nos passos marcados como fora da demo.</li>
+</ul>
+<p class="rodape">Nexo 0.1.0. Documento interno.</p>
+</main>
+</div>
+</body>
+</html>
