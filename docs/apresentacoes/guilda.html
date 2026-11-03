@@ -6,126 +6,219 @@
 <title>Guilda de IA: 60 dias</title>
 <style>
 /* Apresentação da guilda. Mesma paleta da documentação do Nexo (aproximada da marca, confirmar com o time de marca).
-   Setas ou clique avançam; ao imprimir, cada slide vira uma página. */
+   Setas, Home/End ou os botões navegam; ao imprimir, cada slide vira uma página.
+   Laranja é sempre o time de adoção, azul é sempre o time de arquitetura: a cor identifica o time em todos os slides. */
 :root {
   color-scheme: light;
-  --laranja: #ec7000; --laranja-texto: #a84a00; --laranja-claro: #ffe9d6; --laranja-suave: #fff5ec;
-  --azul: #12213f; --azul-suave: #eef1f7; --linha: #e3e6ec; --apagado: #47516a; --fundo: #ffffff;
+  --laranja: #ec7000; --laranja-texto: #a84a00; --laranja-claro: #ffe3c9; --laranja-suave: #fff6ee;
+  --azul: #12213f; --azul-medio: #3b4f7a; --azul-claro: #dfe6f3; --azul-suave: #f2f5fa;
+  --linha: #dde1e8; --apagado: #4a546b; --papel: #ffffff; --mesa: #d9dee7;
   --sans: "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --titulo: "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: #dfe3ea; color: var(--azul); font-family: var(--sans); }
+html, body { margin: 0; height: 100%; background: var(--mesa); color: var(--azul); font-family: var(--sans); }
 .deck { height: 100%; display: grid; place-items: center; }
-.slide { display: none; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; background: var(--fundo); position: relative;
-  padding: 5.5% 6.5% 6%; font-size: min(1.55vw, 2.75vh); line-height: 1.45; overflow: hidden; }
+.slide { display: none; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; background: var(--papel); position: relative;
+  padding: 5% 6% 7.5%; font-size: min(1.5vw, 2.67vh); line-height: 1.45; overflow: hidden; font-variant-numeric: tabular-nums; }
 .slide.on { display: flex; flex-direction: column; }
-.slide h1 { font: 650 3.1em/1.05 var(--titulo); letter-spacing: -.025em; margin: 0 0 .5em; }
-.slide h2 { font: 650 2.05em/1.1 var(--titulo); letter-spacing: -.02em; margin: 0 0 .9em; max-width: 26ch; }
-.slide h3 { font: 650 1.15em/1.2 var(--titulo); margin: 0 0 .5em; }
-.slide p { margin: 0 0 .8em; max-width: 60ch; }
-.slide ul { margin: 0; padding-left: 1.1em; } .slide li { margin: 0 0 .45em; }
+.slide h1 { font: 700 4.4em/.98 var(--titulo); letter-spacing: -.035em; margin: 0; }
+.slide h2 { font: 700 2.2em/1.08 var(--titulo); letter-spacing: -.025em; margin: 0 0 1em; max-width: 28ch; }
+.slide h3 { font: 650 1.15em/1.25 var(--titulo); margin: 0 0 .4em; }
+.slide p { margin: 0 0 .8em; max-width: 58ch; }
+.slide ul { margin: 0; padding-left: 1.1em; } .slide li { margin: 0 0 .4em; }
+.slide li::marker { color: var(--apagado); }
 .apagado { color: var(--apagado); }
-.num { position: absolute; right: 6.5%; bottom: 4.5%; font-size: .8em; color: var(--apagado); }
-.capa { background: var(--laranja); color: var(--azul); justify-content: flex-end; }
-.capa h1 { font-size: 4.6em; max-width: 12ch; }
-.capa .data { font-size: 1.35em; font-weight: 600; }
-.capa .num { color: var(--azul); }
-.capa::before { content: ""; position: absolute; top: 9%; left: 6.5%; width: 2.2em; height: 2.2em; border-radius: 50% 50% 50% 8px; background: var(--azul); }
-.grade { display: grid; gap: 1.4em; flex: 1; min-height: 0; }
-.g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); }
-.bloco { background: var(--azul-suave); border-radius: 18px; padding: 1.2em 1.4em; }
-.bloco.l { background: var(--laranja-suave); }
-.rotulo { font-size: .85em; font-weight: 600; color: var(--laranja-texto); margin-bottom: .35em; }
-.meta { display: grid; grid-template-columns: 5.2em 1fr; gap: .2em .8em; align-items: baseline; margin-top: .5em; }
-.meta b { font: 650 1.5em/1 var(--titulo); color: var(--laranja-texto); }
-.tempo { display: grid; grid-template-columns: 9em repeat(9, 1fr); gap: .35em .3em; font-size: .82em; align-items: center; }
-.tempo .sem { text-align: center; color: var(--apagado); line-height: 1.2; }
+.nota { color: var(--apagado); margin-top: auto !important; padding-top: 1em; }
+
+/* Rodapé: nome da guilda e posição. */
+.rodape { position: absolute; left: 6%; right: 6%; bottom: 3.6%; display: flex; justify-content: space-between;
+  font-size: .78em; color: var(--apagado); border-top: 1px solid var(--linha); padding-top: .7em; }
+
+/* Identidade dos times. */
+.time { display: inline-flex; align-items: center; gap: .5em; font-weight: 650; font-size: .95em; margin-bottom: .3em; }
+.time::before { content: ""; width: .8em; height: .8em; border-radius: 3px; background: var(--cor); }
+.adocao { --cor: var(--laranja); --cor-texto: var(--laranja-texto); --cor-fundo: var(--laranja-suave); --cor-barra: var(--laranja-claro); }
+.arq { --cor: var(--azul); --cor-texto: var(--azul); --cor-fundo: var(--azul-suave); --cor-barra: var(--azul-claro); }
+
+/* Capa: o calendário dos 60 dias é a peça principal. */
+.capa { background: var(--laranja); padding-bottom: 5%; display: none; }
+.capa.on { display: grid; grid-template-columns: 1fr auto; gap: 3em; align-items: end; }
+.capa h1 { max-width: 9ch; margin-bottom: .35em; }
+.capa .sub { font-size: 1.2em; max-width: 30ch; margin: 0; }
+.capa .rodape { color: var(--azul); border-color: rgb(18 33 63 / .25); }
+.cal { display: grid; grid-template-columns: 2.6em repeat(9, 2.45em); grid-auto-rows: 2.45em; gap: .36em; }
+.cal .dia { border-radius: 4px; background: rgb(18 33 63 / .16); }
+.cal .fds { background: transparent; box-shadow: inset 0 0 0 1px rgb(18 33 63 / .18); }
+.cal .recesso { background: repeating-linear-gradient(135deg, rgb(18 33 63 / .22) 0 3px, transparent 3px 7px); }
+.cal .marco { background: var(--azul); }
+.cal .eixo { font-size: .78em; color: rgb(18 33 63 / .75); align-self: center; padding-right: .5em; }
+.cal .mes { font-size: .78em; color: rgb(18 33 63 / .75); align-self: end; text-align: center; white-space: nowrap; }
+.legenda { display: flex; gap: .5em 1.2em; font-size: .78em; margin-top: 1.1em; flex-wrap: wrap; max-width: 28em; margin-left: 2.6em; }
+.legenda span { display: inline-flex; align-items: center; gap: .4em; }
+.legenda i { width: 1em; height: 1em; border-radius: 3px; display: inline-block; }
+
+/* Colunas separadas por fios, sem cartões. */
+.colunas { display: grid; grid-template-columns: repeat(var(--n, 3), 1fr); gap: 2.4em; flex: 1; min-height: 0; align-content: start; }
+.colunas h3 { font-size: 1.35em; }
+.contraste { font-size: 1.3em; }
+.contraste > div { border-top: 4px solid var(--linha); padding-top: 1em; }
+.contraste > .destaque { border-top-color: var(--laranja); }
+.contraste p { color: var(--apagado); }
+.contraste > .destaque p { color: var(--azul); }
+
+/* Slides dos times. */
+.time-slide { display: grid; grid-template-columns: 1fr 1.1fr; gap: 3em; margin-top: -.4em; flex: 1; min-height: 0; }
+.campo { margin-bottom: 1em; }
+.campo > span { display: block; font-size: .85em; font-weight: 650; color: var(--cor-texto); margin-bottom: .2em; }
+.campo p { margin: 0; }
+.metas { background: var(--cor-fundo); border-left: 4px solid var(--cor); padding: .9em 1.5em .6em; align-self: start; font-size: .94em; }
+.metas h3 { margin-bottom: .6em; }
+.meta { display: grid; grid-template-columns: 4.4em 1fr; gap: 1em; align-items: baseline; padding: .4em 0; line-height: 1.3; border-top: 1px solid rgb(18 33 63 / .1); }
+.meta:first-of-type { border-top: 0; }
+.meta b { font: 700 1.6em/1 var(--titulo); color: var(--cor-texto); letter-spacing: -.02em; text-align: right; }
+
+/* Dependência entre os times. */
+.troca { display: grid; grid-template-columns: 1fr 1.05fr 1fr; gap: 2em; align-items: center; flex: 1; }
+.troca .lado { border-top: 4px solid var(--cor); padding-top: 1em; }
+.troca .lado h3 { font-size: 1.45em; }
+.troca .meio { display: grid; gap: 1.6em; }
+.fio { display: grid; gap: .3em; font-size: .9em; }
+.fio .linha { height: 2px; background: var(--cor); position: relative; }
+.fio .linha::after { content: ""; position: absolute; top: 50%; width: .7em; height: .7em; border: solid var(--cor); border-width: 2px 2px 0 0; }
+.fio.dir { text-align: left; } .fio.dir .linha::after { right: 0; transform: translateY(-50%) rotate(45deg); }
+.fio.esq { text-align: right; } .fio.esq .linha::after { left: 0; transform: translateY(-50%) rotate(-135deg); }
+
+/* Calendário por semana. */
+.tempo { display: grid; grid-template-columns: 7.5em repeat(9, 1fr); gap: .45em .3em; font-size: .82em; align-items: stretch; }
+.tempo .sem { text-align: center; color: var(--apagado); line-height: 1.2; padding-bottom: .3em; border-bottom: 1px solid var(--linha); }
 .tempo .sem b { display: block; color: var(--azul); font-size: 1.1em; }
-.tempo .who { font-weight: 650; }
-.barra { border-radius: 10px; padding: .55em .7em; line-height: 1.25; min-height: 3.4em; }
-.t1 { background: var(--laranja-claro); } .t2 { background: var(--azul-suave); }
-.marco { background: var(--azul); color: #fff; } .leve { background: repeating-linear-gradient(135deg, #f3f4f7 0 8px, #fff 8px 16px); color: var(--apagado); }
+.tempo .who { font-weight: 650; align-self: center; }
+.tempo .who.adocao, .tempo .who.arq { display: flex; align-items: center; gap: .45em; }
+.tempo .who.adocao::before, .tempo .who.arq::before { content: ""; width: .75em; height: .75em; border-radius: 2px; background: var(--cor); flex: none; }
+.barra { border-radius: 6px; padding: .55em .65em; line-height: 1.25; min-height: 3.3em; display: flex; align-items: center; }
+.barra.adocao, .barra.arq { background: var(--cor-barra); border-left: 3px solid var(--cor); }
+.barra.ponto { background: var(--azul); color: #fff; font-weight: 650; justify-content: center; text-align: center; }
+.barra.leve { background: repeating-linear-gradient(135deg, #eef0f4 0 6px, #fff 6px 12px); color: var(--apagado); border-left: 0; }
+
+/* Tabelas. */
 table { border-collapse: collapse; width: 100%; font-size: .95em; }
-.bloco table { font-size: .82em; } .bloco th, .bloco td { padding: .4em .55em; }
-th, td { text-align: left; padding: .55em .7em; border-bottom: 1px solid var(--linha); vertical-align: top; }
-th { font-weight: 650; color: var(--apagado); font-size: .9em; }
-.fluxo { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.2em; align-items: center; flex: 1; }
-.seta { font-size: 2em; color: var(--laranja); text-align: center; }
-nav.controle { position: fixed; bottom: 14px; right: 18px; display: flex; gap: 8px; }
-nav.controle button { font: 600 14px var(--sans); background: var(--azul); color: #fff; border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+th, td { text-align: left; padding: .7em .8em; border-bottom: 1px solid var(--linha); vertical-align: top; }
+th { font-weight: 650; font-size: .9em; color: var(--apagado); }
+th.adocao, th.arq { color: var(--azul); border-bottom: 3px solid var(--cor); }
+td:first-child { width: 22%; }
+.ritmo td:first-child { width: auto; font-weight: 650; }
+.ritmo th:first-child, .ritmo td:first-child { padding-left: 0; }
+.ritmo td:nth-child(2) { white-space: nowrap; }
+
+/* Riscos. */
+.riscos { display: grid; grid-template-columns: 1fr 1fr; flex: 1; align-content: start; font-size: 1.2em; }
+.riscos > div { padding: 1.3em 1.8em 1.4em 0; border-top: 1px solid var(--linha); }
+.riscos > div:nth-child(even) { padding-left: 1.8em; padding-right: 0; border-left: 1px solid var(--linha); }
+.riscos p { margin: 0; }
+
+/* Próximos passos: é uma sequência com datas. */
+.passos { list-style: none; padding: 0 !important; margin: 0; display: grid; gap: 0; font-size: 1.4em; max-width: 40em; }
+.passos li { display: grid; grid-template-columns: 6.5em 1fr; gap: 1.2em; padding: 1em 0; border-top: 1px solid var(--linha); margin: 0 !important; }
+.passos time { font-weight: 650; color: var(--laranja-texto); }
+
+nav.controle { position: fixed; bottom: 14px; right: 18px; display: flex; gap: 8px; align-items: center; }
+nav.controle span { font: 600 13px var(--sans); color: var(--apagado); padding-right: 6px; }
+nav.controle button { font: 600 16px var(--sans); width: 38px; height: 38px; background: var(--azul); color: #fff; border: 0; border-radius: 50%; cursor: pointer; }
+nav.controle button:disabled { opacity: .35; cursor: default; }
 nav.controle button:focus-visible { outline: 3px solid var(--laranja); outline-offset: 2px; }
 @media print {
   @page { size: 297mm 167mm; margin: 0; }
   html, body { background: #fff; height: auto; }
   .deck { display: block; }
-  .slide { display: flex !important; flex-direction: column; width: 297mm; height: 167mm; aspect-ratio: auto; font-size: 11.5pt; page-break-after: always; break-after: page; }
+  .slide { display: flex !important; flex-direction: column; width: 297mm; height: 167mm; aspect-ratio: auto; font-size: 11pt; page-break-after: always; break-after: page; }
+  .capa { display: grid !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   nav.controle { display: none; }
 }
 </style>
 </head>
 <body>
-<main class="deck" aria-live="polite">
+<main class="deck">
 
-<section class="slide capa on" aria-label="Slide 1">
-  <p class="data">9 de novembro de 2026 a 7 de janeiro de 2027</p>
-  <h1>Guilda de IA: 60 dias</h1>
-  <p>Dois times, um objetivo: tirar a IA do uso individual e transformá-la em resultado medido nas squads.</p>
-  <span class="num">1</span>
-</section>
-
-<section class="slide" aria-label="Slide 2">
-  <h2>Por que uma guilda</h2>
-  <div class="grade g3">
-    <div class="bloco"><div class="rotulo">Hoje</div><p>Cada pessoa usa IA do seu jeito. Ninguém sabe ao certo quem usa, quanto custa nem o que melhorou.</p></div>
-    <div class="bloco"><div class="rotulo">O risco</div><p>Esforço repetido em cada squad, ferramentas mal aproveitadas e decisões de investimento sem número.</p></div>
-    <div class="bloco l"><div class="rotulo">Em 60 dias</div><p>Dores mapeadas, um caminho de adoção com treinamento e suporte, e a arquitetura e as metas de onde queremos chegar.</p></div>
+<section class="slide capa on" aria-label="Slide 1 de 10">
+  <div>
+    <h1>Guilda de IA: 60 dias</h1>
+    <p class="sub">Dois times, um objetivo: tirar a IA do uso individual e transformá-la em resultado medido nas squads.</p>
   </div>
-  <span class="num">2</span>
+  <figure style="margin:0">
+    <div class="cal" role="img" aria-label="Calendário de 9 de novembro de 2026 a 7 de janeiro de 2027: kickoff em 9 de novembro, checkpoints em 4 e 18 de dezembro, recesso de 21 de dezembro a 3 de janeiro e apresentação final em 7 de janeiro.">
+      <span class="eixo"></span><span class="mes">9 nov</span><span class="mes"></span><span class="mes"></span><span class="mes"></span><span class="mes">7 dez</span><span class="mes"></span><span class="mes"></span><span class="mes"></span><span class="mes">4 jan</span>
+      <span class="eixo">seg</span><span class="dia marco" title="9 nov: Kickoff"></span><span class="dia" title="16 nov"></span><span class="dia" title="23 nov"></span><span class="dia" title="30 nov"></span><span class="dia" title="7 dez"></span><span class="dia" title="14 dez"></span><span class="dia recesso" title="21 dez"></span><span class="dia recesso" title="28 dez"></span><span class="dia" title="4 jan"></span>
+      <span class="eixo">ter</span><span class="dia" title="10 nov"></span><span class="dia" title="17 nov"></span><span class="dia" title="24 nov"></span><span class="dia" title="1 dez"></span><span class="dia" title="8 dez"></span><span class="dia" title="15 dez"></span><span class="dia recesso" title="22 dez"></span><span class="dia recesso" title="29 dez"></span><span class="dia" title="5 jan"></span>
+      <span class="eixo">qua</span><span class="dia" title="11 nov"></span><span class="dia" title="18 nov"></span><span class="dia" title="25 nov"></span><span class="dia" title="2 dez"></span><span class="dia" title="9 dez"></span><span class="dia" title="16 dez"></span><span class="dia recesso" title="23 dez"></span><span class="dia recesso" title="30 dez"></span><span class="dia" title="6 jan"></span>
+      <span class="eixo">qui</span><span class="dia" title="12 nov"></span><span class="dia" title="19 nov"></span><span class="dia" title="26 nov"></span><span class="dia" title="3 dez"></span><span class="dia" title="10 dez"></span><span class="dia" title="17 dez"></span><span class="dia recesso" title="24 dez"></span><span class="dia recesso" title="31 dez"></span><span class="dia marco" title="7 jan: Final"></span>
+      <span class="eixo">sex</span><span class="dia" title="13 nov"></span><span class="dia fds" title="20 nov"></span><span class="dia" title="27 nov"></span><span class="dia marco" title="4 dez: Checkpoint 1"></span><span class="dia" title="11 dez"></span><span class="dia marco" title="18 dez: Checkpoint 2"></span><span class="dia fds" title="25 dez"></span><span class="dia fds" title="1 jan"></span><span></span>
+      <span class="eixo">sáb</span><span class="dia fds" title="14 nov"></span><span class="dia fds" title="21 nov"></span><span class="dia fds" title="28 nov"></span><span class="dia fds" title="5 dez"></span><span class="dia fds" title="12 dez"></span><span class="dia fds" title="19 dez"></span><span class="dia fds" title="26 dez"></span><span class="dia fds" title="2 jan"></span><span></span>
+      <span class="eixo">dom</span><span class="dia fds" title="15 nov"></span><span class="dia fds" title="22 nov"></span><span class="dia fds" title="29 nov"></span><span class="dia fds" title="6 dez"></span><span class="dia fds" title="13 dez"></span><span class="dia fds" title="20 dez"></span><span class="dia fds" title="27 dez"></span><span class="dia fds" title="3 jan"></span><span></span>
+    </div>
+    <figcaption class="legenda">
+      <span><i style="background:rgb(18 33 63 / .16)"></i>dia útil</span>
+      <span><i style="box-shadow:inset 0 0 0 1px rgb(18 33 63 / .3)"></i>fim de semana ou feriado</span>
+      <span><i style="background:repeating-linear-gradient(135deg, rgb(18 33 63 / .3) 0 3px, transparent 3px 6px)"></i>recesso</span>
+      <span><i style="background:var(--azul)"></i>kickoff 9 nov, checkpoints 4 e 18 dez, final 7 jan</span>
+    </figcaption>
+  </figure>
+  <div class="rodape"><span>9 de novembro de 2026 a 7 de janeiro de 2027</span><span>1 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 3">
+<section class="slide" aria-label="Slide 2 de 10">
+  <h2>Por que uma guilda</h2>
+  <div class="colunas contraste">
+    <div><h3>Hoje</h3><p>Cada pessoa usa IA do seu jeito. Ninguém sabe ao certo quem usa, quanto custa nem o que melhorou.</p></div>
+    <div><h3>O risco</h3><p>Esforço repetido em cada squad, ferramentas mal aproveitadas e decisões de investimento sem número.</p></div>
+    <div class="destaque"><h3>Em 60 dias</h3><p>Dores mapeadas, um caminho de adoção com treinamento e suporte, e a arquitetura e as metas de onde queremos chegar.</p></div>
+  </div>
+  <div class="rodape"><span>Guilda de IA</span><span>2 / 10</span></div>
+</section>
+
+<section class="slide" aria-label="Slide 3 de 10">
   <h2>Como a guilda funciona</h2>
-  <div class="grade g2">
+  <div class="colunas" style="grid-template-columns: 1fr 1.3fr; gap: 3em">
     <div>
       <h3>Um pouco de cada time</h3>
-      <p>Uma ou duas pessoas de cada time da diretoria, misturando desenvolvimento, QA, tech lead, produto e arquitetura. Assim, toda área tem voz e leva o resultado de volta para casa.</p>
-      <h3>Dois times com dono</h3>
+      <p>Uma ou duas pessoas de cada time da diretoria, misturando desenvolvimento, QA, tech lead, produto e arquitetura. Toda área tem voz e leva o resultado de volta para casa.</p>
+      <h3 style="margin-top:1em">Dois times com dono</h3>
       <p>Cada time tem uma liderança, um objetivo e metas de entrega. Um patrocinador da diretoria remove bloqueios e aceita as entregas.</p>
+      <p class="apagado">Dedicação esperada: cerca de 4 horas por semana por pessoa.</p>
     </div>
-    <div class="bloco">
-      <div class="rotulo">Ritmo</div>
-      <table>
+    <div>
+      <h3>Ritmo</h3>
+      <table class="ritmo">
         <tr><th>Encontro</th><th>Quando</th><th>Para quê</th></tr>
         <tr><td>Time</td><td>Toda semana, 45 min</td><td>Andamento e bloqueios</td></tr>
         <tr><td>Guilda inteira</td><td>A cada 15 dias, 1 h</td><td>Um time mostra ao outro</td></tr>
-        <tr><td>Checkpoint</td><td>4 de dezembro e 18 de dezembro</td><td>Demonstração à liderança</td></tr>
+        <tr><td>Checkpoint</td><td>4 e 18 dez</td><td>Demonstração à liderança</td></tr>
         <tr><td>Apresentação final</td><td>7 de janeiro</td><td>Resultado e próximos passos</td></tr>
       </table>
-      <p class="apagado" style="margin-top:.8em">Dedicação esperada: cerca de 4 horas por semana por pessoa.</p>
     </div>
   </div>
-  <span class="num">3</span>
+  <div class="rodape"><span>Guilda de IA</span><span>3 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 4">
-  <h2>Time 1: adoção</h2>
-  <div class="grade g2">
+<section class="slide adocao" aria-label="Slide 4 de 10">
+  <span class="time">Time 1</span>
+  <h2>Adoção</h2>
+  <div class="time-slide">
     <div>
-      <div class="rotulo">Olha para</div>
-      <p>Dores, adoção, treinamento e suporte.</p>
-      <div class="rotulo">Objetivo</div>
-      <p>Entender por que as pessoas usam ou não usam IA e montar o caminho para que usem bem: aprender, pedir ajuda e ver o próprio progresso.</p>
-      <div class="rotulo">Entregas</div>
-      <ul>
-        <li>Mapa das dores, priorizado</li>
-        <li>Linha de base da adoção, por time</li>
-        <li>Trilha de treinamento da diretoria, com o módulo 1 rodado</li>
-        <li>Modelo de suporte no ar: canal, perguntas frequentes e plantão</li>
-      </ul>
+      <div class="campo"><span>Olha para</span><p>Dores, adoção, treinamento e suporte.</p></div>
+      <div class="campo"><span>Objetivo</span><p>Entender por que as pessoas usam ou não usam IA e montar o caminho para que usem bem: aprender, pedir ajuda e ver o próprio progresso.</p></div>
+      <div class="campo"><span>Entregas</span>
+        <ul>
+          <li>Mapa das dores, priorizado</li>
+          <li>Linha de base da adoção, por time</li>
+          <li>Trilha de treinamento da diretoria, com o módulo 1 rodado</li>
+          <li>Modelo de suporte no ar: canal, perguntas frequentes e plantão</li>
+        </ul>
+      </div>
     </div>
-    <div class="bloco l">
-      <div class="rotulo">Metas para o dia 60</div>
+    <div class="metas">
+      <h3>Metas para o dia 60</h3>
       <div class="meta"><b>20</b><span>entrevistas, com pelo menos uma pessoa de cada time</span></div>
       <div class="meta"><b>10</b><span>dores priorizadas por impacto e esforço, cada uma com dono</span></div>
       <div class="meta"><b>100%</b><span>dos times com a linha de base de uso medida</span></div>
@@ -134,27 +227,27 @@ nav.controle button:focus-visible { outline: 3px solid var(--laranja); outline-o
       <div class="meta"><b>90</b><span>dias: meta de adoção proposta para o trimestre seguinte</span></div>
     </div>
   </div>
-  <span class="num">4</span>
+  <div class="rodape"><span>Guilda de IA</span><span>4 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 5">
-  <h2>Time 2: arquitetura e direção</h2>
-  <div class="grade g2">
+<section class="slide arq" aria-label="Slide 5 de 10">
+  <span class="time">Time 2</span>
+  <h2>Arquitetura e direção</h2>
+  <div class="time-slide">
     <div>
-      <div class="rotulo">Olha para</div>
-      <p>Arquitetura, fluxo e o objetivo de onde queremos chegar.</p>
-      <div class="rotulo">Objetivo</div>
-      <p>Desenhar como a IA entra no fluxo de entrega, da ideia à produção, e definir onde queremos estar em 12 meses, com metas que dá para medir.</p>
-      <div class="rotulo">Entregas</div>
-      <ul>
-        <li>Fluxo atual, com os gargalos medidos</li>
-        <li>Fluxo e arquitetura alvo, com as decisões registradas</li>
-        <li>Visão de 12 meses, com metas e indicadores</li>
-        <li>Roadmap de três trimestres e squads piloto escolhidas</li>
-      </ul>
+      <div class="campo"><span>Olha para</span><p>Arquitetura, fluxo e o objetivo de onde queremos chegar.</p></div>
+      <div class="campo"><span>Objetivo</span><p>Desenhar como a IA entra no fluxo de entrega, da ideia à produção, e definir onde queremos estar em 12 meses, com metas que dá para medir.</p></div>
+      <div class="campo"><span>Entregas</span>
+        <ul>
+          <li>Fluxo atual, com os gargalos medidos</li>
+          <li>Fluxo e arquitetura alvo, com as decisões registradas</li>
+          <li>Visão de 12 meses, com metas e indicadores</li>
+          <li>Roadmap de três trimestres e squads piloto escolhidas</li>
+        </ul>
+      </div>
     </div>
-    <div class="bloco">
-      <div class="rotulo">Metas para o dia 60</div>
+    <div class="metas">
+      <h3>Metas para o dia 60</h3>
       <div class="meta"><b>1</b><span>fluxo de ponta a ponta mapeado, com tempo em cada etapa</span></div>
       <div class="meta"><b>5</b><span>decisões de arquitetura registradas e aprovadas</span></div>
       <div class="meta"><b>3</b><span>indicadores com valor atual e meta: tempo de entrega, custo por história e retrabalho</span></div>
@@ -162,21 +255,26 @@ nav.controle button:focus-visible { outline: 3px solid var(--laranja); outline-o
       <div class="meta"><b>3</b><span>trimestres de roadmap, com patrocinador em cada um</span></div>
     </div>
   </div>
-  <span class="num">5</span>
+  <div class="rodape"><span>Guilda de IA</span><span>5 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 6">
+<section class="slide" aria-label="Slide 6 de 10">
   <h2>Os dois times dependem um do outro</h2>
-  <div class="fluxo">
-    <div class="bloco l"><h3>Adoção</h3><p>As dores que mais custam viram prioridade para a arquitetura. Quem testa o fluxo novo são as pessoas que já foram ouvidas.</p></div>
-    <div class="seta" aria-hidden="true">⇄</div>
-    <div class="bloco"><h3>Arquitetura e direção</h3><p>O fluxo alvo e as ferramentas escolhidas viram conteúdo do treinamento e do suporte. As metas dizem o que a adoção precisa mover.</p></div>
+  <div class="troca">
+    <div class="lado adocao"><span class="time">Time 1</span><h3>Adoção</h3><p>Ouve as pessoas, mede o uso e prepara treinamento e suporte.</p></div>
+    <div class="meio">
+      <div class="fio dir adocao"><span>As dores que mais custam viram prioridade da arquitetura</span><div class="linha"></div></div>
+      <div class="fio dir adocao"><span>Quem já foi ouvido testa o fluxo novo</span><div class="linha"></div></div>
+      <div class="fio esq arq"><div class="linha"></div><span>O fluxo alvo e as ferramentas viram conteúdo do treinamento</span></div>
+      <div class="fio esq arq"><div class="linha"></div><span>As metas dizem o que a adoção precisa mover</span></div>
+    </div>
+    <div class="lado arq"><span class="time">Time 2</span><h3>Arquitetura e direção</h3><p>Desenha o fluxo alvo, registra as decisões e define as metas de 12 meses.</p></div>
   </div>
-  <p class="apagado">Por isso a guilda inteira se encontra a cada 15 dias, e os dois checkpoints são conjuntos.</p>
-  <span class="num">6</span>
+  <p class="nota">Por isso a guilda inteira se encontra a cada 15 dias, e os dois checkpoints são conjuntos.</p>
+  <div class="rodape"><span>Guilda de IA</span><span>6 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 7">
+<section class="slide" aria-label="Slide 7 de 10">
   <h2>Calendário sugerido</h2>
   <div class="tempo">
     <span></span>
@@ -185,88 +283,93 @@ nav.controle button:focus-visible { outline: 3px solid var(--laranja); outline-o
     <span class="sem"><b>S7</b>21 dez</span><span class="sem"><b>S8</b>28 dez</span><span class="sem"><b>S9</b>4 jan</span>
 
     <span class="who">Guilda</span>
-    <span class="barra marco">Kickoff</span><span></span><span></span>
-    <span class="barra marco">Checkpoint 1</span><span></span><span class="barra marco">Checkpoint 2</span>
+    <span class="barra ponto">Kickoff</span><span></span><span></span>
+    <span class="barra ponto">Checkpoint 1</span><span></span><span class="barra ponto">Checkpoint 2</span>
     <span class="barra leve" style="grid-column: span 2">Recesso: só pendências</span>
-    <span class="barra marco">Final, 7 jan</span>
+    <span class="barra ponto">Final, 7 jan</span>
 
-    <span class="who">Adoção</span>
-    <span class="barra t1" style="grid-column: span 2">Entrevistas e pesquisa de dores</span>
-    <span class="barra t1">Linha de base</span>
-    <span class="barra t1">Dores priorizadas</span>
-    <span class="barra t1">Trilha e suporte</span>
-    <span class="barra t1">Módulo 1 piloto</span>
+    <span class="who adocao">Adoção</span>
+    <span class="barra adocao" style="grid-column: span 2">Entrevistas e pesquisa de dores</span>
+    <span class="barra adocao">Linha de base</span>
+    <span class="barra adocao">Dores priorizadas</span>
+    <span class="barra adocao">Trilha e suporte</span>
+    <span class="barra adocao">Módulo 1 piloto</span>
     <span class="barra leve" style="grid-column: span 2">Avaliação do piloto</span>
-    <span class="barra t1">Meta de 90 dias</span>
+    <span class="barra adocao">Meta de 90 dias</span>
 
-    <span class="who">Arquitetura</span>
-    <span class="barra t2" style="grid-column: span 2">Fluxo atual e gargalos</span>
-    <span class="barra t2">Visão de 12 meses</span>
-    <span class="barra t2">Fluxo alvo</span>
-    <span class="barra t2">Arquitetura e decisões</span>
-    <span class="barra t2">Metas e roadmap</span>
+    <span class="who arq">Arquitetura</span>
+    <span class="barra arq" style="grid-column: span 2">Fluxo atual e gargalos</span>
+    <span class="barra arq">Visão de 12 meses</span>
+    <span class="barra arq">Fluxo alvo</span>
+    <span class="barra arq">Arquitetura e decisões</span>
+    <span class="barra arq">Metas e roadmap</span>
     <span class="barra leve" style="grid-column: span 2">Pilotos combinados</span>
-    <span class="barra t2">Roadmap final</span>
+    <span class="barra arq">Roadmap final</span>
   </div>
-  <p class="apagado" style="margin-top:1em">O feriado de 20 de novembro cai na semana 2. As semanas 7 e 8 são de recesso: o plano não depende delas.</p>
-  <span class="num">7</span>
+  <p class="nota">O feriado de 20 de novembro cai na semana 2. As semanas 7 e 8 são de recesso: o plano não depende delas.</p>
+  <div class="rodape"><span>Guilda de IA</span><span>7 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 8">
+<section class="slide" aria-label="Slide 8 de 10">
   <h2>O que cada checkpoint precisa mostrar</h2>
   <table>
-    <tr><th>Marco</th><th>Adoção</th><th>Arquitetura e direção</th></tr>
+    <tr><th>Marco</th><th class="adocao">Adoção</th><th class="arq">Arquitetura e direção</th></tr>
     <tr><td><b>Checkpoint 1</b><br><span class="apagado">4 de dezembro</span></td><td>Dores priorizadas e linha de base de uso por time</td><td>Fluxo atual com gargalos e a primeira versão da visão de 12 meses</td></tr>
     <tr><td><b>Checkpoint 2</b><br><span class="apagado">18 de dezembro</span></td><td>Trilha de treinamento, módulo 1 rodado e suporte no ar</td><td>Fluxo e arquitetura alvo, metas com valor atual e squads piloto</td></tr>
     <tr><td><b>Final</b><br><span class="apagado">7 de janeiro</span></td><td>Resultado do piloto e meta de adoção para 90 dias</td><td>Roadmap de três trimestres e decisões aprovadas</td></tr>
   </table>
-  <p class="apagado" style="margin-top:1em">Entrega sem número não fecha marco: cada uma traz o valor de antes e a meta.</p>
-  <span class="num">8</span>
+  <p class="nota">Entrega sem número não fecha marco: cada uma traz o valor de antes e a meta.</p>
+  <div class="rodape"><span>Guilda de IA</span><span>8 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 9">
+<section class="slide" aria-label="Slide 9 de 10">
   <h2>Riscos e como tratamos</h2>
-  <div class="grade g2">
-    <div class="bloco"><h3>Agenda</h3><p>Pessoas puxadas pelo dia a dia. O patrocinador reserva as 4 horas semanais com as lideranças de cada time.</p></div>
-    <div class="bloco"><h3>Fim de ano</h3><p>Duas semanas de recesso no meio. Tudo o que é crítico fecha até o checkpoint 2.</p></div>
-    <div class="bloco"><h3>Escopo que cresce</h3><p>Ideias novas vão para o roadmap, não para os 60 dias. As metas de cada time não mudam sem o patrocinador.</p></div>
-    <div class="bloco"><h3>Dados</h3><p>Pesquisas e testes usam dados fictícios ou anonimizados, e só as ferramentas aprovadas: Claude, Devin e Copilot.</p></div>
+  <div class="riscos">
+    <div><h3>Agenda</h3><p>Pessoas puxadas pelo dia a dia. O patrocinador reserva as 4 horas semanais com as lideranças de cada time.</p></div>
+    <div><h3>Fim de ano</h3><p>Duas semanas de recesso no meio. Tudo o que é crítico fecha até o checkpoint 2.</p></div>
+    <div><h3>Escopo que cresce</h3><p>Ideias novas vão para o roadmap, não para os 60 dias. As metas de cada time não mudam sem o patrocinador.</p></div>
+    <div><h3>Dados</h3><p>Pesquisas e testes usam dados fictícios ou anonimizados, e só as ferramentas aprovadas: Claude, Devin e Copilot.</p></div>
   </div>
-  <span class="num">9</span>
+  <div class="rodape"><span>Guilda de IA</span><span>9 / 10</span></div>
 </section>
 
-<section class="slide" aria-label="Slide 10">
-  <h2>Esta semana</h2>
-  <ul style="font-size:1.25em">
-    <li>Cada time da diretoria indica uma ou duas pessoas, até 6 de novembro.</li>
-    <li>A guilda escolhe a liderança de cada time.</li>
-    <li>O patrocinador confirma os checkpoints na agenda da liderança.</li>
-    <li>Kickoff em 9 de novembro, com os dois times formados.</li>
-  </ul>
-  <span class="num">10</span>
+<section class="slide" aria-label="Slide 10 de 10">
+  <h2>Até o kickoff</h2>
+  <ol class="passos">
+    <li><time datetime="2026-11-06">até 6 nov</time><span>Cada time da diretoria indica uma ou duas pessoas.</span></li>
+    <li><time datetime="2026-11-06">até 6 nov</time><span>O patrocinador confirma os checkpoints na agenda da liderança.</span></li>
+    <li><time datetime="2026-11-09">9 nov</time><span>Kickoff com os dois times formados. A guilda escolhe a liderança de cada time.</span></li>
+  </ol>
+  <div class="rodape"><span>Guilda de IA</span><span>10 / 10</span></div>
 </section>
 
 </main>
 <nav class="controle" aria-label="Navegação dos slides">
+  <span id="pos" aria-live="polite"></span>
   <button type="button" id="ant" aria-label="Slide anterior">‹</button>
   <button type="button" id="prox" aria-label="Próximo slide">›</button>
 </nav>
 <script>
 (() => {
   const slides = [...document.querySelectorAll(".slide")];
-  let atual = Math.max(0, Math.min(slides.length - 1, parseInt(location.hash.slice(1) || "1", 10) - 1));
+  const pos = document.getElementById("pos"), ant = document.getElementById("ant"), prox = document.getElementById("prox");
+  let atual = 0;
   const mostra = (i) => {
     atual = Math.max(0, Math.min(slides.length - 1, i));
     slides.forEach((s, n) => s.classList.toggle("on", n === atual));
+    pos.textContent = `${atual + 1} / ${slides.length}`;
+    ant.disabled = atual === 0; prox.disabled = atual === slides.length - 1;
     history.replaceState(null, "", "#" + (atual + 1));
   };
-  document.getElementById("ant").onclick = () => mostra(atual - 1);
-  document.getElementById("prox").onclick = () => mostra(atual + 1);
+  ant.onclick = () => mostra(atual - 1);
+  prox.onclick = () => mostra(atual + 1);
   document.addEventListener("keydown", (e) => {
     if (["ArrowRight", "PageDown", " "].includes(e.key)) { e.preventDefault(); mostra(atual + 1); }
     if (["ArrowLeft", "PageUp"].includes(e.key)) { e.preventDefault(); mostra(atual - 1); }
+    if (e.key === "Home") mostra(0);
+    if (e.key === "End") mostra(slides.length - 1);
   });
-  mostra(atual);
+  mostra(parseInt(location.hash.slice(1) || "1", 10) - 1);
 })();
 </script>
 </body>
